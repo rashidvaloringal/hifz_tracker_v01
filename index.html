@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d1310">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Al-Halaqah — Quran Hifdh Slate</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --gold: #c5a046;
+  --gold-light: #f5e4be;
+  --gold-dark: #836727;
+  --paper: #fffef8;
+  --border-dark: #2a1f11;
+  --ink: #16130e;
+  --app-bg: #0d1310;
+  --surface: #151e18;
+  --surface-border: #26382e;
+  --jalalah-red: #a81c1c;
+  --line-height: 52px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+body {
+  background: var(--app-bg);
+  color: #ede5cf;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ═══ റീഡിംഗ് സ്റ്റേജ് ═══ */
+main {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px 80px;
+  background: radial-gradient(circle at 50% 45%, #16221c 0%, #070a09 100%);
+}
+main::-webkit-scrollbar { width: 5px; height: 5px; }
+main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
+
+/* ═══ ബുക്ക് സ്പ്രെഡ് (ലാൻഡ്സ്കേപ്പിൽ 2 പേജ്, പോർട്രെയ്റ്റിൽ 1 പേജ്) ═══ */
+.book-spread {
+  display: flex;
+  direction: rtl;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.mushaf-page {
+  width: 530px;
+  max-width: 95vw;
+  min-height: 870px;
+  background: var(--paper);
+  position: relative;
+  padding: 24px 30px 18px;
+  box-shadow: 0 16px 45px rgba(0,0,0,0.85);
+  border: 3px solid var(--border-dark);
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mushaf-page::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1.5px solid #a6894c77;
+  pointer-events: none;
+}
+
+/* പേജ് കോർണർ ആർട്ട് */
+.page-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 2;
+}
+.pc-tr { top: 9px; right: 9px; }
+.pc-tl { top: 9px; left: 9px; transform: scaleX(-1); }
+.pc-br { bottom: 9px; right: 9px; transform: scaleY(-1); }
+.pc-bl { bottom: 9px; left: 9px; transform: scale(-1, -1); }
+
+.page-header {
+  height: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Amiri', serif;
+  font-size: 13.5px;
+  font-weight: bold;
+  color: #5c431a;
+  border-bottom: 1px solid #dfd4b7;
+  padding-bottom: 2px;
+  direction: rtl;
+}
+
+.page-footer {
+  height: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Amiri', serif;
+  font-size: 11px;
+  color: #796644;
+  border-top: 1px solid #dfd4b7;
+  padding-top: 2px;
+}
+.page-number-text { font-size: 15px; font-weight: bold; color: #3d2c16; }
+
+/* ═══ 15-Lines Cadence (വിശാലമായ വരികൾ) ═══ */
+.lines-grid {
+  width: 100%;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+  margin: 4px 0;
+  position: relative;
+  z-index: 5;
+}
+
+.mushaf-line {
+  height: var(--line-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  direction: rtl;
+  position: relative;
+  width: 100%;
+  padding: 0 1px;
+}
+
+.mushaf-line.natural-center {
+  justify-content: center !important;
+  gap: 12px;
+}
+
+.mushaf-word {
+  font-family: 'QCFV1', serif;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--ink);
+  display: inline-block;
+}
+
+.mushaf-word.lafdh-allah {
+  color: var(--jalalah-red) !important;
+  font-weight: bold;
+}
+
+/* സൂറത്ത് ഹെഡർ കാർട്ടൂഷ് */
+.surah-banner-row {
+  width: 100%;
+  height: 48px;
+  margin: 2px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #fdf8eb 0%, #f4e7be 50%, #fdf8eb 100%);
+  border: 1.5px solid var(--border-dark);
+  outline: 1.2px solid var(--gold);
+  outline-offset: -3px;
+  padding: 0 16px;
+  direction: rtl;
+  border-radius: 2px;
+}
+.sb-meta { font-family: 'Amiri', serif; font-size: 12px; font-weight: bold; color: #5c4118; min-width: 75px; text-align: center; }
+.sb-title { font-family: 'Amiri', serif; font-size: 23px; font-weight: bold; color: #16291e; flex: 1; text-align: center; }
+
+.bismillah-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Amiri', serif;
+  font-size: 24px;
+  color: #172d21;
+  direction: rtl;
+}
+
+/* ═══ ഡിജിറ്റൽ സ്ലേറ്റ് കാൻവാസ് (Touch-Safe) ═══ */
+.canvas-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  touch-action: none;
+  pointer-events: none; /* സ്വാഭാവിക സ്ക്രോളിംഗ് അനുവദിക്കുന്നു */
+}
+.canvas-layer.drawing-active {
+  pointer-events: auto; /* പെൻസിൽ ഉപയോഗിക്കുമ്പോൾ മാത്രം ആക്ടീവ് */
+  cursor: crosshair;
+}
+
+/* ═══ ഫ്ലോട്ടിംഗ് കൺട്രോൾ ഡോക്ക് ═══ */
+.floating-dock {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 25, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--gold);
+  border-radius: 35px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.7);
+  z-index: 100;
+}
+
+.dock-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold-light);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 7px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.dock-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+.mode-toggle-btn {
+  font-size: 12px;
+  font-weight: 700;
+  background: #23372b;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  padding: 5px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mode-toggle-btn.active {
+  background: var(--gold);
+  color: #0c120f;
+}
+
+.page-badge {
+  font-family: 'Amiri', serif;
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 3px 12px;
+  border-radius: 8px;
+  background: #090e0c;
+  border: 1px solid #23362a;
+}
+
+.student-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c0ded0;
+  background: #17241e;
+  padding: 5px 12px;
+  border-radius: 14px;
+  border: 1px solid #284033;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ═══ ഡ്രോയർ / പോപ്പ്-അപ്പ് പാനൽ ═══ */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.drawer-scrim.open { opacity: 1; pointer-events: auto; }
+
+.drawer-panel {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: 540px;
+  background: var(--surface);
+  border: 1.5px solid var(--gold);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 16px 20px 25px;
+  z-index: 210;
+  color: #fff;
+  transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+}
+.drawer-scrim.open .drawer-panel { transform: translateX(-50%) translateY(0); }
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+.drawer-header h3 { font-size: 15px; font-weight: 600; color: var(--gold-light); }
+.close-btn { background: none; border: none; color: #8f9e96; font-size: 22px; cursor: pointer; }
+
+.tab-nav { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab-btn {
+  flex: 1; padding: 8px 4px; background: #0b110e; border: 1px solid #23362a;
+  color: #9eb0a6; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer;
+}
+.tab-btn.active { background: var(--gold); color: #0c120f; font-weight: bold; }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ടൂൾസ് */
+.tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.tool-card {
+  padding: 10px 4px; background: #0c120f; border: 1px solid #23362a;
+  color: #ddd; font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.tool-card.active { background: var(--gold); color: #0c120f; font-weight: bold; }
+
+/* കുട്ടികളുടെ ലിസ്റ്റും ടൈംസ്റ്റാമ്പും */
+.form-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.input-text {
+  flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #283d31;
+  background: #090e0c; color: #fff; font-family: inherit; font-size: 13px; outline: none;
+}
+.btn-action {
+  padding: 8px 16px; background: var(--gold); color: #0c120f; border: none;
+  border-radius: 8px; font-weight: 700; cursor: pointer;
+}
+.scroll-box { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }
+.student-card {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #192620; padding: 9px 14px; border-radius: 8px; border: 1px solid #263c30; cursor: pointer;
+}
+.student-card.active { border-color: var(--gold); background: #22372c; }
+
+/* ടൈംസ്റ്റാമ്പ് രേഖകൾ */
+.history-item {
+  font-size: 11px; padding: 6px 10px; background: #0d1511; border-radius: 5px;
+  border-left: 3px solid var(--gold); margin-bottom: 5px; color: #a9c1b3;
+}
+
+/* ═══ RESPONSIVE: ലാൻഡ്സ്കേപ്പിൽ 2 പേജ്, പോർട്രെയ്റ്റിൽ 1 പേജ് ═══ */
+@media (max-width: 1080px), (orientation: portrait) {
+  .book-spread { flex-direction: column; }
+  .mushaf-page.page-left { display: none !important; }
+  .mushaf-page { width: 100%; max-width: 500px; min-height: 780px; padding: 16px 20px 14px; }
+  :root { --line-height: 44px; }
+  .mushaf-word { font-size: 26px; }
+  .surah-banner-row { height: 42px; }
+  .sb-title { font-size: 20px; }
+  .bismillah-row { height: 38px; font-size: 21px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══ മെയിൻ വ്യൂവർ ═══ -->
+<main>
+  <div class="book-spread" id="bookSpread">
+    <!-- വലത് പേജ് (Right Page - ഒറ്റസംഖ്യ) -->
+    <article class="mushaf-page page-right" id="sheetRight">
+      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+
+      <header class="page-header">
+        <span id="rightJuzLabel">الجزء</span>
+        <span id="rightSurahLabel">سورة</span>
+      </header>
+      <section class="lines-grid" id="linesRight"></section>
+      <footer class="page-footer">
+        <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
+        <span class="page-number-text" id="rightPageNum">١</span>
+        <span>مجمع الملك فهد</span>
+      </footer>
+      <canvas class="canvas-layer" id="canvasRight"></canvas>
+    </article>
+
+    <!-- ഇടത് പേജ് (Left Page - ഇരട്ടസംഖ്യ) -->
+    <article class="mushaf-page page-left" id="sheetLeft">
+      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+
+      <header class="page-header">
+        <span id="leftJuzLabel">الجزء</span>
+        <span id="leftSurahLabel">سورة</span>
+      </header>
+      <section class="lines-grid" id="linesLeft"></section>
+      <footer class="page-footer">
+        <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
+        <span class="page-number-text" id="leftPageNum">٢</span>
+        <span>مجمع الملك فهد</span>
+      </footer>
+      <canvas class="canvas-layer" id="canvasLeft"></canvas>
+    </article>
+  </div>
+</main>
+
+<!-- ═══ ഫ്ലോട്ടിംഗ് കൺട്രോൾ ബാർ ═══ -->
+<nav class="floating-dock">
+  <button class="dock-btn" onclick="App.turnPage(-1)" title="മുൻപത്തെ പേജ്">◀</button>
+  
+  <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">صفحة ١</span>
+
+  <button class="dock-btn" onclick="App.turnPage(1)" title="അടുത്ത പേജ്">▶</button>
+
+  <!-- ഡ്രോയിംഗ് മോഡ് ടോഗിൾ (സ്ക്രോളിംഗ് തടസ്സപ്പെടാതിരിക്കാൻ) -->
+  <button class="mode-toggle-btn" id="btnModeToggle" onclick="CanvasOverlay.toggleDrawMode()">
+    <span id="modeIcon">📖</span> <span id="modeText">Read</span>
+  </button>
+
+  <!-- വിദ്യാർത്ഥിയുടെ പേര് -->
+  <span class="student-tag" id="activeStudentBadge" onclick="App.openDrawer('students')">
+    👤 കുട്ടി
+  </span>
+
+  <button class="dock-btn" onclick="App.openDrawer('tools')" title="ടൂളുകൾ & വിവരങ്ങൾ">⚙️</button>
+</nav>
+
+<!-- ═══ പോപ്പ്-അപ്പ് ഡ്രോയർ ═══ -->
+<div class="drawer-scrim" id="drawerScrim" onclick="App.closeDrawer(event)">
+  <div class="drawer-panel" onclick="event.stopPropagation()">
+    <div class="drawer-header">
+      <h3 id="drawerTitle">ടീച്ചർ കൺട്രോൾ പാനൽ</h3>
+      <button class="close-btn" onclick="App.closeDrawer()">&times;</button>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tabBtnTools" onclick="App.setTab('tools')">✏️ മാർക്കിംഗ്</button>
+      <button class="tab-btn" id="tabBtnStudents" onclick="App.setTab('students')">🎓 കുട്ടികൾ</button>
+      <button class="tab-btn" id="tabBtnHistory" onclick="App.setTab('history')">🕒 സമയരേഖ</button>
+    </div>
+
+    <!-- Tab 1: Tools -->
+    <div class="tab-pane active" id="paneTools">
+      <div class="tools-grid">
+        <div class="tool-card active" id="toolPencil" onclick="CanvasOverlay.setTool('pencil', 'rgba(40,30,18,0.85)', 2.2)">
+          <span>✏️</span> പെൻസിൽ
+        </div>
+        <div class="tool-card" id="toolRed" onclick="CanvasOverlay.setTool('red', 'rgba(195,20,20,0.88)', 2.4)">
+          <span>🔴</span> തെറ്റ് (ഖത്അ്)
+        </div>
+        <div class="tool-card" id="toolHigh" onclick="CanvasOverlay.setTool('high', 'rgba(235,190,40,0.38)', 16)">
+          <span>🟡</span> തജ്‌വീദ്
+        </div>
+        <div class="tool-card" id="toolEraser" onclick="CanvasOverlay.setTool('eraser', null, 24)">
+          <span>🧹</span> ഇറേസർ
+        </div>
+      </div>
+      <button class="btn-action" style="width:100%; background:#2d1717; color:#ffa8a8; border:1px solid #5a2828;" onclick="CanvasOverlay.clearCurrentCanvas()">
+        🗑️ ഈ പേജിലെ അടയാളങ്ങൾ മായ്ക്കുക
+      </button>
+    </div>
+
+    <!-- Tab 2: Students -->
+    <div class="tab-pane" id="paneStudents">
+      <div class="form-row">
+        <input type="text" class="input-text" id="newStudentName" placeholder="കുട്ടിയുടെ പേര്...">
+        <button class="btn-action" onclick="App.addStudent()">+ ചേർക്കുക</button>
+      </div>
+      <div class="scroll-box" id="studentsContainer"></div>
+    </div>
+
+    <!-- Tab 3: Evaluation History with Timestamps -->
+    <div class="tab-pane" id="paneHistory">
+      <div style="font-size:12px; margin-bottom:8px; color:var(--gold-light);">അടയാളപ്പെടുത്തിയ സമയ വിവരങ്ങൾ:</div>
+      <div class="scroll-box" id="historyContainer">
+        <div style="font-size:11px; color:#8fa899; text-align:center;">മാർക്കിംഗുകൾ വരുത്തുമ്പോൾ ഇവിടെ സമയം രേഖപ്പെടുത്തും.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const API_ROOT = "https://api.quran.com/api/v4";
+const FONT_ROOT = "https://static.qurancdn.com/fonts/quran/hafs/v1/woff2";
+
+function toArabic(n) {
+  return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+}
+
+function isAllahName(text) {
+  if (!text) return false;
+  let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
+  clean = clean.replace(/[ٱإأآء]/g, 'ا').replace(/[\u0640\u06E5\u06E6]/g, '').trim();
+  clean = clean.replace(/^(و|ف|ب|ത|ക|ല)?(ا?لله|لله|ا?للهم)$/, '$2');
+  return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   1. INDEXED-DB (കുട്ടികളുടെ വിവരങ്ങളും തീയതി സഹിതമുള്ള വരകളും)
+   ═══════════════════════════════════════════════════════════ */
+const DB = {
+  db: null,
+  init() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open("HifdhSlate2026DB", 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains("students")) {
+          d.createObjectStore("students", { keyPath: "id", autoIncrement: true });
+        }
+        if (!d.objectStoreNames.contains("drawings")) {
+          const s = d.createObjectStore("drawings", { keyPath: "id", autoIncrement: true });
+          s.createIndex("student_page", ["studentId", "page"], { unique: true });
+        }
+        if (!d.objectStoreNames.contains("history")) {
+          const h = d.createObjectStore("history", { keyPath: "id", autoIncrement: true });
+          h.createIndex("studentId", "studentId", { unique: false });
+        }
+      };
+      req.onsuccess = () => { this.db = req.result; resolve(); };
+      req.onerror = () => reject(req.error);
+    });
+  },
+  getAll(store) {
+    return new Promise(res => {
+      const tx = this.db.transaction(store, "readonly");
+      const r = tx.objectStore(store).getAll();
+      r.onsuccess = () => res(r.result || []);
+    });
+  },
+  add(store, data) {
+    return new Promise(res => {
+      const tx = this.db.transaction(store, "readwrite");
+      const r = tx.objectStore(store).add(data);
+      r.onsuccess = () => res(r.result);
+    });
+  },
+  put(store, data) {
+    return new Promise(res => {
+      const tx = this.db.transaction(store, "readwrite");
+      const r = tx.objectStore(store).put(data);
+      r.onsuccess = () => res(r.result);
+    });
+  },
+  delete(store, id) {
+    return new Promise(res => {
+      const tx = this.db.transaction(store, "readwrite");
+      tx.objectStore(store).delete(id);
+      tx.oncomplete = () => res();
+    });
+  },
+  saveDrawingWithTime(studentId, page, dataUrl) {
+    if (!studentId || !page) return;
+    const now = new Date();
+    const timestamp = now.getTime();
+    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateFormatted = now.toLocaleDateString();
+
+    const tx = this.db.transaction(["drawings", "history"], "readwrite");
+    const dStore = tx.objectStore("drawings");
+    const hStore = tx.objectStore("history");
+
+    // കാൻവാസ് ഇമേജ് അപ്ഡേറ്റ് ചെയ്യുന്നു
+    const idx = dStore.index("student_page");
+    const req = idx.get([studentId, page]);
+    req.onsuccess = () => {
+      const existing = req.result;
+      const rec = { studentId, page, data: dataUrl, timestamp, timeFormatted, dateFormatted };
+      if (existing) rec.id = existing.id;
+      dStore.put(rec);
+    };
+
+    // വിലയിരുത്തൽ നടത്തിയ സമയം ഹിസ്റ്ററിയിലേക്ക് ചേർക്കുന്നു
+    hStore.add({ studentId, page, timestamp, timeFormatted, dateFormatted });
+  },
+  loadDrawing(studentId, page) {
+    return new Promise(res => {
+      if (!studentId || !page) return res(null);
+      const tx = this.db.transaction("drawings", "readonly");
+      const req = tx.objectStore("drawings").index("student_page").get([studentId, page]);
+      req.onsuccess = () => res(req.result ? req.result.data : null);
+    });
+  },
+  getHistory(studentId) {
+    return new Promise(res => {
+      if (!studentId) return res([]);
+      const tx = this.db.transaction("history", "readonly");
+      const req = tx.objectStore("history").index("studentId").getAll(studentId);
+      req.onsuccess = () => res(req.result || []);
+    });
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   2. APP & NAVIGATION CONTROLLER
+   ═══════════════════════════════════════════════════════════ */
+const App = {
+  currentPage: 1,
+  students: [],
+  activeStudent: null,
+  chapters: [],
+  loadedFonts: new Set(),
+  resizeTimer: null,
+
+  async init() {
+    await DB.init();
+    await this.fetchChapters();
+    this.students = await DB.getAll("students");
+
+    if (this.students.length === 0) {
+      const sId = await DB.add("students", { name: "വിദ്യാർത്ഥി 1", lastPage: 1, createdAt: Date.now() });
+      this.activeStudent = { id: sId, name: "വിദ്യാർത്ഥി 1", lastPage: 1 };
+      this.students = [this.activeStudent];
+    } else {
+      this.activeStudent = this.students[0];
+    }
+
+    this.currentPage = this.activeStudent.lastPage || 1;
+    this.updateStudentBadge();
+    this.render();
+
+    // Resize Debouncing
+    window.addEventListener("resize", () => {
+      clearTimeout(this.resizeTimer);
+      this.resizeTimer = setTimeout(() => {
+        CanvasOverlay.resizeCanvas('Right');
+        CanvasOverlay.resizeCanvas('Left');
+        this.render();
+      }, 250);
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.target.tagName === "INPUT") return;
+      if (e.key === "ArrowLeft") this.turnPage(-1);
+      if (e.key === "ArrowRight") this.turnPage(1);
+    });
+  },
+
+  isSpreadView() {
+    return window.innerWidth > 1080 && window.innerWidth > window.innerHeight;
+  },
+
+  async fetchChapters() {
+    try {
+      const r = await fetch(`${API_ROOT}/chapters?language=ar`);
+      const j = await r.json();
+      this.chapters = j.chapters || [];
+    } catch(e) {
+      console.warn("Chapters metadata fallback", e);
+    }
+  },
+
+  async ensureFont(p) {
+    const fontName = `QCFV1_P${p}`;
+    if (this.loadedFonts.has(fontName)) return fontName;
+    try {
+      const font = new FontFace("QCFV1", `url('${FONT_ROOT}/p${p}.woff2')`);
+      await font.load();
+      document.fonts.add(font);
+      this.loadedFonts.add(fontName);
+      return fontName;
+    } catch(e) {
+      return "'Amiri', serif";
+    }
+  },
+
+  async fetchPageWords(p) {
+    if (p < 1 || p > 604) return [];
+    try {
+      const res = await fetch(`${API_ROOT}/verses/by_page/${p}?words=true&word_fields=code_v1,char_type_name,line_number,v1_page,text_uthmani&per_page=60`);
+      const j = await res.json();
+      return j.verses || [];
+    } catch(e) {
+      return [];
+    }
+  },
+
+  async render() {
+    const isDouble = this.isSpreadView();
+    let rightP = this.currentPage;
+    let leftP = null;
+
+    if (isDouble) {
+      rightP = (this.currentPage % 2 === 1) ? this.currentPage : this.currentPage - 1;
+      leftP = rightP + 1;
+      document.getElementById("pageBadge").textContent = `صفحة ${toArabic(rightP)} - ${toArabic(leftP)}`;
+      document.getElementById("sheetLeft").style.display = "flex";
+    } else {
+      document.getElementById("pageBadge").textContent = `صفحة ${toArabic(rightP)}`;
+      document.getElementById("sheetLeft").style.display = "none";
+    }
+
+    if (this.activeStudent) {
+      this.activeStudent.lastPage = rightP;
+      await DB.put("students", this.activeStudent);
+    }
+
+    await Promise.all([
+      this.renderPageSheet(rightP, 'Right'),
+      isDouble && leftP <= 604 ? this.renderPageSheet(leftP, 'Left') : null
+    ]);
+  },
+
+  async renderPageSheet(pageNum, side) {
+    await this.ensureFont(pageNum);
+    const verses = await this.fetchPageWords(pageNum);
+
+    const container = document.getElementById(`lines${side}`);
+    container.innerHTML = "";
+
+    const lineMap = new Map();
+    const surahHeaderSlots = new Map();
+    const bismillahSlots = new Map();
+
+    verses.forEach(v => {
+      const [s, a] = v.verse_key.split(':').map(Number);
+      (v.words || []).forEach(w => {
+        const ln = Number(w.line_number);
+        if (!ln) return;
+        if (!lineMap.has(ln)) lineMap.set(ln, []);
+        lineMap.get(ln).push({ ...w, surah: s, ayah: a });
+      });
+    });
+
+    // സൂറത്ത് ഹെഡറുകൾ കൃത്യമായി വരികളിൽ ഉറപ്പുവരുത്തുന്നു
+    verses.forEach(v => {
+      const [s, a] = v.verse_key.split(':').map(Number);
+      if (a === 1 && v.words?.[0]?.line_number) {
+        const firstLine = Number(v.words[0].line_number);
+        if (s === 1) {
+          surahHeaderSlots.set(1, s);
+        } else if (s === 9) {
+          const hLine = Math.max(1, firstLine - 1);
+          surahHeaderSlots.set(hLine, s);
+        } else {
+          const hLine = Math.max(1, firstLine - 2);
+          const bLine = Math.max(1, firstLine - 1);
+          surahHeaderSlots.set(hLine, s);
+          bismillahSlots.set(bLine, s);
+        }
+      }
+    });
+
+    // 15 വരികളുടെ കൃത്യമായ നിർമ്മാണം
+    for (let ln = 1; ln <= 15; ln++) {
+      if (surahHeaderSlots.has(ln)) {
+        const sId = surahHeaderSlots.get(ln);
+        const ch = this.chapters.find(c => c.id === sId) || { name_arabic: `سورة ${sId}`, verses_count: 0 };
+        const banner = document.createElement("div");
+        banner.className = "surah-banner-row";
+        banner.innerHTML = `
+          <span class="sb-meta">آيَاتُهَا ${toArabic(ch.verses_count)}</span>
+          <span class="sb-title">سُورَةُ ${ch.name_arabic}</span>
+          <span class="sb-meta">تَرْتِيبُهَا ${toArabic(ch.id)}</span>
+        `;
+        container.appendChild(banner);
+      } else if (bismillahSlots.has(ln)) {
+        const bism = document.createElement("div");
+        bism.className = "bismillah-row";
+        bism.innerHTML = `بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ`;
+        container.appendChild(bism);
+      } else {
+        const row = document.createElement("div");
+        row.className = "mushaf-line";
+        const words = lineMap.get(ln) || [];
+
+        if (!words.length) {
+          row.innerHTML = "&nbsp;";
+        } else {
+          if (words.length <= 4 || (pageNum <= 2 && words.length < 6)) {
+            row.classList.add("natural-center");
+          }
+
+          words.forEach(w => {
+            const span = document.createElement("span");
+            span.className = "mushaf-word";
+            span.innerHTML = w.code_v1 || w.text;
+
+            if (isAllahName(w.text_uthmani)) {
+              span.classList.add("lafdh-allah");
+            }
+            row.appendChild(span);
+          });
+        }
+        container.appendChild(row);
+      }
+    }
+
+    // പേജ് ഹെഡറും നമ്പറും
+    const firstV = verses[0];
+    if (firstV) {
+      const sId = Number(firstV.verse_key.split(':')[0]);
+      const ch = this.chapters.find(c => c.id === sId);
+      document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = ch ? `سورة ${ch.name_arabic}` : "";
+      document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabic(firstV.juz_number || 1)}`;
+    }
+    document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabic(pageNum);
+
+    CanvasOverlay.init(side, pageNum);
+  },
+
+  turnPage(delta) {
+    const step = this.isSpreadView() ? 2 : 1;
+    const target = Math.max(1, Math.min(604, this.currentPage + (delta * step)));
+    if (target !== this.currentPage) {
+      this.currentPage = target;
+      this.render();
+    }
+  },
+
+  jumpPrompt() {
+    const val = prompt("പോകേണ്ട പേജ് നമ്പർ നൽകുക (1 - 604):", this.currentPage);
+    const n = parseInt(val);
+    if (n >= 1 && n <= 604) {
+      this.currentPage = n;
+      this.render();
+    }
+  },
+
+  openDrawer(tab) {
+    document.getElementById("drawerScrim").classList.add("open");
+    this.setTab(tab);
+    if (tab === "students") this.renderStudents();
+    if (tab === "history") this.renderHistory();
+  },
+  closeDrawer() {
+    document.getElementById("drawerScrim").classList.remove("open");
+  },
+  setTab(tab) {
+    ["tools", "students", "history"].forEach(t => {
+      document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+      document.getElementById(`pane${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+    });
+  },
+
+  async addStudent() {
+    const inp = document.getElementById("newStudentName");
+    const name = inp.value.trim();
+    if (!name) return;
+    const id = await DB.add("students", { name, lastPage: this.currentPage, createdAt: Date.now() });
+    this.students = await DB.getAll("students");
+    this.activeStudent = this.students.find(s => s.id === id);
+    inp.value = "";
+    this.updateStudentBadge();
+    this.renderStudents();
+    this.render();
+  },
+
+  renderStudents() {
+    const box = document.getElementById("studentsContainer");
+    box.innerHTML = "";
+    this.students.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "student-card" + (this.activeStudent?.id === s.id ? " active" : "");
+      div.innerHTML = `
+        <span><b>${s.name}</b> <small style="opacity:0.75; margin-left:6px;">(പേജ് ${toArabic(s.lastPage || 1)})</small></span>
+        <button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteStudent(${s.id}, event)">&times;</button>
+      `;
+      div.onclick = () => {
+        this.activeStudent = s;
+        this.currentPage = s.lastPage || 1;
+        this.updateStudentBadge();
+        this.render();
+        this.closeDrawer();
+      };
+      box.appendChild(div);
+    });
+  },
+
+  async deleteStudent(id, e) {
+    e.stopPropagation();
+    if (this.students.length <= 1) {
+      alert("കുറഞ്ഞത് ഒരു കുട്ടിയെങ്കിലും ലിസ്റ്റിൽ ഉണ്ടായിരിക്കണം.");
+      return;
+    }
+    if (!confirm("ഈ കുട്ടിയെയും കുട്ടിയുടെ മാർക്കിംഗുകളും നീക്കം ചെയ്യണോ?")) return;
+    await DB.delete("students", id);
+    this.students = await DB.getAll("students");
+    this.activeStudent = this.students[0];
+    this.currentPage = this.activeStudent.lastPage || 1;
+    this.updateStudentBadge();
+    this.renderStudents();
+    this.render();
+  },
+
+  async renderHistory() {
+    const box = document.getElementById("historyContainer");
+    box.innerHTML = "";
+    if (!this.activeStudent) return;
+    const records = await DB.getHistory(this.activeStudent.id);
+    if (!records.length) {
+      box.innerHTML = `<div style="font-size:11px; color:#8fa899; text-align:center; padding:10px;">മാർക്കിംഗുകൾ വരുത്തുമ്പോൾ ഇവിടെ സമയം രേഖപ്പെടുത്തും.</div>`;
+      return;
+    }
+    records.slice(-15).reverse().forEach(r => {
+      const d = document.createElement("div");
+      d.className = "history-item";
+      d.innerHTML = `<b>പേജ് ${toArabic(r.page)}</b>: അടയാളപ്പെടുത്തി • <span>${r.dateFormatted} (${r.timeFormatted})</span>`;
+      box.appendChild(d);
+    });
+  },
+
+  updateStudentBadge() {
+    document.getElementById("activeStudentBadge").textContent = this.activeStudent ? `👤 ${this.activeStudent.name}` : "👤 കുട്ടി";
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   3. DIGITAL INK SLATE (Touch-Safe Canvas Overlay)
+   ═══════════════════════════════════════════════════════════ */
+const CanvasOverlay = {
+  isDrawMode: false,
+  tool: 'pencil',
+  color: 'rgba(40,30,18,0.85)',
+  size: 2.2,
+  activeSide: 'Right',
+  drawing: false,
+  lastX: 0, lastY: 0,
+  pageMap: { Right: 1, Left: 2 },
+
+  toggleDrawMode() {
+    this.isDrawMode = !this.isDrawMode;
+    const btn = document.getElementById("btnModeToggle");
+    const text = document.getElementById("modeText");
+    const icon = document.getElementById("modeIcon");
+
+    if (this.isDrawMode) {
+      btn.classList.add("active");
+      text.textContent = "Draw";
+      icon.textContent = "✏️";
+      document.querySelectorAll(".canvas-layer").forEach(c => c.classList.add("drawing-active"));
+    } else {
+      btn.classList.remove("active");
+      text.textContent = "Read";
+      icon.textContent = "📖";
+      document.querySelectorAll(".canvas-layer").forEach(c => c.classList.remove("drawing-active"));
+    }
+  },
+
+  setTool(tool, color, size) {
+    this.tool = tool;
+    if (color) this.color = color;
+    this.size = size;
+    document.querySelectorAll(".tool-card").forEach(b => b.classList.remove("active"));
+    const idMap = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
+    if (idMap[tool]) document.getElementById(idMap[tool]).classList.add("active");
+    if (!this.isDrawMode) this.toggleDrawMode();
+  },
+
+  init(side, pageNum) {
+    this.pageMap[side] = pageNum;
+    this.resizeCanvas(side);
+    this.loadSaved(side, pageNum);
+    this.bindEvents(side);
+  },
+
+  resizeCanvas(side) {
+    const c = document.getElementById(`canvas${side}`);
+    const sheet = document.getElementById(`sheet${side}`);
+    if (!c || !sheet) return;
+    const r = sheet.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    const temp = document.createElement("canvas");
+    temp.width = c.width; temp.height = c.height;
+    if (c.width && c.height) temp.getContext("2d").drawImage(c, 0, 0);
+
+    c.width = Math.round(r.width * dpr);
+    c.height = Math.round(r.height * dpr);
+    const ctx = c.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (temp.width && temp.height) ctx.drawImage(temp, 0, 0, r.width, r.height);
+  },
+
+  async loadSaved(side, pageNum) {
+    const c = document.getElementById(`canvas${side}`);
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    if (App.activeStudent) {
+      const data = await DB.loadDrawing(App.activeStudent.id, pageNum);
+      if (data) {
+        const img = new Image();
+        img.onload = () => {
+          const r = document.getElementById(`sheet${side}`).getBoundingClientRect();
+          ctx.drawImage(img, 0, 0, r.width, r.height);
+        };
+        img.src = data;
+      }
+    }
+  },
+
+  bindEvents(side) {
+    const c = document.getElementById(`canvas${side}`);
+    const ctx = c.getContext("2d");
+
+    c.onpointerdown = e => {
+      if (!this.isDrawMode) return;
+      this.drawing = true;
+      this.activeSide = side;
+      c.setPointerCapture(e.pointerId);
+      const r = c.getBoundingClientRect();
+      this.lastX = e.clientX - r.left;
+      this.lastY = e.clientY - r.top;
+    };
+
+    c.onpointermove = e => {
+      if (!this.drawing || this.activeSide !== side) return;
+      const r = c.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      if (this.tool === "eraser") {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.lineWidth = this.size;
+      } else if (this.tool === "high") {
+        ctx.globalCompositeOperation = "multiply";
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.size;
+      } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.size;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(this.lastX, this.lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.restore();
+
+      this.lastX = x;
+      this.lastY = y;
+    };
+
+    const stop = () => {
+      if (this.drawing && this.activeSide === side) {
+        this.drawing = false;
+        if (App.activeStudent) {
+          DB.saveDrawingWithTime(App.activeStudent.id, this.pageMap[side], c.toDataURL());
+        }
+      }
+    };
+    c.onpointerup = stop;
+    c.onpointercancel = stop;
+  },
+
+  clearCurrentCanvas() {
+    if (!confirm("ഈ പേജിലെ അടയാളപ്പെടുത്തലുകൾ മായ്ക്കണോ?")) return;
+    const c = document.getElementById(`canvas${this.activeSide}`);
+    c.getContext("2d").clearRect(0, 0, c.width, c.height);
+    if (App.activeStudent) {
+      DB.saveDrawingWithTime(App.activeStudent.id, this.pageMap[this.activeSide], c.toDataURL());
+    }
+  }
+};
+
+/* Service Worker Registration */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW failed', err));
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => App.init());
+</script>
+</body>
+</html>
