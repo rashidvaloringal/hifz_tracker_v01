@@ -1,0 +1,18 @@
+{
+  "name": "Al-Halaqah: Universal Quran Hifdh Slate",
+  "short_name": "HifdhSlate",
+  "description": "Professional 15-Line Madani Quran Hifdh Evaluation Slate",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1310",
+  "theme_color": "#0d1310",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230d1310'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23c5a046' stroke-width='16'/><path d='M160 160 Q256 205 352 160 L352 350 Q256 395 160 350 Z' fill='%23fffef8' stroke='%23836727' stroke-width='10'/><line x1='256' y1='182' x2='256' y2='372' stroke='%23c5a046' stroke-width='8'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
