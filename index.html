@@ -1,78 +1,77 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ml" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0d1310">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Al-Halaqah — Quran Hifdh Slate</title>
+<meta name="theme-color" content="#121a15">
+<link rel="manifest" href="./manifest.json">
+<title>മുസ്ഹഫ് മദീന — 1405H</title>
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
   --gold: #c5a046;
-  --gold-light: #f5e4be;
-  --gold-dark: #836727;
+  --gold-light: #f5e4b8;
+  --gold-dark: #7a5e27;
   --paper: #fffef8;
-  --border-dark: #2a1f11;
-  --ink: #16130e;
-  --app-bg: #0d1310;
-  --surface: #151e18;
-  --surface-border: #26382e;
-  --jalalah-red: #a81c1c;
-  --line-height: 52px;
+  --border-outer: #2e2215;
+  --ink: #16120c;
+  --red-ink: #b81c1c;
+  --bg-app: #0d120f;
+  --line-h: 53px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-  background: var(--app-bg);
-  color: #ede5cf;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg-app);
+  color: #ede6d4;
+  font-family: 'Noto Sans Malayalam', system-ui, -apple-system, sans-serif;
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  user-select: none;
 }
 
-/* ═══ റീഡിംഗ് സ്റ്റേജ് ═══ */
+/* ═══ Main Viewport Stage ═══ */
 main {
   flex: 1;
   overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px 10px 80px;
-  background: radial-gradient(circle at 50% 45%, #16221c 0%, #070a09 100%);
+  padding: 10px 10px 85px;
+  background: radial-gradient(circle at 50% 45%, #18231c 0%, #080c09 100%);
 }
 main::-webkit-scrollbar { width: 5px; height: 5px; }
-main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
+main::-webkit-scrollbar-thumb { background: #26382e; border-radius: 3px; }
 
-/* ═══ ബുക്ക് സ്പ്രെഡ് (ലാൻഡ്സ്കേപ്പിൽ 2 പേജ്, പോർട്രെയ്റ്റിൽ 1 പേജ്) ═══ */
+/* ═══ Book Spread (Open Mushaf) ═══ */
 .book-spread {
   display: flex;
-  direction: rtl;
+  direction: rtl; /* വലത് പേജ് ആദ്യം */
   gap: 16px;
   align-items: center;
   justify-content: center;
   max-width: 100%;
 }
 
-.mushaf-page {
-  width: 530px;
-  max-width: 95vw;
-  min-height: 870px;
+/* ═══ 1405H Page Frame ═══ */
+.mushaf-sheet {
+  width: min(525px, 48vw);
+  height: min(calc(100vh - 96px), 880px);
+  aspect-ratio: 1 / 1.54;
   background: var(--paper);
   position: relative;
-  padding: 24px 30px 18px;
+  padding: 16px 26px 12px;
   box-shadow: 0 16px 45px rgba(0,0,0,0.85);
-  border: 3px solid var(--border-dark);
+  border: 2.5px solid var(--border-outer);
   outline: 2px solid var(--gold);
-  outline-offset: 4px;
+  outline-offset: 3px;
   border-radius: 2px;
   flex-shrink: 0;
   display: flex;
@@ -80,28 +79,29 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   justify-content: space-between;
 }
 
-.mushaf-page::before {
+.mushaf-sheet::before {
   content: '';
   position: absolute;
-  inset: 7px;
-  border: 1.5px solid #a6894c77;
+  inset: 6px;
+  border: 1.2px solid #a6894c77;
   pointer-events: none;
 }
 
-/* പേജ് കോർണർ ആർട്ട് */
+/* Corner Ornaments */
 .page-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   pointer-events: none;
   z-index: 2;
 }
-.pc-tr { top: 9px; right: 9px; }
-.pc-tl { top: 9px; left: 9px; transform: scaleX(-1); }
-.pc-br { bottom: 9px; right: 9px; transform: scaleY(-1); }
-.pc-bl { bottom: 9px; left: 9px; transform: scale(-1, -1); }
+.pc-tr { top: 8px; right: 8px; }
+.pc-tl { top: 8px; left: 8px; transform: scaleX(-1); }
+.pc-br { bottom: 8px; right: 8px; transform: scaleY(-1); }
+.pc-bl { bottom: 8px; left: 8px; transform: scale(-1, -1); }
 
-.page-header {
+/* Header & Footer */
+.sheet-top {
   height: 26px;
   display: flex;
   justify-content: space-between;
@@ -110,12 +110,12 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   font-size: 13.5px;
   font-weight: bold;
   color: #5c431a;
-  border-bottom: 1px solid #dfd4b7;
+  border-bottom: 1px solid #ded5bd;
   padding-bottom: 2px;
   direction: rtl;
 }
 
-.page-footer {
+.sheet-bottom {
   height: 26px;
   display: flex;
   justify-content: space-between;
@@ -123,12 +123,12 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   font-family: 'Amiri', serif;
   font-size: 11px;
   color: #796644;
-  border-top: 1px solid #dfd4b7;
+  border-top: 1px solid #ded5bd;
   padding-top: 2px;
 }
 .page-number-text { font-size: 15px; font-weight: bold; color: #3d2c16; }
 
-/* ═══ 15-Lines Cadence (വിശാലമായ വരികൾ) ═══ */
+/* ═══ 15-Lines Grid ═══ */
 .lines-grid {
   width: 100%;
   direction: rtl;
@@ -137,12 +137,10 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   flex: 1;
   justify-content: space-between;
   margin: 4px 0;
-  position: relative;
-  z-index: 5;
 }
 
 .mushaf-line {
-  height: var(--line-height);
+  height: calc(100% / 15);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -159,75 +157,71 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
 }
 
 .mushaf-word {
-  font-family: 'QCFV1', serif;
-  font-size: 32px;
+  font-size: clamp(20px, 2.25vh, 30px);
   line-height: 1;
   color: var(--ink);
   display: inline-block;
 }
 
 .mushaf-word.lafdh-allah {
-  color: var(--jalalah-red) !important;
+  color: var(--red-ink) !important;
   font-weight: bold;
 }
 
-/* സൂറത്ത് ഹെഡർ കാർട്ടൂഷ് */
-.surah-banner-row {
+/* ═══ Surah Header & Bismillah ═══ */
+.surah-header-row {
   width: 100%;
-  height: 48px;
-  margin: 2px 0;
-  position: relative;
+  height: calc(100% / 15);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(180deg, #fdf8eb 0%, #f4e7be 50%, #fdf8eb 100%);
-  border: 1.5px solid var(--border-dark);
+  background: linear-gradient(180deg, #fefbf2 0%, #f5e7c3 50%, #fefbf2 100%);
+  border: 1.5px solid var(--border-outer);
   outline: 1.2px solid var(--gold);
   outline-offset: -3px;
-  padding: 0 16px;
+  padding: 0 14px;
   direction: rtl;
   border-radius: 2px;
 }
-.sb-meta { font-family: 'Amiri', serif; font-size: 12px; font-weight: bold; color: #5c4118; min-width: 75px; text-align: center; }
-.sb-title { font-family: 'Amiri', serif; font-size: 23px; font-weight: bold; color: #16291e; flex: 1; text-align: center; }
+.sh-meta { font-family: 'Amiri', serif; font-size: 11.5px; font-weight: bold; color: #5c4118; min-width: 70px; text-align: center; }
+.sh-title { font-family: 'Amiri', serif; font-size: 20px; font-weight: bold; color: #16291e; flex: 1; text-align: center; }
 
 .bismillah-row {
-  height: 44px;
+  height: calc(100% / 15);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Amiri', serif;
-  font-size: 24px;
+  font-size: 21px;
   color: #172d21;
   direction: rtl;
 }
 
-/* ═══ ഡിജിറ്റൽ സ്ലേറ്റ് കാൻവാസ് (Touch-Safe) ═══ */
+/* ═══ Drawing Slate Canvas Overlay ═══ */
 .canvas-layer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 20;
+  z-index: 25;
   touch-action: none;
-  pointer-events: none; /* സ്വാഭാവിക സ്ക്രോളിംഗ് അനുവദിക്കുന്നു */
+  pointer-events: none; /* Disabled by default to allow scrolling */
 }
 .canvas-layer.drawing-active {
-  pointer-events: auto; /* പെൻസിൽ ഉപയോഗിക്കുമ്പോൾ മാത്രം ആക്ടീവ് */
+  pointer-events: auto;
   cursor: crosshair;
 }
 
-/* ═══ ഫ്ലോട്ടിംഗ് കൺട്രോൾ ഡോക്ക് ═══ */
+/* ═══ Floating Bottom HUD ═══ */
 .floating-dock {
   position: fixed;
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(18, 25, 20, 0.95);
+  background: rgba(14, 20, 17, 0.94);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--gold);
-  border-radius: 35px;
+  border-radius: 40px;
   padding: 4px 12px;
   display: flex;
   align-items: center;
@@ -249,25 +243,8 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   justify-content: center;
   transition: all 0.2s;
 }
-.dock-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-
-.mode-toggle-btn {
-  font-size: 12px;
-  font-weight: 700;
-  background: #23372b;
-  border: 1px solid var(--gold);
-  color: var(--gold-light);
-  padding: 5px 12px;
-  border-radius: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.mode-toggle-btn.active {
-  background: var(--gold);
-  color: #0c120f;
-}
+.dock-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.dock-btn.active-mode { background: var(--gold); color: #0d120f; font-weight: bold; }
 
 .page-badge {
   font-family: 'Amiri', serif;
@@ -277,139 +254,145 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   cursor: pointer;
   padding: 3px 12px;
   border-radius: 8px;
-  background: #090e0c;
-  border: 1px solid #23362a;
+  background: #080d0a;
+  border: 1px solid #23332a;
 }
 
-.student-tag {
+.student-badge-btn {
   font-size: 12px;
   font-weight: 600;
-  color: #c0ded0;
-  background: #17241e;
+  color: #bfd9cb;
+  background: #192720;
   padding: 5px 12px;
   border-radius: 14px;
-  border: 1px solid #284033;
+  border: 1px solid #2b4437;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 180px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ═══ ഡ്രോയർ / പോപ്പ്-അപ്പ് പാനൽ ═══ */
-.drawer-scrim {
+/* ═══ Drawer Bottom Sheet ═══ */
+.sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0,0,0,0.65);
   backdrop-filter: blur(4px);
   z-index: 200;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
-.drawer-scrim.open { opacity: 1; pointer-events: auto; }
+.sheet-overlay.open { opacity: 1; pointer-events: auto; }
 
-.drawer-panel {
+.sheet-panel {
   position: fixed;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%) translateY(100%);
   width: 100%;
   max-width: 540px;
-  background: var(--surface);
+  background: #141c18;
   border: 1.5px solid var(--gold);
   border-bottom: none;
   border-radius: 20px 20px 0 0;
-  padding: 16px 20px 25px;
+  padding: 16px 20px 24px;
   z-index: 210;
   color: #fff;
   transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+  box-shadow: 0 -10px 45px rgba(0,0,0,0.8);
 }
-.drawer-scrim.open .drawer-panel { transform: translateX(-50%) translateY(0); }
+.sheet-overlay.open .sheet-panel { transform: translateX(-50%) translateY(0); }
 
-.drawer-header {
+.panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--surface-border);
+  border-bottom: 1px solid #283a30;
   padding-bottom: 10px;
   margin-bottom: 14px;
 }
-.drawer-header h3 { font-size: 15px; font-weight: 600; color: var(--gold-light); }
-.close-btn { background: none; border: none; color: #8f9e96; font-size: 22px; cursor: pointer; }
+.panel-header h3 { font-size: 14px; font-weight: 600; color: var(--gold-light); }
+.close-btn { background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; }
 
 .tab-nav { display: flex; gap: 6px; margin-bottom: 14px; }
-.tab-btn {
-  flex: 1; padding: 8px 4px; background: #0b110e; border: 1px solid #23362a;
-  color: #9eb0a6; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer;
+.tab-item {
+  flex: 1; padding: 8px 4px; background: #0c120f; border: 1px solid #23352c;
+  color: #9eb5a8; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; text-align: center;
 }
-.tab-btn.active { background: var(--gold); color: #0c120f; font-weight: bold; }
+.tab-item.active { background: var(--gold); color: #0d120f; font-weight: bold; border-color: var(--gold-light); }
 
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-/* ടൂൾസ് */
-.tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
-.tool-card {
-  padding: 10px 4px; background: #0c120f; border: 1px solid #23362a;
-  color: #ddd; font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer;
+/* Tools */
+.tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.tool-tile {
+  padding: 10px 4px; background: #0c120f; border: 1px solid #23352c;
+  color: #ddd; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
 }
-.tool-card.active { background: var(--gold); color: #0c120f; font-weight: bold; }
+.tool-tile.active { background: var(--gold); color: #0d120f; font-weight: bold; }
 
-/* കുട്ടികളുടെ ലിസ്റ്റും ടൈംസ്റ്റാമ്പും */
+/* Student Manager */
 .form-row { display: flex; gap: 8px; margin-bottom: 12px; }
-.input-text {
-  flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #283d31;
-  background: #090e0c; color: #fff; font-family: inherit; font-size: 13px; outline: none;
+.input-field {
+  flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid #2a3f34;
+  background: #0a0f0d; color: #fff; font-family: inherit; font-size: 13px; outline: none;
 }
-.btn-action {
-  padding: 8px 16px; background: var(--gold); color: #0c120f; border: none;
-  border-radius: 8px; font-weight: 700; cursor: pointer;
+.btn-gold {
+  padding: 8px 16px; background: var(--gold); color: #0d120f; border: none;
+  border-radius: 6px; font-weight: bold; cursor: pointer;
 }
-.scroll-box { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }
-.student-card {
+
+.items-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.item-card {
   display: flex; justify-content: space-between; align-items: center;
-  background: #192620; padding: 9px 14px; border-radius: 8px; border: 1px solid #263c30; cursor: pointer;
+  background: #18241e; padding: 9px 12px; border-radius: 6px; border: 1px solid #263a2f; cursor: pointer;
 }
-.student-card.active { border-color: var(--gold); background: #22372c; }
+.item-card.active { border-color: var(--gold); background: #22352b; }
 
-/* ടൈംസ്റ്റാമ്പ് രേഖകൾ */
-.history-item {
-  font-size: 11px; padding: 6px 10px; background: #0d1511; border-radius: 5px;
-  border-left: 3px solid var(--gold); margin-bottom: 5px; color: #a9c1b3;
+.stamp-box {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #090e0c;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #92ab9d;
+  border-left: 3px solid var(--gold);
 }
 
-/* ═══ RESPONSIVE: ലാൻഡ്സ്കേപ്പിൽ 2 പേജ്, പോർട്രെയ്റ്റിൽ 1 പേജ് ═══ */
+/* ═══ Responsive View ═══ */
 @media (max-width: 1080px), (orientation: portrait) {
   .book-spread { flex-direction: column; }
-  .mushaf-page.page-left { display: none !important; }
-  .mushaf-page { width: 100%; max-width: 500px; min-height: 780px; padding: 16px 20px 14px; }
-  :root { --line-height: 44px; }
-  .mushaf-word { font-size: 26px; }
-  .surah-banner-row { height: 42px; }
-  .sb-title { font-size: 20px; }
-  .bismillah-row { height: 38px; font-size: 21px; }
+  .mushaf-sheet.left-page { display: none !important; }
+  .mushaf-sheet { width: 100%; max-width: 510px; height: min(calc(100vh - 90px), 820px); padding: 14px 18px 10px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ═══ മെയിൻ വ്യൂവർ ═══ -->
-<main>
-  <div class="book-spread" id="bookSpread">
-    <!-- വലത് പേജ് (Right Page - ഒറ്റസംഖ്യ) -->
-    <article class="mushaf-page page-right" id="sheetRight">
-      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-
-      <header class="page-header">
+<!-- ═══ Reading Canvas ═══ -->
+<main id="stage">
+  <div class="book-spread" id="spreadContainer">
+    <!-- Right Sheet (Odd) -->
+    <article class="mushaf-sheet right-page" id="sheetRight">
+      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      
+      <header class="sheet-top">
         <span id="rightJuzLabel">الجزء</span>
         <span id="rightSurahLabel">سورة</span>
       </header>
       <section class="lines-grid" id="linesRight"></section>
-      <footer class="page-footer">
+      <footer class="sheet-bottom">
         <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
         <span class="page-number-text" id="rightPageNum">١</span>
         <span>مجمع الملك فهد</span>
@@ -417,19 +400,19 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
       <canvas class="canvas-layer" id="canvasRight"></canvas>
     </article>
 
-    <!-- ഇടത് പേജ് (Left Page - ഇരട്ടസംഖ്യ) -->
-    <article class="mushaf-page page-left" id="sheetLeft">
-      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#836727" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+    <!-- Left Sheet (Even) -->
+    <article class="mushaf-sheet left-page" id="sheetLeft">
+      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
 
-      <header class="page-header">
+      <header class="sheet-top">
         <span id="leftJuzLabel">الجزء</span>
         <span id="leftSurahLabel">سورة</span>
       </header>
       <section class="lines-grid" id="linesLeft"></section>
-      <footer class="page-footer">
+      <footer class="sheet-bottom">
         <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
         <span class="page-number-text" id="leftPageNum">٢</span>
         <span>مجمع الملك فهد</span>
@@ -439,78 +422,78 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
   </div>
 </main>
 
-<!-- ═══ ഫ്ലോട്ടിംഗ് കൺട്രോൾ ബാർ ═══ -->
+<!-- ═══ Floating Micro-HUD ═══ -->
 <nav class="floating-dock">
   <button class="dock-btn" onclick="App.turnPage(-1)" title="മുൻപത്തെ പേജ്">◀</button>
-  
-  <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">صفحة ١</span>
-
+  <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">പേജ് ١</span>
   <button class="dock-btn" onclick="App.turnPage(1)" title="അടുത്ത പേജ്">▶</button>
 
-  <!-- ഡ്രോയിംഗ് മോഡ് ടോഗിൾ (സ്ക്രോളിംഗ് തടസ്സപ്പെടാതിരിക്കാൻ) -->
-  <button class="mode-toggle-btn" id="btnModeToggle" onclick="CanvasOverlay.toggleDrawMode()">
-    <span id="modeIcon">📖</span> <span id="modeText">Read</span>
+  <!-- Drawing Mode Switcher (Enables touch drawing vs mobile scrolling) -->
+  <button class="dock-btn" id="btnToggleDraw" onclick="CanvasSlate.toggleDrawingMode()" title="വരയ്ക്കൽ ഓൺ/ഓഫ്">
+    ✏️
   </button>
 
-  <!-- വിദ്യാർത്ഥിയുടെ പേര് -->
-  <span class="student-tag" id="activeStudentBadge" onclick="App.openDrawer('students')">
-    👤 കുട്ടി
+  <!-- Student selector badge -->
+  <span class="student-badge-btn" onclick="App.openSheet('students')">
+    👤 <span id="badgeStudentTitle">കുട്ടി</span>
   </span>
 
-  <button class="dock-btn" onclick="App.openDrawer('tools')" title="ടൂളുകൾ & വിവരങ്ങൾ">⚙️</button>
+  <button class="dock-btn" onclick="App.openSheet('tools')" title="ടൂളുകൾ & വിവരങ്ങൾ">⚙️</button>
 </nav>
 
-<!-- ═══ പോപ്പ്-അപ്പ് ഡ്രോയർ ═══ -->
-<div class="drawer-scrim" id="drawerScrim" onclick="App.closeDrawer(event)">
-  <div class="drawer-panel" onclick="event.stopPropagation()">
-    <div class="drawer-header">
-      <h3 id="drawerTitle">ടീച്ചർ കൺട്രോൾ പാനൽ</h3>
-      <button class="close-btn" onclick="App.closeDrawer()">&times;</button>
-    </div>
+<!-- ═══ Bottom Drawer Sheet ═══ -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="App.closeSheet(event)">
+  <div class="sheet-panel" onclick="event.stopPropagation()">
+    <header class="panel-header">
+      <h3 id="panelTitle">അധ്യാപക സഹായി (Teacher Slate)</h3>
+      <button class="close-btn" onclick="App.closeSheet()">&times;</button>
+    </header>
 
-    <div class="tab-nav">
-      <button class="tab-btn active" id="tabBtnTools" onclick="App.setTab('tools')">✏️ മാർക്കിംഗ്</button>
-      <button class="tab-btn" id="tabBtnStudents" onclick="App.setTab('students')">🎓 കുട്ടികൾ</button>
-      <button class="tab-btn" id="tabBtnHistory" onclick="App.setTab('history')">🕒 സമയരേഖ</button>
-    </div>
+    <nav class="tab-nav">
+      <button class="tab-item active" id="tabHeadTools" onclick="App.setTab('tools')">✏️ ടൂളുകൾ</button>
+      <button class="tab-item" id="tabHeadStudents" onclick="App.setTab('students')">🎓 കുട്ടികൾ</button>
+      <button class="tab-item" id="tabHeadInfo" onclick="App.setTab('info')">ℹ️ വിവരങ്ങൾ</button>
+    </nav>
 
-    <!-- Tab 1: Tools -->
-    <div class="tab-pane active" id="paneTools">
+    <!-- Tab 1: Marking Tools -->
+    <section class="tab-content active" id="tabBodyTools">
       <div class="tools-grid">
-        <div class="tool-card active" id="toolPencil" onclick="CanvasOverlay.setTool('pencil', 'rgba(40,30,18,0.85)', 2.2)">
+        <div class="tool-tile active" id="toolPencil" onclick="CanvasSlate.selectTool('pencil', 'rgba(40,30,18,0.85)', 2.2)">
           <span>✏️</span> പെൻസിൽ
         </div>
-        <div class="tool-card" id="toolRed" onclick="CanvasOverlay.setTool('red', 'rgba(195,20,20,0.88)', 2.4)">
+        <div class="tool-tile" id="toolRed" onclick="CanvasSlate.selectTool('red', 'rgba(195,20,20,0.88)', 2.5)">
           <span>🔴</span> തെറ്റ് (ഖത്അ്)
         </div>
-        <div class="tool-card" id="toolHigh" onclick="CanvasOverlay.setTool('high', 'rgba(235,190,40,0.38)', 16)">
+        <div class="tool-tile" id="toolHigh" onclick="CanvasSlate.selectTool('high', 'rgba(235,190,40,0.38)', 16)">
           <span>🟡</span> തജ്‌വീദ്
         </div>
-        <div class="tool-card" id="toolEraser" onclick="CanvasOverlay.setTool('eraser', null, 24)">
+        <div class="tool-tile" id="toolEraser" onclick="CanvasSlate.selectTool('eraser', null, 24)">
           <span>🧹</span> ഇറേസർ
         </div>
       </div>
-      <button class="btn-action" style="width:100%; background:#2d1717; color:#ffa8a8; border:1px solid #5a2828;" onclick="CanvasOverlay.clearCurrentCanvas()">
+      <button class="btn-gold" style="width:100%; background:#331919; color:#ff9999; border:1px solid #5e2626;" onclick="CanvasSlate.clearActiveCanvas()">
         🗑️ ഈ പേജിലെ അടയാളങ്ങൾ മായ്ക്കുക
       </button>
-    </div>
+      <div class="stamp-box" id="timestampNotice">അടയാളപ്പെടുത്തലുകൾ രേഖപ്പെടുത്തിയിട്ടില്ല.</div>
+    </section>
 
-    <!-- Tab 2: Students -->
-    <div class="tab-pane" id="paneStudents">
+    <!-- Tab 2: Students List & Add -->
+    <section class="tab-content" id="tabBodyStudents">
       <div class="form-row">
-        <input type="text" class="input-text" id="newStudentName" placeholder="കുട്ടിയുടെ പേര്...">
-        <button class="btn-action" onclick="App.addStudent()">+ ചേർക്കുക</button>
+        <input type="text" class="input-field" id="newStudentName" placeholder="കുട്ടിയുടെ പേര്...">
+        <button class="btn-gold" onclick="App.addStudent()">+ ചേർക്കുക</button>
       </div>
-      <div class="scroll-box" id="studentsContainer"></div>
-    </div>
+      <div class="items-list" id="studentsListContainer"></div>
+    </section>
 
-    <!-- Tab 3: Evaluation History with Timestamps -->
-    <div class="tab-pane" id="paneHistory">
-      <div style="font-size:12px; margin-bottom:8px; color:var(--gold-light);">അടയാളപ്പെടുത്തിയ സമയ വിവരങ്ങൾ:</div>
-      <div class="scroll-box" id="historyContainer">
-        <div style="font-size:11px; color:#8fa899; text-align:center;">മാർക്കിംഗുകൾ വരുത്തുമ്പോൾ ഇവിടെ സമയം രേഖപ്പെടുത്തും.</div>
+    <!-- Tab 3: Instructions & Cache Info -->
+    <section class="tab-content" id="tabBodyInfo">
+      <div style="font-size:12px; line-height:1.75; color:#a2b8ab;">
+        <p>• <b>ഓഫ്‌ലൈൻ പ്രവർത്തനം:</b> ഒരു തവണ ലോഡ് ചെയ്ത പേജുകളും ഫോണ്ടുകളും നിങ്ങളുടെ ബ്രൗസറിലെ <b>IndexedDB</b>-ൽ തനിയെ സേവ് ആകും. പിന്നീട് ഇന്റർനെറ്റ് ഇല്ലാതെയും പ്രവർത്തിക്കും.</p>
+        <p>• <b>സ്ക്രോളിംഗ് & ഡ്രോയിംഗ്:</b> മൊബൈലിൽ സ്ക്രോൾ ചെയ്യാൻ താഴെയുള്ള ✏️ ഐക്കൺ ഓഫ് ചെയ്യുക. വരയ്ക്കാൻ അത് അമർത്തി ഓൺ ചെയ്യുക.</p>
+        <p>• ഓരോ കുട്ടിയുടെയും അടയാളപ്പെടുത്തലുകൾ സമയം സഹിതം രേഖപ്പെടുത്തുന്നു.</p>
       </div>
-    </div>
+    </section>
   </div>
 </div>
 
@@ -520,26 +503,26 @@ main::-webkit-scrollbar-thumb { background: #26392f; border-radius: 3px; }
 const API_ROOT = "https://api.quran.com/api/v4";
 const FONT_ROOT = "https://static.qurancdn.com/fonts/quran/hafs/v1/woff2";
 
-function toArabic(n) {
+function toArabicNumeral(n) {
   return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 }
 
-function isAllahName(text) {
+function isDivineName(text) {
   if (!text) return false;
   let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
   clean = clean.replace(/[ٱإأآء]/g, 'ا').replace(/[\u0640\u06E5\u06E6]/g, '').trim();
-  clean = clean.replace(/^(و|ف|ب|ത|ക|ല)?(ا?لله|لله|ا?للهم)$/, '$2');
+  clean = clean.replace(/^(و|ف|ب|ت|ك|ല)?(ا?لله|لله|ا?للهم)$/, '$2');
   return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
 }
 
 /* ═══════════════════════════════════════════════════════════
-   1. INDEXED-DB (കുട്ടികളുടെ വിവരങ്ങളും തീയതി സഹിതമുള്ള വരകളും)
+   1. IndexedDB: OFFLINE ENGINE (Cache, Students, Timestamps)
    ═══════════════════════════════════════════════════════════ */
 const DB = {
   db: null,
   init() {
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open("HifdhSlate2026DB", 1);
+      const req = indexedDB.open("MushafUniversalDB_v3", 1);
       req.onupgradeneeded = e => {
         const d = e.target.result;
         if (!d.objectStoreNames.contains("students")) {
@@ -549,9 +532,8 @@ const DB = {
           const s = d.createObjectStore("drawings", { keyPath: "id", autoIncrement: true });
           s.createIndex("student_page", ["studentId", "page"], { unique: true });
         }
-        if (!d.objectStoreNames.contains("history")) {
-          const h = d.createObjectStore("history", { keyPath: "id", autoIncrement: true });
-          h.createIndex("studentId", "studentId", { unique: false });
+        if (!d.objectStoreNames.contains("page_cache")) {
+          d.createObjectStore("page_cache", { keyPath: "page" });
         }
       };
       req.onsuccess = () => { this.db = req.result; resolve(); };
@@ -586,50 +568,55 @@ const DB = {
       tx.oncomplete = () => res();
     });
   },
-  saveDrawingWithTime(studentId, page, dataUrl) {
+  /* Markings with Timestamp & Session History */
+  saveMarking(studentId, page, dataUrl) {
     if (!studentId || !page) return;
     const now = new Date();
-    const timestamp = now.getTime();
-    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateFormatted = now.toLocaleDateString();
+    const formattedDate = now.toLocaleDateString('ml-IN', { day:'numeric', month:'short', year:'numeric' }) + ' ' + 
+                          now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 
-    const tx = this.db.transaction(["drawings", "history"], "readwrite");
-    const dStore = tx.objectStore("drawings");
-    const hStore = tx.objectStore("history");
+    const tx = this.db.transaction("drawings", "readwrite");
+    const s = tx.objectStore("drawings");
+    const req = s.index("student_page").get([studentId, page]);
 
-    // കാൻവാസ് ഇമേജ് അപ്ഡേറ്റ് ചെയ്യുന്നു
-    const idx = dStore.index("student_page");
-    const req = idx.get([studentId, page]);
     req.onsuccess = () => {
       const existing = req.result;
-      const rec = { studentId, page, data: dataUrl, timestamp, timeFormatted, dateFormatted };
-      if (existing) rec.id = existing.id;
-      dStore.put(rec);
+      const record = {
+        studentId,
+        page,
+        data: dataUrl,
+        timestamp: Date.now(),
+        dateStr: formattedDate
+      };
+      if (existing) record.id = existing.id;
+      s.put(record);
+      CanvasSlate.updateTimestampUI(formattedDate);
     };
-
-    // വിലയിരുത്തൽ നടത്തിയ സമയം ഹിസ്റ്ററിയിലേക്ക് ചേർക്കുന്നു
-    hStore.add({ studentId, page, timestamp, timeFormatted, dateFormatted });
   },
-  loadDrawing(studentId, page) {
+  loadMarking(studentId, page) {
     return new Promise(res => {
       if (!studentId || !page) return res(null);
       const tx = this.db.transaction("drawings", "readonly");
       const req = tx.objectStore("drawings").index("student_page").get([studentId, page]);
-      req.onsuccess = () => res(req.result ? req.result.data : null);
+      req.onsuccess = () => res(req.result || null);
     });
   },
-  getHistory(studentId) {
+  /* Offline Page Data Cache */
+  cachePageData(page, verses) {
+    const tx = this.db.transaction("page_cache", "readwrite");
+    tx.objectStore("page_cache").put({ page, verses, time: Date.now() });
+  },
+  getCachedPageData(page) {
     return new Promise(res => {
-      if (!studentId) return res([]);
-      const tx = this.db.transaction("history", "readonly");
-      const req = tx.objectStore("history").index("studentId").getAll(studentId);
-      req.onsuccess = () => res(req.result || []);
+      const tx = this.db.transaction("page_cache", "readonly");
+      const req = tx.objectStore("page_cache").get(page);
+      req.onsuccess = () => res(req.result ? req.result.verses : null);
     });
   }
 };
 
 /* ═══════════════════════════════════════════════════════════
-   2. APP & NAVIGATION CONTROLLER
+   2. APPLICATION CONTROLLER
    ═══════════════════════════════════════════════════════════ */
 const App = {
   currentPage: 1,
@@ -637,7 +624,7 @@ const App = {
   activeStudent: null,
   chapters: [],
   loadedFonts: new Set(),
-  resizeTimer: null,
+  resizeDebounce: null,
 
   async init() {
     await DB.init();
@@ -645,29 +632,28 @@ const App = {
     this.students = await DB.getAll("students");
 
     if (this.students.length === 0) {
-      const sId = await DB.add("students", { name: "വിദ്യാർത്ഥി 1", lastPage: 1, createdAt: Date.now() });
+      const sId = await DB.add("students", { name: "വിദ്യാർത്ഥി 1", lastPage: 1 });
       this.activeStudent = { id: sId, name: "വിദ്യാർത്ഥി 1", lastPage: 1 };
       this.students = [this.activeStudent];
     } else {
       this.activeStudent = this.students[0];
     }
-
     this.currentPage = this.activeStudent.lastPage || 1;
-    this.updateStudentBadge();
+
+    this.updateStudentBadgeUI();
     this.render();
 
-    // Resize Debouncing
     window.addEventListener("resize", () => {
-      clearTimeout(this.resizeTimer);
-      this.resizeTimer = setTimeout(() => {
-        CanvasOverlay.resizeCanvas('Right');
-        CanvasOverlay.resizeCanvas('Left');
+      clearTimeout(this.resizeDebounce);
+      this.resizeDebounce = setTimeout(() => {
+        CanvasSlate.resize('Right');
+        CanvasSlate.resize('Left');
         this.render();
-      }, 250);
+      }, 200);
     });
 
     document.addEventListener("keydown", e => {
-      if (e.target.tagName === "INPUT") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
       if (e.key === "ArrowLeft") this.turnPage(-1);
       if (e.key === "ArrowRight") this.turnPage(1);
     });
@@ -683,15 +669,15 @@ const App = {
       const j = await r.json();
       this.chapters = j.chapters || [];
     } catch(e) {
-      console.warn("Chapters metadata fallback", e);
+      console.warn("Chapters API fallback", e);
     }
   },
 
   async ensureFont(p) {
-    const fontName = `QCFV1_P${p}`;
+    const fontName = `QCF_P${p}`;
     if (this.loadedFonts.has(fontName)) return fontName;
     try {
-      const font = new FontFace("QCFV1", `url('${FONT_ROOT}/p${p}.woff2')`);
+      const font = new FontFace(fontName, `url('${FONT_ROOT}/p${p}.woff2')`);
       await font.load();
       document.fonts.add(font);
       this.loadedFonts.add(fontName);
@@ -701,12 +687,21 @@ const App = {
     }
   },
 
+  /* 100% Offline Page Fetcher (IndexedDB First) */
   async fetchPageWords(p) {
     if (p < 1 || p > 604) return [];
+    
+    // Check IndexedDB cache first
+    const cached = await DB.getCachedPageData(p);
+    if (cached) return cached;
+
+    // If online, fetch and cache
     try {
       const res = await fetch(`${API_ROOT}/verses/by_page/${p}?words=true&word_fields=code_v1,char_type_name,line_number,v1_page,text_uthmani&per_page=60`);
       const j = await res.json();
-      return j.verses || [];
+      const verses = j.verses || [];
+      if (verses.length) DB.cachePageData(p, verses);
+      return verses;
     } catch(e) {
       return [];
     }
@@ -714,16 +709,17 @@ const App = {
 
   async render() {
     const isDouble = this.isSpreadView();
+
     let rightP = this.currentPage;
     let leftP = null;
 
     if (isDouble) {
       rightP = (this.currentPage % 2 === 1) ? this.currentPage : this.currentPage - 1;
       leftP = rightP + 1;
-      document.getElementById("pageBadge").textContent = `صفحة ${toArabic(rightP)} - ${toArabic(leftP)}`;
+      document.getElementById("pageBadge").textContent = `പേജ് ${toArabicNumeral(rightP)} - ${toArabicNumeral(leftP)}`;
       document.getElementById("sheetLeft").style.display = "flex";
     } else {
-      document.getElementById("pageBadge").textContent = `صفحة ${toArabic(rightP)}`;
+      document.getElementById("pageBadge").textContent = `പേജ് ${toArabicNumeral(rightP)}`;
       document.getElementById("sheetLeft").style.display = "none";
     }
 
@@ -739,7 +735,7 @@ const App = {
   },
 
   async renderPageSheet(pageNum, side) {
-    await this.ensureFont(pageNum);
+    const fontName = await this.ensureFont(pageNum);
     const verses = await this.fetchPageWords(pageNum);
 
     const container = document.getElementById(`lines${side}`);
@@ -759,7 +755,7 @@ const App = {
       });
     });
 
-    // സൂറത്ത് ഹെഡറുകൾ കൃത്യമായി വരികളിൽ ഉറപ്പുവരുത്തുന്നു
+    // Check Surahs starting on this page
     verses.forEach(v => {
       const [s, a] = v.verse_key.split(':').map(Number);
       if (a === 1 && v.words?.[0]?.line_number) {
@@ -767,28 +763,41 @@ const App = {
         if (s === 1) {
           surahHeaderSlots.set(1, s);
         } else if (s === 9) {
-          const hLine = Math.max(1, firstLine - 1);
-          surahHeaderSlots.set(hLine, s);
+          surahHeaderSlots.set(Math.max(1, firstLine - 1), s);
         } else {
-          const hLine = Math.max(1, firstLine - 2);
-          const bLine = Math.max(1, firstLine - 1);
-          surahHeaderSlots.set(hLine, s);
-          bismillahSlots.set(bLine, s);
+          surahHeaderSlots.set(Math.max(1, firstLine - 2), s);
+          bismillahSlots.set(Math.max(1, firstLine - 1), s);
         }
       }
     });
 
-    // 15 വരികളുടെ കൃത്യമായ നിർമ്മാണം
+    // Check Surah header appearing at page bottom for the upcoming page
+    if (pageNum < 604 && !lineMap.has(15)) {
+      const nextVerses = await this.fetchPageWords(pageNum + 1);
+      if (nextVerses.length && nextVerses[0]) {
+        const [ns, na] = nextVerses[0].verse_key.split(':').map(Number);
+        if (na === 1 && nextVerses[0].words?.[0]?.line_number === 1) {
+          if (!lineMap.has(14)) {
+            surahHeaderSlots.set(14, ns);
+            if (ns !== 9) bismillahSlots.set(15, ns);
+          } else {
+            surahHeaderSlots.set(15, ns);
+          }
+        }
+      }
+    }
+
+    // Render 15 Lines
     for (let ln = 1; ln <= 15; ln++) {
       if (surahHeaderSlots.has(ln)) {
         const sId = surahHeaderSlots.get(ln);
         const ch = this.chapters.find(c => c.id === sId) || { name_arabic: `سورة ${sId}`, verses_count: 0 };
         const banner = document.createElement("div");
-        banner.className = "surah-banner-row";
+        banner.className = "surah-header-row";
         banner.innerHTML = `
-          <span class="sb-meta">آيَاتُهَا ${toArabic(ch.verses_count)}</span>
-          <span class="sb-title">سُورَةُ ${ch.name_arabic}</span>
-          <span class="sb-meta">تَرْتِيبُهَا ${toArabic(ch.id)}</span>
+          <span class="sh-meta">آيَاتُهَا ${toArabicNumeral(ch.verses_count)}</span>
+          <span class="sh-title">سُورَةُ ${ch.name_arabic}</span>
+          <span class="sh-meta">تَرْتِيبُهَا ${toArabicNumeral(ch.id)}</span>
         `;
         container.appendChild(banner);
       } else if (bismillahSlots.has(ln)) {
@@ -811,9 +820,10 @@ const App = {
           words.forEach(w => {
             const span = document.createElement("span");
             span.className = "mushaf-word";
+            span.style.fontFamily = `'${fontName}', 'Amiri', serif`;
             span.innerHTML = w.code_v1 || w.text;
 
-            if (isAllahName(w.text_uthmani)) {
+            if (isDivineName(w.text_uthmani)) {
               span.classList.add("lafdh-allah");
             }
             row.appendChild(span);
@@ -823,17 +833,17 @@ const App = {
       }
     }
 
-    // പേജ് ഹെഡറും നമ്പറും
+    // Top Header & Bottom Numbers
     const firstV = verses[0];
     if (firstV) {
       const sId = Number(firstV.verse_key.split(':')[0]);
       const ch = this.chapters.find(c => c.id === sId);
       document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = ch ? `سورة ${ch.name_arabic}` : "";
-      document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabic(firstV.juz_number || 1)}`;
+      document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabicNumeral(firstV.juz_number || Math.ceil(pageNum / 20))}`;
     }
-    document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabic(pageNum);
+    document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabicNumeral(pageNum);
 
-    CanvasOverlay.init(side, pageNum);
+    CanvasSlate.init(side, pageNum);
   },
 
   turnPage(delta) {
@@ -846,7 +856,7 @@ const App = {
   },
 
   jumpPrompt() {
-    const val = prompt("പോകേണ്ട പേജ് നമ്പർ നൽകുക (1 - 604):", this.currentPage);
+    const val = prompt("പോകേണ്ട പേജ് നമ്പർ (1 - 604):", this.currentPage);
     const n = parseInt(val);
     if (n >= 1 && n <= 604) {
       this.currentPage = n;
@@ -854,152 +864,125 @@ const App = {
     }
   },
 
-  openDrawer(tab) {
-    document.getElementById("drawerScrim").classList.add("open");
+  /* Drawer Tabs & Actions */
+  openSheet(tab) {
+    document.getElementById("sheetOverlay").classList.add("open");
     this.setTab(tab);
-    if (tab === "students") this.renderStudents();
-    if (tab === "history") this.renderHistory();
+    if (tab === "students") this.renderStudentsList();
   },
-  closeDrawer() {
-    document.getElementById("drawerScrim").classList.remove("open");
+  closeSheet() {
+    document.getElementById("sheetOverlay").classList.remove("open");
   },
   setTab(tab) {
-    ["tools", "students", "history"].forEach(t => {
-      document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
-      document.getElementById(`pane${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+    ["tools", "students", "info"].forEach(t => {
+      document.getElementById(`tabHead${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+      document.getElementById(`tabBody${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
     });
   },
 
   async addStudent() {
-    const inp = document.getElementById("newStudentName");
-    const name = inp.value.trim();
+    const input = document.getElementById("newStudentName");
+    const name = input.value.trim();
     if (!name) return;
-    const id = await DB.add("students", { name, lastPage: this.currentPage, createdAt: Date.now() });
+    const id = await DB.add("students", { name, lastPage: this.currentPage });
     this.students = await DB.getAll("students");
     this.activeStudent = this.students.find(s => s.id === id);
-    inp.value = "";
-    this.updateStudentBadge();
-    this.renderStudents();
+    input.value = "";
+    this.updateStudentBadgeUI();
+    this.renderStudentsList();
     this.render();
   },
 
-  renderStudents() {
-    const box = document.getElementById("studentsContainer");
+  renderStudentsList() {
+    const box = document.getElementById("studentsListContainer");
     box.innerHTML = "";
     this.students.forEach(s => {
       const div = document.createElement("div");
-      div.className = "student-card" + (this.activeStudent?.id === s.id ? " active" : "");
+      div.className = "item-card" + (this.activeStudent?.id === s.id ? " active" : "");
       div.innerHTML = `
-        <span><b>${s.name}</b> <small style="opacity:0.75; margin-left:6px;">(പേജ് ${toArabic(s.lastPage || 1)})</small></span>
-        <button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteStudent(${s.id}, event)">&times;</button>
+        <span><b>${s.name}</b> <small style="opacity:0.75; margin-left:8px;">(പേജ് ${toArabicNumeral(s.lastPage || 1)})</small></span>
+        ${this.students.length > 1 ? `<button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.removeStudent(${s.id}, event)">&times;</button>` : ''}
       `;
       div.onclick = () => {
         this.activeStudent = s;
         this.currentPage = s.lastPage || 1;
-        this.updateStudentBadge();
+        this.updateStudentBadgeUI();
         this.render();
-        this.closeDrawer();
+        this.closeSheet();
       };
       box.appendChild(div);
     });
   },
 
-  async deleteStudent(id, e) {
+  async removeStudent(id, e) {
     e.stopPropagation();
-    if (this.students.length <= 1) {
-      alert("കുറഞ്ഞത് ഒരു കുട്ടിയെങ്കിലും ലിസ്റ്റിൽ ഉണ്ടായിരിക്കണം.");
-      return;
-    }
-    if (!confirm("ഈ കുട്ടിയെയും കുട്ടിയുടെ മാർക്കിംഗുകളും നീക്കം ചെയ്യണോ?")) return;
+    if (!confirm("ഈ വിദ്യാർത്ഥിയെയും വരച്ച അടയാളങ്ങളെയും നീക്കം ചെയ്യണോ?")) return;
     await DB.delete("students", id);
     this.students = await DB.getAll("students");
-    this.activeStudent = this.students[0];
-    this.currentPage = this.activeStudent.lastPage || 1;
-    this.updateStudentBadge();
-    this.renderStudents();
+    this.activeStudent = this.students[0] || null;
+    this.updateStudentBadgeUI();
+    this.renderStudentsList();
     this.render();
   },
 
-  async renderHistory() {
-    const box = document.getElementById("historyContainer");
-    box.innerHTML = "";
-    if (!this.activeStudent) return;
-    const records = await DB.getHistory(this.activeStudent.id);
-    if (!records.length) {
-      box.innerHTML = `<div style="font-size:11px; color:#8fa899; text-align:center; padding:10px;">മാർക്കിംഗുകൾ വരുത്തുമ്പോൾ ഇവിടെ സമയം രേഖപ്പെടുത്തും.</div>`;
-      return;
-    }
-    records.slice(-15).reverse().forEach(r => {
-      const d = document.createElement("div");
-      d.className = "history-item";
-      d.innerHTML = `<b>പേജ് ${toArabic(r.page)}</b>: അടയാളപ്പെടുത്തി • <span>${r.dateFormatted} (${r.timeFormatted})</span>`;
-      box.appendChild(d);
-    });
-  },
-
-  updateStudentBadge() {
-    document.getElementById("activeStudentBadge").textContent = this.activeStudent ? `👤 ${this.activeStudent.name}` : "👤 കുട്ടി";
+  updateStudentBadgeUI() {
+    document.getElementById("badgeStudentTitle").textContent = this.activeStudent ? this.activeStudent.name : "കുട്ടി";
   }
 };
 
 /* ═══════════════════════════════════════════════════════════
-   3. DIGITAL INK SLATE (Touch-Safe Canvas Overlay)
+   3. DIGITAL INK SLATE (Touch Mode & Timestamp Manager)
    ═══════════════════════════════════════════════════════════ */
-const CanvasOverlay = {
-  isDrawMode: false,
+const CanvasSlate = {
   tool: 'pencil',
   color: 'rgba(40,30,18,0.85)',
   size: 2.2,
   activeSide: 'Right',
-  drawing: false,
+  isDrawing: false,
+  drawingMode: false, // OFF by default: allows scrolling
   lastX: 0, lastY: 0,
   pageMap: { Right: 1, Left: 2 },
 
-  toggleDrawMode() {
-    this.isDrawMode = !this.isDrawMode;
-    const btn = document.getElementById("btnModeToggle");
-    const text = document.getElementById("modeText");
-    const icon = document.getElementById("modeIcon");
-
-    if (this.isDrawMode) {
-      btn.classList.add("active");
-      text.textContent = "Draw";
-      icon.textContent = "✏️";
-      document.querySelectorAll(".canvas-layer").forEach(c => c.classList.add("drawing-active"));
-    } else {
-      btn.classList.remove("active");
-      text.textContent = "Read";
-      icon.textContent = "📖";
-      document.querySelectorAll(".canvas-layer").forEach(c => c.classList.remove("drawing-active"));
-    }
+  toggleDrawingMode() {
+    this.drawingMode = !this.drawingMode;
+    const btn = document.getElementById("btnToggleDraw");
+    btn.classList.toggle("active-mode", this.drawingMode);
+    
+    document.querySelectorAll(".canvas-layer").forEach(c => {
+      c.classList.toggle("drawing-active", this.drawingMode);
+    });
   },
 
-  setTool(tool, color, size) {
+  selectTool(tool, color, size) {
     this.tool = tool;
     if (color) this.color = color;
     this.size = size;
-    document.querySelectorAll(".tool-card").forEach(b => b.classList.remove("active"));
-    const idMap = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
-    if (idMap[tool]) document.getElementById(idMap[tool]).classList.add("active");
-    if (!this.isDrawMode) this.toggleDrawMode();
+    document.querySelectorAll(".tool-tile").forEach(b => b.classList.remove("active"));
+    const map = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
+    if (map[tool]) document.getElementById(map[tool]).classList.add("active");
+
+    // Automatically enable drawing mode when a tool is selected
+    if (!this.drawingMode) this.toggleDrawingMode();
   },
 
   init(side, pageNum) {
     this.pageMap[side] = pageNum;
-    this.resizeCanvas(side);
-    this.loadSaved(side, pageNum);
-    this.bindEvents(side);
+    this.resize(side);
+    this.loadSavedMarking(side, pageNum);
+    this.attachEvents(side);
   },
 
-  resizeCanvas(side) {
+  resize(side) {
     const c = document.getElementById(`canvas${side}`);
     const sheet = document.getElementById(`sheet${side}`);
     if (!c || !sheet) return;
+
     const r = sheet.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
     const temp = document.createElement("canvas");
-    temp.width = c.width; temp.height = c.height;
+    temp.width = c.width;
+    temp.height = c.height;
     if (c.width && c.height) temp.getContext("2d").drawImage(c, 0, 0);
 
     c.width = Math.round(r.width * dpr);
@@ -1010,31 +993,43 @@ const CanvasOverlay = {
     if (temp.width && temp.height) ctx.drawImage(temp, 0, 0, r.width, r.height);
   },
 
-  async loadSaved(side, pageNum) {
+  async loadSavedMarking(side, pageNum) {
     const c = document.getElementById(`canvas${side}`);
     const ctx = c.getContext("2d");
     ctx.clearRect(0, 0, c.width, c.height);
 
     if (App.activeStudent) {
-      const data = await DB.loadDrawing(App.activeStudent.id, pageNum);
-      if (data) {
+      const record = await DB.loadMarking(App.activeStudent.id, pageNum);
+      if (record && record.data) {
         const img = new Image();
         img.onload = () => {
           const r = document.getElementById(`sheet${side}`).getBoundingClientRect();
           ctx.drawImage(img, 0, 0, r.width, r.height);
         };
-        img.src = data;
+        img.src = record.data;
+        if (side === 'Right') this.updateTimestampUI(record.dateStr);
+      } else if (side === 'Right') {
+        this.updateTimestampUI(null);
       }
     }
   },
 
-  bindEvents(side) {
+  updateTimestampUI(dateStr) {
+    const box = document.getElementById("timestampNotice");
+    if (dateStr) {
+      box.innerHTML = `🕒 അവസാനം അടയാളപ്പെടുത്തിയത്: <b>${dateStr}</b>`;
+    } else {
+      box.textContent = "ഈ പേജിൽ അടയാളപ്പെടുത്തലുകൾ രേഖപ്പെടുത്തിയിട്ടില്ല.";
+    }
+  },
+
+  attachEvents(side) {
     const c = document.getElementById(`canvas${side}`);
     const ctx = c.getContext("2d");
 
     c.onpointerdown = e => {
-      if (!this.isDrawMode) return;
-      this.drawing = true;
+      if (!this.drawingMode) return;
+      this.isDrawing = true;
       this.activeSide = side;
       c.setPointerCapture(e.pointerId);
       const r = c.getBoundingClientRect();
@@ -1043,7 +1038,7 @@ const CanvasOverlay = {
     };
 
     c.onpointermove = e => {
-      if (!this.drawing || this.activeSide !== side) return;
+      if (!this.isDrawing || this.activeSide !== side) return;
       const r = c.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
@@ -1059,6 +1054,7 @@ const CanvasOverlay = {
         ctx.globalCompositeOperation = "multiply";
         ctx.strokeStyle = this.color;
         ctx.lineWidth = this.size;
+        ctx.lineCap = "square";
       } else {
         ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = this.color;
@@ -1076,10 +1072,10 @@ const CanvasOverlay = {
     };
 
     const stop = () => {
-      if (this.drawing && this.activeSide === side) {
-        this.drawing = false;
+      if (this.isDrawing && this.activeSide === side) {
+        this.isDrawing = false;
         if (App.activeStudent) {
-          DB.saveDrawingWithTime(App.activeStudent.id, this.pageMap[side], c.toDataURL());
+          DB.saveMarking(App.activeStudent.id, this.pageMap[side], c.toDataURL());
         }
       }
     };
@@ -1087,20 +1083,22 @@ const CanvasOverlay = {
     c.onpointercancel = stop;
   },
 
-  clearCurrentCanvas() {
-    if (!confirm("ഈ പേജിലെ അടയാളപ്പെടുത്തലുകൾ മായ്ക്കണോ?")) return;
+  clearActiveCanvas() {
+    if (!confirm("ഈ പേജിലെ അടയാളങ്ങൾ മായ്ക്കണോ?")) return;
     const c = document.getElementById(`canvas${this.activeSide}`);
     c.getContext("2d").clearRect(0, 0, c.width, c.height);
     if (App.activeStudent) {
-      DB.saveDrawingWithTime(App.activeStudent.id, this.pageMap[this.activeSide], c.toDataURL());
+      DB.saveMarking(App.activeStudent.id, this.pageMap[this.activeSide], c.toDataURL());
     }
   }
 };
 
-/* Service Worker Registration */
+/* ═══════════════════════════════════════════════════════════
+   4. SERVICE WORKER REGISTRATION
+   ═══════════════════════════════════════════════════════════ */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW failed', err));
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
