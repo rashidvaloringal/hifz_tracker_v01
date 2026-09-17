@@ -1,16 +1,16 @@
 {
-  "name": "Al-Halaqah: Universal Quran Hifdh Slate",
-  "short_name": "HifdhSlate",
-  "description": "Professional 15-Line Madani Quran Hifdh Evaluation Slate",
+  "name": "Al-Mushaf Al-Madani 1405H",
+  "short_name": "Mushaf1405",
+  "description": "Offline 15-Line Madani Quran Slate for Teachers and Students",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0d1310",
-  "theme_color": "#0d1310",
   "orientation": "any",
+  "background_color": "#0e1310",
+  "theme_color": "#121a15",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230d1310'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23c5a046' stroke-width='16'/><path d='M160 160 Q256 205 352 160 L352 350 Q256 395 160 350 Z' fill='%23fffef8' stroke='%23836727' stroke-width='10'/><line x1='256' y1='182' x2='256' y2='372' stroke='%23c5a046' stroke-width='8'/></svg>",
-      "sizes": "192x192 512x512",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23121a15'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23c9a961' stroke-width='14'/><text x='256' y='325' font-size='220' text-anchor='middle' fill='%23c9a961' font-family='serif'>﷽</text></svg>",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
