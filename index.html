@@ -1,1108 +1,1583 @@
 <!DOCTYPE html>
-<html lang="ml" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#121a15">
-<link rel="manifest" href="./manifest.json">
-<title>മുസ്ഹഫ് മദീന — 1405H</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d110f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <title>Al-Halaqah — Universal Quran Hifdh Slate (1405H & Indo-Pak)</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-:root {
-  --gold: #c5a046;
-  --gold-light: #f5e4b8;
-  --gold-dark: #7a5e27;
-  --paper: #fffef8;
-  --border-outer: #2e2215;
-  --ink: #16120c;
-  --red-ink: #b81c1c;
-  --bg-app: #0d120f;
-  --line-h: 53px;
-}
+  <style>
+    :root {
+      --gold-primary: #c5a059;
+      --gold-light: #dfba73;
+      --gold-dark: #7a5e27;
+      --paper: #fcf9f2;
+      --border-outer: #2d2417;
+      --ink: #14120e;
+      --app-bg: #0d110f;
+      --surface-dark: #161c18;
+      --surface-card: #1f2722;
+      --surface-border: #2c3831;
+      --jalalah-red: #a81c1c;
+      --highlight-active: rgba(223, 186, 115, 0.45);
+    }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
 
-body {
-  background: var(--bg-app);
-  color: #ede6d4;
-  font-family: 'Noto Sans Malayalam', system-ui, -apple-system, sans-serif;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  user-select: none;
-}
+    body {
+      background: var(--app-bg);
+      color: #edeae4;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-/* ═══ Main Viewport Stage ═══ */
-main {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 10px 85px;
-  background: radial-gradient(circle at 50% 45%, #18231c 0%, #080c09 100%);
-}
-main::-webkit-scrollbar { width: 5px; height: 5px; }
-main::-webkit-scrollbar-thumb { background: #26382e; border-radius: 3px; }
+    /* ═══ Reading Stage ═══ */
+    main {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 8px 75px;
+      background: radial-gradient(circle at 50% 45%, #18221c 0%, #080b09 100%);
+    }
 
-/* ═══ Book Spread (Open Mushaf) ═══ */
-.book-spread {
-  display: flex;
-  direction: rtl; /* വലത് പേജ് ആദ്യം */
-  gap: 16px;
-  align-items: center;
-  justify-content: center;
-  max-width: 100%;
-}
+    .book-spread {
+      display: flex;
+      direction: rtl; /* Right page odd, Left page even */
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
+      height: 100%;
+    }
 
-/* ═══ 1405H Page Frame ═══ */
-.mushaf-sheet {
-  width: min(525px, 48vw);
-  height: min(calc(100vh - 96px), 880px);
-  aspect-ratio: 1 / 1.54;
-  background: var(--paper);
-  position: relative;
-  padding: 16px 26px 12px;
-  box-shadow: 0 16px 45px rgba(0,0,0,0.85);
-  border: 2.5px solid var(--border-outer);
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-  border-radius: 2px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+    /* ═══ Physical Mushaf Page Layout ═══ */
+    .mushaf-sheet {
+      width: min(520px, 48vw);
+      height: min(calc(100vh - 95px), 880px);
+      aspect-ratio: 1 / 1.53;
+      background: var(--paper);
+      position: relative;
+      padding: 16px 26px 12px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.85);
+      border: 2.5px solid var(--border-outer);
+      outline: 2px solid var(--gold-primary);
+      outline-offset: 3px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-.mushaf-sheet::before {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  border: 1.2px solid #a6894c77;
-  pointer-events: none;
-}
+    .mushaf-sheet::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1.5px solid #a6894c77;
+      pointer-events: none;
+    }
 
-/* Corner Ornaments */
-.page-corner {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  pointer-events: none;
-  z-index: 2;
-}
-.pc-tr { top: 8px; right: 8px; }
-.pc-tl { top: 8px; left: 8px; transform: scaleX(-1); }
-.pc-br { bottom: 8px; right: 8px; transform: scaleY(-1); }
-.pc-bl { bottom: 8px; left: 8px; transform: scale(-1, -1); }
+    /* Traditional Corner Motifs */
+    .corner-svg {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .c-tr { top: 8px; right: 8px; }
+    .c-tl { top: 8px; left: 8px; transform: scaleX(-1); }
+    .c-br { bottom: 8px; right: 8px; transform: scaleY(-1); }
+    .c-bl { bottom: 8px; left: 8px; transform: scale(-1, -1); }
 
-/* Header & Footer */
-.sheet-top {
-  height: 26px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: 'Amiri', serif;
-  font-size: 13.5px;
-  font-weight: bold;
-  color: #5c431a;
-  border-bottom: 1px solid #ded5bd;
-  padding-bottom: 2px;
-  direction: rtl;
-}
+    .sheet-header {
+      height: 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Amiri', serif;
+      font-size: 14px;
+      font-weight: bold;
+      color: #594017;
+      border-bottom: 1px solid #dfd4b7;
+      padding-bottom: 2px;
+      direction: rtl;
+    }
 
-.sheet-bottom {
-  height: 26px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: 'Amiri', serif;
-  font-size: 11px;
-  color: #796644;
-  border-top: 1px solid #ded5bd;
-  padding-top: 2px;
-}
-.page-number-text { font-size: 15px; font-weight: bold; color: #3d2c16; }
+    .sheet-footer {
+      height: 26px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px solid #dfd4b7;
+      padding-top: 2px;
+    }
 
-/* ═══ 15-Lines Grid ═══ */
-.lines-grid {
-  width: 100%;
-  direction: rtl;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: space-between;
-  margin: 4px 0;
-}
+    .page-number-display {
+      font-family: 'Amiri', serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #3b2c14;
+    }
 
-.mushaf-line {
-  height: calc(100% / 15);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  white-space: nowrap;
-  direction: rtl;
-  position: relative;
-  width: 100%;
-  padding: 0 1px;
-}
+    /* ═══ 15-Line Cadence ═══ */
+    .lines-grid-15 {
+      width: 100%;
+      direction: rtl;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+      margin: 4px 0;
+      position: relative;
+      z-index: 5;
+    }
 
-.mushaf-line.natural-center {
-  justify-content: center !important;
-  gap: 12px;
-}
+    .mushaf-line {
+      height: calc(100% / 15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: nowrap;
+      direction: rtl;
+      position: relative;
+      width: 100%;
+      padding: 0 1px;
+    }
 
-.mushaf-word {
-  font-size: clamp(20px, 2.25vh, 30px);
-  line-height: 1;
-  color: var(--ink);
-  display: inline-block;
-}
+    .mushaf-line.natural-center {
+      justify-content: center !important;
+      gap: 10px;
+    }
 
-.mushaf-word.lafdh-allah {
-  color: var(--red-ink) !important;
-  font-weight: bold;
-}
+    .mushaf-word {
+      font-size: clamp(20px, 2.2vh, 31px);
+      line-height: 1;
+      color: var(--ink);
+      display: inline-block;
+      transition: background-color 0.2s;
+    }
 
-/* ═══ Surah Header & Bismillah ═══ */
-.surah-header-row {
-  width: 100%;
-  height: calc(100% / 15);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(180deg, #fefbf2 0%, #f5e7c3 50%, #fefbf2 100%);
-  border: 1.5px solid var(--border-outer);
-  outline: 1.2px solid var(--gold);
-  outline-offset: -3px;
-  padding: 0 14px;
-  direction: rtl;
-  border-radius: 2px;
-}
-.sh-meta { font-family: 'Amiri', serif; font-size: 11.5px; font-weight: bold; color: #5c4118; min-width: 70px; text-align: center; }
-.sh-title { font-family: 'Amiri', serif; font-size: 20px; font-weight: bold; color: #16291e; flex: 1; text-align: center; }
+    .mushaf-word.currently-recited {
+      background-color: var(--highlight-active);
+      border-radius: 4px;
+    }
 
-.bismillah-row {
-  height: calc(100% / 15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Amiri', serif;
-  font-size: 21px;
-  color: #172d21;
-  direction: rtl;
-}
+    .mushaf-word.lafdh-jalalah {
+      color: var(--jalalah-red) !important;
+      font-weight: bold;
+    }
 
-/* ═══ Drawing Slate Canvas Overlay ═══ */
-.canvas-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 25;
-  touch-action: none;
-  pointer-events: none; /* Disabled by default to allow scrolling */
-}
-.canvas-layer.drawing-active {
-  pointer-events: auto;
-  cursor: crosshair;
-}
+    /* Indo-Pak Mode Typography */
+    .indopak-script .mushaf-word {
+      font-family: 'Noto Nastaliq Urdu', 'Amiri', serif !important;
+      font-size: clamp(17px, 1.9vh, 25px);
+      line-height: 1.25;
+    }
 
-/* ═══ Floating Bottom HUD ═══ */
-.floating-dock {
-  position: fixed;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(14, 20, 17, 0.94);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--gold);
-  border-radius: 40px;
-  padding: 4px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 10px 35px rgba(0,0,0,0.7);
-  z-index: 100;
-}
+    /* Surah Header Cartouche */
+    .surah-header-row {
+      width: 100%;
+      height: calc(100% / 15);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, #fefbf2 0%, #f4e7c3 50%, #fefbf2 100%);
+      border: 1.5px solid var(--border-outer);
+      outline: 1.2px solid var(--gold-primary);
+      outline-offset: -3px;
+      padding: 0 14px;
+      direction: rtl;
+      border-radius: 2px;
+    }
 
-.dock-btn {
-  background: transparent;
-  border: none;
-  color: var(--gold-light);
-  font-size: 15px;
-  cursor: pointer;
-  padding: 7px 10px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.dock-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.dock-btn.active-mode { background: var(--gold); color: #0d120f; font-weight: bold; }
+    .surah-meta {
+      font-family: 'Amiri', serif;
+      font-size: 11px;
+      font-weight: bold;
+      color: #5c4118;
+      min-width: 65px;
+      text-align: center;
+    }
 
-.page-badge {
-  font-family: 'Amiri', serif;
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--gold);
-  cursor: pointer;
-  padding: 3px 12px;
-  border-radius: 8px;
-  background: #080d0a;
-  border: 1px solid #23332a;
-}
+    .surah-title {
+      font-family: 'Amiri', serif;
+      font-size: 19px;
+      font-weight: bold;
+      color: #16291e;
+      flex: 1;
+      text-align: center;
+    }
 
-.student-badge-btn {
-  font-size: 12px;
-  font-weight: 600;
-  color: #bfd9cb;
-  background: #192720;
-  padding: 5px 12px;
-  border-radius: 14px;
-  border: 1px solid #2b4437;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .bismillah-row {
+      height: calc(100% / 15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Amiri', serif;
+      font-size: 20px;
+      color: #172d21;
+      direction: rtl;
+    }
 
-/* ═══ Drawer Bottom Sheet ═══ */
-.sheet-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-.sheet-overlay.open { opacity: 1; pointer-events: auto; }
+    /* Canvas Drawing Slate */
+    .canvas-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 25;
+      touch-action: none;
+      cursor: crosshair;
+    }
 
-.sheet-panel {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
-  width: 100%;
-  max-width: 540px;
-  background: #141c18;
-  border: 1.5px solid var(--gold);
-  border-bottom: none;
-  border-radius: 20px 20px 0 0;
-  padding: 16px 20px 24px;
-  z-index: 210;
-  color: #fff;
-  transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-  box-shadow: 0 -10px 45px rgba(0,0,0,0.8);
-}
-.sheet-overlay.open .sheet-panel { transform: translateX(-50%) translateY(0); }
+    /* ═══ Floating Teacher Micro-HUD ═══ */
+    .floating-dock {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 24, 20, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--gold-primary);
+      border-radius: 40px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.65);
+      z-index: 100;
+    }
 
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #283a30;
-  padding-bottom: 10px;
-  margin-bottom: 14px;
-}
-.panel-header h3 { font-size: 14px; font-weight: 600; color: var(--gold-light); }
-.close-btn { background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; }
+    .dock-btn {
+      background: transparent;
+      border: none;
+      color: var(--gold-light);
+      font-size: 15px;
+      cursor: pointer;
+      padding: 7px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
 
-.tab-nav { display: flex; gap: 6px; margin-bottom: 14px; }
-.tab-item {
-  flex: 1; padding: 8px 4px; background: #0c120f; border: 1px solid #23352c;
-  color: #9eb5a8; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; text-align: center;
-}
-.tab-item.active { background: var(--gold); color: #0d120f; font-weight: bold; border-color: var(--gold-light); }
+    .dock-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+    .dock-btn.active-audio {
+      color: #ff5252;
+      animation: pulse 1.5s infinite;
+    }
 
-/* Tools */
-.tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
-.tool-tile {
-  padding: 10px 4px; background: #0c120f; border: 1px solid #23352c;
-  color: #ddd; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-}
-.tool-tile.active { background: var(--gold); color: #0d120f; font-weight: bold; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
 
-/* Student Manager */
-.form-row { display: flex; gap: 8px; margin-bottom: 12px; }
-.input-field {
-  flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid #2a3f34;
-  background: #0a0f0d; color: #fff; font-family: inherit; font-size: 13px; outline: none;
-}
-.btn-gold {
-  padding: 8px 16px; background: var(--gold); color: #0d120f; border: none;
-  border-radius: 6px; font-weight: bold; cursor: pointer;
-}
+    .page-badge {
+      font-family: 'Amiri', serif;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--gold-primary);
+      cursor: pointer;
+      padding: 3px 12px;
+      border-radius: 8px;
+      background: #090c0a;
+      border: 1px solid #28332d;
+    }
 
-.items-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-.item-card {
-  display: flex; justify-content: space-between; align-items: center;
-  background: #18241e; padding: 9px 12px; border-radius: 6px; border: 1px solid #263a2f; cursor: pointer;
-}
-.item-card.active { border-color: var(--gold); background: #22352b; }
+    .student-badge-btn {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #c0ded0;
+      background: #17241e;
+      padding: 5px 12px;
+      border-radius: 14px;
+      border: 1px solid #2b4035;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.stamp-box {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: #090e0c;
-  border-radius: 6px;
-  font-size: 11px;
-  color: #92ab9d;
-  border-left: 3px solid var(--gold);
-}
+    /* ═══ Universal Settings Drawer ═══ */
+    .sheet-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
 
-/* ═══ Responsive View ═══ */
-@media (max-width: 1080px), (orientation: portrait) {
-  .book-spread { flex-direction: column; }
-  .mushaf-sheet.left-page { display: none !important; }
-  .mushaf-sheet { width: 100%; max-width: 510px; height: min(calc(100vh - 90px), 820px); padding: 14px 18px 10px; }
-}
-</style>
+    .sheet-scrim.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-panel {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 560px;
+      background: var(--surface-dark);
+      border: 1.5px solid var(--gold-primary);
+      border-bottom: none;
+      border-radius: 22px 22px 0 0;
+      padding: 16px 20px 24px;
+      z-index: 210;
+      color: #fff;
+      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+    }
+
+    .sheet-scrim.open .sheet-panel {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .panel-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+
+    .close-sheet-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      background: #0f1311;
+      border: 1px solid #26312a;
+      color: #a5b5ab;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--gold-primary);
+      color: #0d120f;
+      border-color: var(--gold-light);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tool-tile {
+      padding: 10px 4px;
+      background: #111714;
+      border: 1px solid #233129;
+      color: #ddd;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-tile.active {
+      background: var(--gold-primary);
+      color: #0e1411;
+    }
+
+    .timestamp-log-badge {
+      font-size: 11px;
+      color: #8fa397;
+      background: #121815;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #243029;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Forms */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .input-ctrl, .select-ctrl {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #2b3930;
+      background: #0d120f;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .btn-action {
+      padding: 9px 16px;
+      background: var(--gold-primary);
+      color: #0d120f;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .items-scroll {
+      max-height: 190px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .list-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface-card);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--surface-border);
+      cursor: pointer;
+    }
+
+    .list-card.active {
+      border-color: var(--gold-primary);
+      background: #25332a;
+    }
+
+    .tag-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(197, 160, 89, 0.2);
+      color: var(--gold-light);
+      margin-left: 6px;
+    }
+
+    /* Offline Progress Bar */
+    .download-card {
+      background: #111714;
+      border: 1px solid #26332b;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #222b26;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gold-primary);
+      transition: width 0.15s ease;
+    }
+
+    @media (max-width: 960px), (orientation: portrait) {
+      .mushaf-sheet.left-page {
+        display: none !important;
+      }
+      .mushaf-sheet {
+        width: 100%;
+        max-width: 490px;
+        height: min(calc(100vh - 90px), 820px);
+        padding: 14px 18px 10px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- ═══ Reading Canvas ═══ -->
-<main id="stage">
-  <div class="book-spread" id="spreadContainer">
-    <!-- Right Sheet (Odd) -->
-    <article class="mushaf-sheet right-page" id="sheetRight">
-      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      
-      <header class="sheet-top">
-        <span id="rightJuzLabel">الجزء</span>
-        <span id="rightSurahLabel">سورة</span>
+  <!-- Main Stage -->
+  <main id="mainStage">
+    <div class="book-spread" id="bookSpread">
+      <!-- Right Page (Odd) -->
+      <article class="mushaf-sheet right-page" id="sheetRight">
+        <svg class="corner-svg c-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+
+        <header class="sheet-header">
+          <span id="rightJuzLabel">الجزء</span>
+          <span id="rightSurahLabel">سورة</span>
+        </header>
+
+        <section class="lines-grid-15" id="linesRight"></section>
+
+        <footer class="sheet-footer">
+          <span class="page-number-display" id="rightPageNum">١</span>
+        </footer>
+
+        <canvas class="canvas-overlay" id="canvasRight"></canvas>
+      </article>
+
+      <!-- Left Page (Even) -->
+      <article class="mushaf-sheet left-page" id="sheetLeft">
+        <svg class="corner-svg c-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+        <svg class="corner-svg c-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+
+        <header class="sheet-header">
+          <span id="leftJuzLabel">الجزء</span>
+          <span id="leftSurahLabel">سورة</span>
+        </header>
+
+        <section class="lines-grid-15" id="linesLeft"></section>
+
+        <footer class="sheet-footer">
+          <span class="page-number-display" id="leftPageNum">٢</span>
+        </footer>
+
+        <canvas class="canvas-overlay" id="canvasLeft"></canvas>
+      </article>
+    </div>
+  </main>
+
+  <!-- Micro-HUD Dock -->
+  <nav class="floating-dock">
+    <button class="dock-btn" onclick="App.turnPage(-1)" title="Previous Page">◀</button>
+    <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">Page 1</span>
+    <button class="dock-btn" onclick="App.turnPage(1)" title="Next Page">▶</button>
+
+    <button class="dock-btn" id="audioToggleBtn" onclick="AudioEngine.togglePlay()" title="Listen to Page Ayahs">
+      🔊
+    </button>
+
+    <span class="student-badge-btn" onclick="App.openSheet('students')">
+      👤 <span id="badgeStudentTitle">Student</span>
+    </span>
+
+    <button class="dock-btn" onclick="App.openSheet('tools')" title="Settings & Tools">⚙️</button>
+  </nav>
+
+  <!-- Universal Settings Drawer -->
+  <div class="sheet-scrim" id="sheetScrim" onclick="App.closeSheet(event)">
+    <div class="sheet-panel" onclick="event.stopPropagation()">
+      <header class="panel-header">
+        <h3 id="panelTitle">Evaluation Slate & Offline Hub</h3>
+        <button class="close-sheet-btn" onclick="App.closeSheet()">&times;</button>
       </header>
-      <section class="lines-grid" id="linesRight"></section>
-      <footer class="sheet-bottom">
-        <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
-        <span class="page-number-text" id="rightPageNum">١</span>
-        <span>مجمع الملك فهد</span>
-      </footer>
-      <canvas class="canvas-layer" id="canvasRight"></canvas>
-    </article>
 
-    <!-- Left Sheet (Even) -->
-    <article class="mushaf-sheet left-page" id="sheetLeft">
-      <svg class="page-corner pc-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
-      <svg class="page-corner pc-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a046"/></svg>
+      <nav class="tab-bar">
+        <button class="tab-btn active" id="tabHeadTools" onclick="App.setTab('tools')">✏️ Tools</button>
+        <button class="tab-btn" id="tabHeadStudents" onclick="App.setTab('students')">🎓 Students</button>
+        <button class="tab-btn" id="tabHeadOffline" onclick="App.setTab('offline')">💾 Offline Packs</button>
+        <button class="tab-btn" id="tabHeadAudio" onclick="App.setTab('audio')">🎙️ Audio</button>
+        <button class="tab-btn" id="tabHeadInstitutions" onclick="App.setTab('institutions')">🏛️ Circles</button>
+      </nav>
 
-      <header class="sheet-top">
-        <span id="leftJuzLabel">الجزء</span>
-        <span id="leftSurahLabel">سورة</span>
-      </header>
-      <section class="lines-grid" id="linesLeft"></section>
-      <footer class="sheet-bottom">
-        <span>مصحف المدينة النبوية (١٤٠٥هـ)</span>
-        <span class="page-number-text" id="leftPageNum">٢</span>
-        <span>مجمع الملك فهد</span>
-      </footer>
-      <canvas class="canvas-layer" id="canvasLeft"></canvas>
-    </article>
+      <!-- Tab 1: Tools & Timestamp Log -->
+      <section class="tab-content active" id="tabBodyTools">
+        <div class="timestamp-log-badge">
+          <span>🕒 Last Marked: <b id="lastMarkedTime">No markings yet</b></span>
+          <span id="lastMarkedSession">Active Session</span>
+        </div>
+        <div class="tools-grid">
+          <div class="tool-tile active" id="toolPencil" onclick="CanvasOverlay.selectTool('pencil', 'rgba(45,35,20,0.85)', 2)">
+            <span>✏️</span> Pencil (Notice)
+          </div>
+          <div class="tool-tile" id="toolRed" onclick="CanvasOverlay.selectTool('red', 'rgba(215,25,25,0.88)', 2.5)">
+            <span>🔴</span> Error (Ghalat)
+          </div>
+          <div class="tool-tile" id="toolHigh" onclick="CanvasOverlay.selectTool('high', 'rgba(235,190,40,0.4)', 15)">
+            <span>🟡</span> Tajweed
+          </div>
+          <div class="tool-tile" id="toolEraser" onclick="CanvasOverlay.selectTool('eraser', null, 24)">
+            <span>🧹</span> Eraser
+          </div>
+        </div>
+        <button class="btn-action" style="background:#331919; color:#ff9999; border:1px solid #5e2626; width:100%;" onclick="CanvasOverlay.clearActiveCanvas()">
+          Clear Markings for This Page
+        </button>
+      </section>
+
+      <!-- Tab 2: Students & Script Config -->
+      <section class="tab-content" id="tabBodyStudents">
+        <div class="form-row">
+          <select class="select-ctrl" id="studentInstitutionSelect" onchange="App.onInstitutionFilter(this.value)"></select>
+        </div>
+        <div class="form-row">
+          <input type="text" class="input-ctrl" id="newStudentName" placeholder="Student name...">
+          <select class="select-ctrl" id="newStudentScript" style="max-width:145px;">
+            <option value="madani">Madani 1405H</option>
+            <option value="indopak">Indo-Pak 15L</option>
+          </select>
+          <button class="btn-action" onclick="App.addStudent()">+ Add</button>
+        </div>
+        <div class="items-scroll" id="studentsListContainer"></div>
+      </section>
+
+      <!-- Tab 3: Offline Quran Downloader -->
+      <section class="tab-content" id="tabBodyOffline">
+        <div style="font-size:12.5px; color:#aaa; margin-bottom:12px;">
+          Download full Quran packages once to work <b>100% offline permanently</b> without ever using internet again:
+        </div>
+
+        <div class="download-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b>📖 Madani 1405H (Full 604 Pages)</b>
+            <button class="btn-action" id="btnDlMadani" style="padding:5px 12px; font-size:11px;" onclick="OfflineManager.downloadFullQuran('madani')">Download</button>
+          </div>
+          <div class="progress-bar-container"><div class="progress-bar-fill" id="pbMadani"></div></div>
+          <div style="font-size:11px; color:#788f83;" id="statusMadani">Ready to download</div>
+        </div>
+
+        <div class="download-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b>📜 Indo-Pak 15-Lines (Full 604 Pages)</b>
+            <button class="btn-action" id="btnDlIndopak" style="padding:5px 12px; font-size:11px;" onclick="OfflineManager.downloadFullQuran('indopak')">Download</button>
+          </div>
+          <div class="progress-bar-container"><div class="progress-bar-fill" id="pbIndopak"></div></div>
+          <div style="font-size:11px; color:#788f83;" id="statusIndopak">Ready to download</div>
+        </div>
+      </section>
+
+      <!-- Tab 4: Audio Reciters -->
+      <section class="tab-content" id="tabBodyAudio">
+        <div style="font-size:13px; color:#aaa; margin-bottom:10px;">Select reciter for page playback:</div>
+        <div class="form-row">
+          <select class="select-ctrl" id="reciterSelector" onchange="AudioEngine.setReciter(this.value)">
+            <option value="7">Mishary Rashid Alafasy</option>
+            <option value="6">Mahmoud Khalil Al-Husary</option>
+            <option value="12">Muhammad Siddiq Al-Minshawi</option>
+            <option value="2">Abdul Basit Abdul Samad</option>
+            <option value="3">Abdur-Rahman As-Sudais</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Tab 5: Circles / Institutions -->
+      <section class="tab-content" id="tabBodyInstitutions">
+        <div class="form-row">
+          <input type="text" class="input-ctrl" id="newInstitutionName" placeholder="New institution / Halaqah name...">
+          <button class="btn-action" onclick="App.addInstitution()">+ Create</button>
+        </div>
+        <div class="items-scroll" id="institutionsListContainer"></div>
+      </section>
+    </div>
   </div>
-</main>
 
-<!-- ═══ Floating Micro-HUD ═══ -->
-<nav class="floating-dock">
-  <button class="dock-btn" onclick="App.turnPage(-1)" title="മുൻപത്തെ പേജ്">◀</button>
-  <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">പേജ് ١</span>
-  <button class="dock-btn" onclick="App.turnPage(1)" title="അടുത്ത പേജ്">▶</button>
+  <audio id="quranAudioPlayer" preload="none"></audio>
 
-  <!-- Drawing Mode Switcher (Enables touch drawing vs mobile scrolling) -->
-  <button class="dock-btn" id="btnToggleDraw" onclick="CanvasSlate.toggleDrawingMode()" title="വരയ്ക്കൽ ഓൺ/ഓഫ്">
-    ✏️
-  </button>
+  <!-- Script Implementation -->
+  <script>
+    "use strict";
 
-  <!-- Student selector badge -->
-  <span class="student-badge-btn" onclick="App.openSheet('students')">
-    👤 <span id="badgeStudentTitle">കുട്ടി</span>
-  </span>
+    const API_ROOT = "https://api.quran.com/api/v4";
+    const FONT_ROOT = "https://static.qurancdn.com/fonts/quran/hafs/v1/woff2";
 
-  <button class="dock-btn" onclick="App.openSheet('tools')" title="ടൂളുകൾ & വിവരങ്ങൾ">⚙️</button>
-</nav>
-
-<!-- ═══ Bottom Drawer Sheet ═══ -->
-<div class="sheet-overlay" id="sheetOverlay" onclick="App.closeSheet(event)">
-  <div class="sheet-panel" onclick="event.stopPropagation()">
-    <header class="panel-header">
-      <h3 id="panelTitle">അധ്യാപക സഹായി (Teacher Slate)</h3>
-      <button class="close-btn" onclick="App.closeSheet()">&times;</button>
-    </header>
-
-    <nav class="tab-nav">
-      <button class="tab-item active" id="tabHeadTools" onclick="App.setTab('tools')">✏️ ടൂളുകൾ</button>
-      <button class="tab-item" id="tabHeadStudents" onclick="App.setTab('students')">🎓 കുട്ടികൾ</button>
-      <button class="tab-item" id="tabHeadInfo" onclick="App.setTab('info')">ℹ️ വിവരങ്ങൾ</button>
-    </nav>
-
-    <!-- Tab 1: Marking Tools -->
-    <section class="tab-content active" id="tabBodyTools">
-      <div class="tools-grid">
-        <div class="tool-tile active" id="toolPencil" onclick="CanvasSlate.selectTool('pencil', 'rgba(40,30,18,0.85)', 2.2)">
-          <span>✏️</span> പെൻസിൽ
-        </div>
-        <div class="tool-tile" id="toolRed" onclick="CanvasSlate.selectTool('red', 'rgba(195,20,20,0.88)', 2.5)">
-          <span>🔴</span> തെറ്റ് (ഖത്അ്)
-        </div>
-        <div class="tool-tile" id="toolHigh" onclick="CanvasSlate.selectTool('high', 'rgba(235,190,40,0.38)', 16)">
-          <span>🟡</span> തജ്‌വീദ്
-        </div>
-        <div class="tool-tile" id="toolEraser" onclick="CanvasSlate.selectTool('eraser', null, 24)">
-          <span>🧹</span> ഇറേസർ
-        </div>
-      </div>
-      <button class="btn-gold" style="width:100%; background:#331919; color:#ff9999; border:1px solid #5e2626;" onclick="CanvasSlate.clearActiveCanvas()">
-        🗑️ ഈ പേജിലെ അടയാളങ്ങൾ മായ്ക്കുക
-      </button>
-      <div class="stamp-box" id="timestampNotice">അടയാളപ്പെടുത്തലുകൾ രേഖപ്പെടുത്തിയിട്ടില്ല.</div>
-    </section>
-
-    <!-- Tab 2: Students List & Add -->
-    <section class="tab-content" id="tabBodyStudents">
-      <div class="form-row">
-        <input type="text" class="input-field" id="newStudentName" placeholder="കുട്ടിയുടെ പേര്...">
-        <button class="btn-gold" onclick="App.addStudent()">+ ചേർക്കുക</button>
-      </div>
-      <div class="items-list" id="studentsListContainer"></div>
-    </section>
-
-    <!-- Tab 3: Instructions & Cache Info -->
-    <section class="tab-content" id="tabBodyInfo">
-      <div style="font-size:12px; line-height:1.75; color:#a2b8ab;">
-        <p>• <b>ഓഫ്‌ലൈൻ പ്രവർത്തനം:</b> ഒരു തവണ ലോഡ് ചെയ്ത പേജുകളും ഫോണ്ടുകളും നിങ്ങളുടെ ബ്രൗസറിലെ <b>IndexedDB</b>-ൽ തനിയെ സേവ് ആകും. പിന്നീട് ഇന്റർനെറ്റ് ഇല്ലാതെയും പ്രവർത്തിക്കും.</p>
-        <p>• <b>സ്ക്രോളിംഗ് & ഡ്രോയിംഗ്:</b> മൊബൈലിൽ സ്ക്രോൾ ചെയ്യാൻ താഴെയുള്ള ✏️ ഐക്കൺ ഓഫ് ചെയ്യുക. വരയ്ക്കാൻ അത് അമർത്തി ഓൺ ചെയ്യുക.</p>
-        <p>• ഓരോ കുട്ടിയുടെയും അടയാളപ്പെടുത്തലുകൾ സമയം സഹിതം രേഖപ്പെടുത്തുന്നു.</p>
-      </div>
-    </section>
-  </div>
-</div>
-
-<script>
-"use strict";
-
-const API_ROOT = "https://api.quran.com/api/v4";
-const FONT_ROOT = "https://static.qurancdn.com/fonts/quran/hafs/v1/woff2";
-
-function toArabicNumeral(n) {
-  return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
-}
-
-function isDivineName(text) {
-  if (!text) return false;
-  let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
-  clean = clean.replace(/[ٱإأآء]/g, 'ا').replace(/[\u0640\u06E5\u06E6]/g, '').trim();
-  clean = clean.replace(/^(و|ف|ب|ت|ك|ല)?(ا?لله|لله|ا?للهم)$/, '$2');
-  return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
-}
-
-/* ═══════════════════════════════════════════════════════════
-   1. IndexedDB: OFFLINE ENGINE (Cache, Students, Timestamps)
-   ═══════════════════════════════════════════════════════════ */
-const DB = {
-  db: null,
-  init() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open("MushafUniversalDB_v3", 1);
-      req.onupgradeneeded = e => {
-        const d = e.target.result;
-        if (!d.objectStoreNames.contains("students")) {
-          d.createObjectStore("students", { keyPath: "id", autoIncrement: true });
-        }
-        if (!d.objectStoreNames.contains("drawings")) {
-          const s = d.createObjectStore("drawings", { keyPath: "id", autoIncrement: true });
-          s.createIndex("student_page", ["studentId", "page"], { unique: true });
-        }
-        if (!d.objectStoreNames.contains("page_cache")) {
-          d.createObjectStore("page_cache", { keyPath: "page" });
-        }
-      };
-      req.onsuccess = () => { this.db = req.result; resolve(); };
-      req.onerror = () => reject(req.error);
-    });
-  },
-  getAll(store) {
-    return new Promise(res => {
-      const tx = this.db.transaction(store, "readonly");
-      const r = tx.objectStore(store).getAll();
-      r.onsuccess = () => res(r.result || []);
-    });
-  },
-  add(store, data) {
-    return new Promise(res => {
-      const tx = this.db.transaction(store, "readwrite");
-      const r = tx.objectStore(store).add(data);
-      r.onsuccess = () => res(r.result);
-    });
-  },
-  put(store, data) {
-    return new Promise(res => {
-      const tx = this.db.transaction(store, "readwrite");
-      const r = tx.objectStore(store).put(data);
-      r.onsuccess = () => res(r.result);
-    });
-  },
-  delete(store, id) {
-    return new Promise(res => {
-      const tx = this.db.transaction(store, "readwrite");
-      tx.objectStore(store).delete(id);
-      tx.oncomplete = () => res();
-    });
-  },
-  /* Markings with Timestamp & Session History */
-  saveMarking(studentId, page, dataUrl) {
-    if (!studentId || !page) return;
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString('ml-IN', { day:'numeric', month:'short', year:'numeric' }) + ' ' + 
-                          now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-
-    const tx = this.db.transaction("drawings", "readwrite");
-    const s = tx.objectStore("drawings");
-    const req = s.index("student_page").get([studentId, page]);
-
-    req.onsuccess = () => {
-      const existing = req.result;
-      const record = {
-        studentId,
-        page,
-        data: dataUrl,
-        timestamp: Date.now(),
-        dateStr: formattedDate
-      };
-      if (existing) record.id = existing.id;
-      s.put(record);
-      CanvasSlate.updateTimestampUI(formattedDate);
-    };
-  },
-  loadMarking(studentId, page) {
-    return new Promise(res => {
-      if (!studentId || !page) return res(null);
-      const tx = this.db.transaction("drawings", "readonly");
-      const req = tx.objectStore("drawings").index("student_page").get([studentId, page]);
-      req.onsuccess = () => res(req.result || null);
-    });
-  },
-  /* Offline Page Data Cache */
-  cachePageData(page, verses) {
-    const tx = this.db.transaction("page_cache", "readwrite");
-    tx.objectStore("page_cache").put({ page, verses, time: Date.now() });
-  },
-  getCachedPageData(page) {
-    return new Promise(res => {
-      const tx = this.db.transaction("page_cache", "readonly");
-      const req = tx.objectStore("page_cache").get(page);
-      req.onsuccess = () => res(req.result ? req.result.verses : null);
-    });
-  }
-};
-
-/* ═══════════════════════════════════════════════════════════
-   2. APPLICATION CONTROLLER
-   ═══════════════════════════════════════════════════════════ */
-const App = {
-  currentPage: 1,
-  students: [],
-  activeStudent: null,
-  chapters: [],
-  loadedFonts: new Set(),
-  resizeDebounce: null,
-
-  async init() {
-    await DB.init();
-    await this.fetchChapters();
-    this.students = await DB.getAll("students");
-
-    if (this.students.length === 0) {
-      const sId = await DB.add("students", { name: "വിദ്യാർത്ഥി 1", lastPage: 1 });
-      this.activeStudent = { id: sId, name: "വിദ്യാർത്ഥി 1", lastPage: 1 };
-      this.students = [this.activeStudent];
-    } else {
-      this.activeStudent = this.students[0];
-    }
-    this.currentPage = this.activeStudent.lastPage || 1;
-
-    this.updateStudentBadgeUI();
-    this.render();
-
-    window.addEventListener("resize", () => {
-      clearTimeout(this.resizeDebounce);
-      this.resizeDebounce = setTimeout(() => {
-        CanvasSlate.resize('Right');
-        CanvasSlate.resize('Left');
-        this.render();
-      }, 200);
-    });
-
-    document.addEventListener("keydown", e => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
-      if (e.key === "ArrowLeft") this.turnPage(-1);
-      if (e.key === "ArrowRight") this.turnPage(1);
-    });
-  },
-
-  isSpreadView() {
-    return window.innerWidth > 1080 && window.innerWidth > window.innerHeight;
-  },
-
-  async fetchChapters() {
-    try {
-      const r = await fetch(`${API_ROOT}/chapters?language=ar`);
-      const j = await r.json();
-      this.chapters = j.chapters || [];
-    } catch(e) {
-      console.warn("Chapters API fallback", e);
-    }
-  },
-
-  async ensureFont(p) {
-    const fontName = `QCF_P${p}`;
-    if (this.loadedFonts.has(fontName)) return fontName;
-    try {
-      const font = new FontFace(fontName, `url('${FONT_ROOT}/p${p}.woff2')`);
-      await font.load();
-      document.fonts.add(font);
-      this.loadedFonts.add(fontName);
-      return fontName;
-    } catch(e) {
-      return "'Amiri', serif";
-    }
-  },
-
-  /* 100% Offline Page Fetcher (IndexedDB First) */
-  async fetchPageWords(p) {
-    if (p < 1 || p > 604) return [];
-    
-    // Check IndexedDB cache first
-    const cached = await DB.getCachedPageData(p);
-    if (cached) return cached;
-
-    // If online, fetch and cache
-    try {
-      const res = await fetch(`${API_ROOT}/verses/by_page/${p}?words=true&word_fields=code_v1,char_type_name,line_number,v1_page,text_uthmani&per_page=60`);
-      const j = await res.json();
-      const verses = j.verses || [];
-      if (verses.length) DB.cachePageData(p, verses);
-      return verses;
-    } catch(e) {
-      return [];
-    }
-  },
-
-  async render() {
-    const isDouble = this.isSpreadView();
-
-    let rightP = this.currentPage;
-    let leftP = null;
-
-    if (isDouble) {
-      rightP = (this.currentPage % 2 === 1) ? this.currentPage : this.currentPage - 1;
-      leftP = rightP + 1;
-      document.getElementById("pageBadge").textContent = `പേജ് ${toArabicNumeral(rightP)} - ${toArabicNumeral(leftP)}`;
-      document.getElementById("sheetLeft").style.display = "flex";
-    } else {
-      document.getElementById("pageBadge").textContent = `പേജ് ${toArabicNumeral(rightP)}`;
-      document.getElementById("sheetLeft").style.display = "none";
+    function toArabicNumeral(n) {
+      return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
     }
 
-    if (this.activeStudent) {
-      this.activeStudent.lastPage = rightP;
-      await DB.put("students", this.activeStudent);
+    function isDivineName(text) {
+      if (!text) return false;
+      let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
+      clean = clean.replace(/[ٱإأآء]/g, 'ا').replace(/[\u0640\u06E5\u06E6]/g, '').trim();
+      clean = clean.replace(/^(و|ف|ب|ت|ك|ل|لل)?(الله|لله|اللهم)$/, '$2');
+      return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
     }
 
-    await Promise.all([
-      this.renderPageSheet(rightP, 'Right'),
-      isDouble && leftP <= 604 ? this.renderPageSheet(leftP, 'Left') : null
-    ]);
-  },
-
-  async renderPageSheet(pageNum, side) {
-    const fontName = await this.ensureFont(pageNum);
-    const verses = await this.fetchPageWords(pageNum);
-
-    const container = document.getElementById(`lines${side}`);
-    container.innerHTML = "";
-
-    const lineMap = new Map();
-    const surahHeaderSlots = new Map();
-    const bismillahSlots = new Map();
-
-    verses.forEach(v => {
-      const [s, a] = v.verse_key.split(':').map(Number);
-      (v.words || []).forEach(w => {
-        const ln = Number(w.line_number);
-        if (!ln) return;
-        if (!lineMap.has(ln)) lineMap.set(ln, []);
-        lineMap.get(ln).push({ ...w, surah: s, ayah: a });
-      });
-    });
-
-    // Check Surahs starting on this page
-    verses.forEach(v => {
-      const [s, a] = v.verse_key.split(':').map(Number);
-      if (a === 1 && v.words?.[0]?.line_number) {
-        const firstLine = Number(v.words[0].line_number);
-        if (s === 1) {
-          surahHeaderSlots.set(1, s);
-        } else if (s === 9) {
-          surahHeaderSlots.set(Math.max(1, firstLine - 1), s);
-        } else {
-          surahHeaderSlots.set(Math.max(1, firstLine - 2), s);
-          bismillahSlots.set(Math.max(1, firstLine - 1), s);
-        }
-      }
-    });
-
-    // Check Surah header appearing at page bottom for the upcoming page
-    if (pageNum < 604 && !lineMap.has(15)) {
-      const nextVerses = await this.fetchPageWords(pageNum + 1);
-      if (nextVerses.length && nextVerses[0]) {
-        const [ns, na] = nextVerses[0].verse_key.split(':').map(Number);
-        if (na === 1 && nextVerses[0].words?.[0]?.line_number === 1) {
-          if (!lineMap.has(14)) {
-            surahHeaderSlots.set(14, ns);
-            if (ns !== 9) bismillahSlots.set(15, ns);
-          } else {
-            surahHeaderSlots.set(15, ns);
-          }
-        }
-      }
-    }
-
-    // Render 15 Lines
-    for (let ln = 1; ln <= 15; ln++) {
-      if (surahHeaderSlots.has(ln)) {
-        const sId = surahHeaderSlots.get(ln);
-        const ch = this.chapters.find(c => c.id === sId) || { name_arabic: `سورة ${sId}`, verses_count: 0 };
-        const banner = document.createElement("div");
-        banner.className = "surah-header-row";
-        banner.innerHTML = `
-          <span class="sh-meta">آيَاتُهَا ${toArabicNumeral(ch.verses_count)}</span>
-          <span class="sh-title">سُورَةُ ${ch.name_arabic}</span>
-          <span class="sh-meta">تَرْتِيبُهَا ${toArabicNumeral(ch.id)}</span>
-        `;
-        container.appendChild(banner);
-      } else if (bismillahSlots.has(ln)) {
-        const bism = document.createElement("div");
-        bism.className = "bismillah-row";
-        bism.innerHTML = `بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ`;
-        container.appendChild(bism);
-      } else {
-        const row = document.createElement("div");
-        row.className = "mushaf-line";
-        const words = lineMap.get(ln) || [];
-
-        if (!words.length) {
-          row.innerHTML = "&nbsp;";
-        } else {
-          if (words.length <= 4 || (pageNum <= 2 && words.length < 6)) {
-            row.classList.add("natural-center");
-          }
-
-          words.forEach(w => {
-            const span = document.createElement("span");
-            span.className = "mushaf-word";
-            span.style.fontFamily = `'${fontName}', 'Amiri', serif`;
-            span.innerHTML = w.code_v1 || w.text;
-
-            if (isDivineName(w.text_uthmani)) {
-              span.classList.add("lafdh-allah");
+    /* ═══════════════════════════════════════════════════════════
+       1. IndexedDB Isolated Storage Architecture
+       ═══════════════════════════════════════════════════════════ */
+    const DB = {
+      db: null,
+      init() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open("UniversalHifdhMaster_v3", 1);
+          req.onupgradeneeded = e => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains("institutions")) {
+              d.createObjectStore("institutions", { keyPath: "id", autoIncrement: true });
             }
-            row.appendChild(span);
-          });
-        }
-        container.appendChild(row);
-      }
-    }
-
-    // Top Header & Bottom Numbers
-    const firstV = verses[0];
-    if (firstV) {
-      const sId = Number(firstV.verse_key.split(':')[0]);
-      const ch = this.chapters.find(c => c.id === sId);
-      document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = ch ? `سورة ${ch.name_arabic}` : "";
-      document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabicNumeral(firstV.juz_number || Math.ceil(pageNum / 20))}`;
-    }
-    document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabicNumeral(pageNum);
-
-    CanvasSlate.init(side, pageNum);
-  },
-
-  turnPage(delta) {
-    const step = this.isSpreadView() ? 2 : 1;
-    const target = Math.max(1, Math.min(604, this.currentPage + (delta * step)));
-    if (target !== this.currentPage) {
-      this.currentPage = target;
-      this.render();
-    }
-  },
-
-  jumpPrompt() {
-    const val = prompt("പോകേണ്ട പേജ് നമ്പർ (1 - 604):", this.currentPage);
-    const n = parseInt(val);
-    if (n >= 1 && n <= 604) {
-      this.currentPage = n;
-      this.render();
-    }
-  },
-
-  /* Drawer Tabs & Actions */
-  openSheet(tab) {
-    document.getElementById("sheetOverlay").classList.add("open");
-    this.setTab(tab);
-    if (tab === "students") this.renderStudentsList();
-  },
-  closeSheet() {
-    document.getElementById("sheetOverlay").classList.remove("open");
-  },
-  setTab(tab) {
-    ["tools", "students", "info"].forEach(t => {
-      document.getElementById(`tabHead${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
-      document.getElementById(`tabBody${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
-    });
-  },
-
-  async addStudent() {
-    const input = document.getElementById("newStudentName");
-    const name = input.value.trim();
-    if (!name) return;
-    const id = await DB.add("students", { name, lastPage: this.currentPage });
-    this.students = await DB.getAll("students");
-    this.activeStudent = this.students.find(s => s.id === id);
-    input.value = "";
-    this.updateStudentBadgeUI();
-    this.renderStudentsList();
-    this.render();
-  },
-
-  renderStudentsList() {
-    const box = document.getElementById("studentsListContainer");
-    box.innerHTML = "";
-    this.students.forEach(s => {
-      const div = document.createElement("div");
-      div.className = "item-card" + (this.activeStudent?.id === s.id ? " active" : "");
-      div.innerHTML = `
-        <span><b>${s.name}</b> <small style="opacity:0.75; margin-left:8px;">(പേജ് ${toArabicNumeral(s.lastPage || 1)})</small></span>
-        ${this.students.length > 1 ? `<button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.removeStudent(${s.id}, event)">&times;</button>` : ''}
-      `;
-      div.onclick = () => {
-        this.activeStudent = s;
-        this.currentPage = s.lastPage || 1;
-        this.updateStudentBadgeUI();
-        this.render();
-        this.closeSheet();
-      };
-      box.appendChild(div);
-    });
-  },
-
-  async removeStudent(id, e) {
-    e.stopPropagation();
-    if (!confirm("ഈ വിദ്യാർത്ഥിയെയും വരച്ച അടയാളങ്ങളെയും നീക്കം ചെയ്യണോ?")) return;
-    await DB.delete("students", id);
-    this.students = await DB.getAll("students");
-    this.activeStudent = this.students[0] || null;
-    this.updateStudentBadgeUI();
-    this.renderStudentsList();
-    this.render();
-  },
-
-  updateStudentBadgeUI() {
-    document.getElementById("badgeStudentTitle").textContent = this.activeStudent ? this.activeStudent.name : "കുട്ടി";
-  }
-};
-
-/* ═══════════════════════════════════════════════════════════
-   3. DIGITAL INK SLATE (Touch Mode & Timestamp Manager)
-   ═══════════════════════════════════════════════════════════ */
-const CanvasSlate = {
-  tool: 'pencil',
-  color: 'rgba(40,30,18,0.85)',
-  size: 2.2,
-  activeSide: 'Right',
-  isDrawing: false,
-  drawingMode: false, // OFF by default: allows scrolling
-  lastX: 0, lastY: 0,
-  pageMap: { Right: 1, Left: 2 },
-
-  toggleDrawingMode() {
-    this.drawingMode = !this.drawingMode;
-    const btn = document.getElementById("btnToggleDraw");
-    btn.classList.toggle("active-mode", this.drawingMode);
-    
-    document.querySelectorAll(".canvas-layer").forEach(c => {
-      c.classList.toggle("drawing-active", this.drawingMode);
-    });
-  },
-
-  selectTool(tool, color, size) {
-    this.tool = tool;
-    if (color) this.color = color;
-    this.size = size;
-    document.querySelectorAll(".tool-tile").forEach(b => b.classList.remove("active"));
-    const map = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
-    if (map[tool]) document.getElementById(map[tool]).classList.add("active");
-
-    // Automatically enable drawing mode when a tool is selected
-    if (!this.drawingMode) this.toggleDrawingMode();
-  },
-
-  init(side, pageNum) {
-    this.pageMap[side] = pageNum;
-    this.resize(side);
-    this.loadSavedMarking(side, pageNum);
-    this.attachEvents(side);
-  },
-
-  resize(side) {
-    const c = document.getElementById(`canvas${side}`);
-    const sheet = document.getElementById(`sheet${side}`);
-    if (!c || !sheet) return;
-
-    const r = sheet.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-
-    const temp = document.createElement("canvas");
-    temp.width = c.width;
-    temp.height = c.height;
-    if (c.width && c.height) temp.getContext("2d").drawImage(c, 0, 0);
-
-    c.width = Math.round(r.width * dpr);
-    c.height = Math.round(r.height * dpr);
-    const ctx = c.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    if (temp.width && temp.height) ctx.drawImage(temp, 0, 0, r.width, r.height);
-  },
-
-  async loadSavedMarking(side, pageNum) {
-    const c = document.getElementById(`canvas${side}`);
-    const ctx = c.getContext("2d");
-    ctx.clearRect(0, 0, c.width, c.height);
-
-    if (App.activeStudent) {
-      const record = await DB.loadMarking(App.activeStudent.id, pageNum);
-      if (record && record.data) {
-        const img = new Image();
-        img.onload = () => {
-          const r = document.getElementById(`sheet${side}`).getBoundingClientRect();
-          ctx.drawImage(img, 0, 0, r.width, r.height);
+            if (!d.objectStoreNames.contains("students")) {
+              d.createObjectStore("students", { keyPath: "id", autoIncrement: true });
+            }
+            if (!d.objectStoreNames.contains("drawings")) {
+              const s = d.createObjectStore("drawings", { keyPath: "id", autoIncrement: true });
+              s.createIndex("student_page_script", ["studentId", "page", "script"], { unique: true });
+            }
+            // Separate offline cache for text & fonts to prevent crashes
+            if (!d.objectStoreNames.contains("quran_offline_pages")) {
+              d.createObjectStore("quran_offline_pages", { keyPath: "key" });
+            }
+          };
+          req.onsuccess = () => { this.db = req.result; resolve(); };
+          req.onerror = () => reject(req.error);
+        });
+      },
+      getAll(store) {
+        return new Promise(res => {
+          const tx = this.db.transaction(store, "readonly");
+          const r = tx.objectStore(store).getAll();
+          r.onsuccess = () => res(r.result || []);
+        });
+      },
+      add(store, data) {
+        return new Promise(res => {
+          const tx = this.db.transaction(store, "readwrite");
+          const r = tx.objectStore(store).add(data);
+          r.onsuccess = () => res(r.result);
+        });
+      },
+      put(store, data) {
+        return new Promise(res => {
+          const tx = this.db.transaction(store, "readwrite");
+          const r = tx.objectStore(store).put(data);
+          r.onsuccess = () => res(r.result);
+        });
+      },
+      delete(store, id) {
+        return new Promise(res => {
+          const tx = this.db.transaction(store, "readwrite");
+          tx.objectStore(store).delete(id);
+          tx.oncomplete = () => res();
+        });
+      },
+      // Save canvas with exact timestamp & session
+      saveDrawing(studentId, page, script, dataUrl) {
+        if (!studentId || !page) return;
+        const tx = this.db.transaction("drawings", "readwrite");
+        const s = tx.objectStore("drawings");
+        const idx = s.index("student_page_script");
+        const req = idx.get([studentId, page, script]);
+        req.onsuccess = () => {
+          const existing = req.result;
+          const now = new Date();
+          const rec = {
+            studentId,
+            page,
+            script,
+            data: dataUrl,
+            timestamp: now.getTime(),
+            formattedDate: now.toLocaleDateString(),
+            formattedTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+          if (existing) rec.id = existing.id;
+          s.put(rec);
+          document.getElementById("lastMarkedTime").textContent = `${rec.formattedDate} at ${rec.formattedTime}`;
         };
-        img.src = record.data;
-        if (side === 'Right') this.updateTimestampUI(record.dateStr);
-      } else if (side === 'Right') {
-        this.updateTimestampUI(null);
+      },
+      loadDrawing(studentId, page, script) {
+        return new Promise(res => {
+          if (!studentId || !page) return res(null);
+          const tx = this.db.transaction("drawings", "readonly");
+          const req = tx.objectStore("drawings").index("student_page_script").get([studentId, page, script]);
+          req.onsuccess = () => {
+            if (req.result) {
+              document.getElementById("lastMarkedTime").textContent = `${req.result.formattedDate} at ${req.result.formattedTime}`;
+              res(req.result.data);
+            } else {
+              document.getElementById("lastMarkedTime").textContent = "No markings yet";
+              res(null);
+            }
+          };
+        });
+      },
+      // Offline Quran Pages Caching
+      saveOfflinePage(script, page, data) {
+        const tx = this.db.transaction("quran_offline_pages", "readwrite");
+        tx.objectStore("quran_offline_pages").put({ key: `${script}_${page}`, script, page, data });
+      },
+      getOfflinePage(script, page) {
+        return new Promise(res => {
+          const tx = this.db.transaction("quran_offline_pages", "readonly");
+          const req = tx.objectStore("quran_offline_pages").get(`${script}_${page}`);
+          req.onsuccess = () => res(req.result ? req.result.data : null);
+        });
       }
-    }
-  },
-
-  updateTimestampUI(dateStr) {
-    const box = document.getElementById("timestampNotice");
-    if (dateStr) {
-      box.innerHTML = `🕒 അവസാനം അടയാളപ്പെടുത്തിയത്: <b>${dateStr}</b>`;
-    } else {
-      box.textContent = "ഈ പേജിൽ അടയാളപ്പെടുത്തലുകൾ രേഖപ്പെടുത്തിയിട്ടില്ല.";
-    }
-  },
-
-  attachEvents(side) {
-    const c = document.getElementById(`canvas${side}`);
-    const ctx = c.getContext("2d");
-
-    c.onpointerdown = e => {
-      if (!this.drawingMode) return;
-      this.isDrawing = true;
-      this.activeSide = side;
-      c.setPointerCapture(e.pointerId);
-      const r = c.getBoundingClientRect();
-      this.lastX = e.clientX - r.left;
-      this.lastY = e.clientY - r.top;
     };
 
-    c.onpointermove = e => {
-      if (!this.isDrawing || this.activeSide !== side) return;
-      const r = c.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
+    /* ═══════════════════════════════════════════════════════════
+       2. Permanent Offline Downloader Manager
+       ═══════════════════════════════════════════════════════════ */
+    const OfflineManager = {
+      isDownloading: false,
 
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+      async downloadFullQuran(script) {
+        if (this.isDownloading) return alert("Another download is currently running.");
+        this.isDownloading = true;
 
-      if (this.tool === "eraser") {
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.lineWidth = this.size;
-      } else if (this.tool === "high") {
-        ctx.globalCompositeOperation = "multiply";
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.size;
-        ctx.lineCap = "square";
-      } else {
-        ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.size;
+        const isMadani = script === 'madani';
+        const pb = document.getElementById(isMadani ? 'pbMadani' : 'pbIndopak');
+        const st = document.getElementById(isMadani ? 'statusMadani' : 'statusIndopak');
+        const btn = document.getElementById(isMadani ? 'btnDlMadani' : 'btnDlIndopak');
+
+        btn.disabled = true;
+        btn.textContent = "Downloading...";
+
+        for (let p = 1; p <= 604; p++) {
+          try {
+            st.textContent = `Downloading page ${p} of 604...`;
+            pb.style.width = `${((p / 604) * 100).toFixed(1)}%`;
+
+            // 1. Fetch text data & cache in IndexedDB
+            const res = await fetch(`${API_ROOT}/verses/by_page/${p}?words=true&word_fields=code_v1,char_type_name,line_number,v1_page,text_uthmani,text_indopak&per_page=60`);
+            const data = await res.json();
+            if (data && data.verses) {
+              await DB.saveOfflinePage(script, p, data.verses);
+            }
+
+            // 2. Fetch font file for Madani & cache in CacheStorage
+            if (isMadani) {
+              const fontUrl = `${FONT_ROOT}/p${p}.woff2`;
+              if ('caches' in window) {
+                const cache = await caches.open('mushaf-hifdh-cache-v1');
+                await cache.add(fontUrl).catch(() => {});
+              }
+            }
+
+            // Small delay to prevent network choking
+            await new Promise(r => setTimeout(r, 40));
+          } catch (e) {
+            console.warn(`Retry page ${p}`, e);
+          }
+        }
+
+        pb.style.width = "100%";
+        st.textContent = "✅ Download complete! Available 100% offline.";
+        btn.textContent = "Downloaded";
+        this.isDownloading = false;
       }
-
-      ctx.beginPath();
-      ctx.moveTo(this.lastX, this.lastY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      ctx.restore();
-
-      this.lastX = x;
-      this.lastY = y;
     };
 
-    const stop = () => {
-      if (this.isDrawing && this.activeSide === side) {
-        this.isDrawing = false;
-        if (App.activeStudent) {
-          DB.saveMarking(App.activeStudent.id, this.pageMap[side], c.toDataURL());
+    /* ═══════════════════════════════════════════════════════════
+       3. Quran Audio Engine
+       ═══════════════════════════════════════════════════════════ */
+    const AudioEngine = {
+      player: null,
+      activeReciter: "7",
+      playlist: [],
+      currentIndex: -1,
+      isPlaying: false,
+
+      init() {
+        this.player = document.getElementById("quranAudioPlayer");
+        this.player.onended = () => this.playNext();
+        this.player.onerror = () => this.playNext();
+      },
+
+      setReciter(id) {
+        this.activeReciter = id;
+        if (this.isPlaying) this.startPageAudio(App.currentPage);
+      },
+
+      async togglePlay() {
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          await this.startPageAudio(App.currentPage);
+        }
+      },
+
+      async startPageAudio(pageNum) {
+        const btn = document.getElementById("audioToggleBtn");
+        btn.textContent = "⏳";
+        try {
+          const res = await fetch(`${API_ROOT}/recitations/${this.activeReciter}/by_page/${pageNum}`);
+          const data = await res.json();
+          this.playlist = data.audio_files || [];
+          this.currentIndex = 0;
+          if (this.playlist.length > 0) {
+            this.isPlaying = true;
+            btn.classList.add("active-audio");
+            btn.textContent = "⏸️";
+            this.playCurrent();
+          } else {
+            this.pause();
+          }
+        } catch (e) {
+          this.pause();
+        }
+      },
+
+      playCurrent() {
+        if (this.currentIndex < 0 || this.currentIndex >= this.playlist.length) return this.pause();
+        const item = this.playlist[this.currentIndex];
+        let audioUrl = item.url.startsWith("http") ? item.url : `https://verses.quran.com/${item.url}`;
+        this.highlightVerse(item.verse_key);
+        this.player.src = audioUrl;
+        this.player.play().catch(() => this.playNext());
+      },
+
+      playNext() {
+        this.currentIndex++;
+        if (this.currentIndex < this.playlist.length) {
+          this.playCurrent();
+        } else {
+          this.pause();
+        }
+      },
+
+      pause() {
+        this.isPlaying = false;
+        this.player.pause();
+        const btn = document.getElementById("audioToggleBtn");
+        btn.classList.remove("active-audio");
+        btn.textContent = "🔊";
+        this.clearHighlight();
+      },
+
+      highlightVerse(verseKey) {
+        this.clearHighlight();
+        document.querySelectorAll(`[data-verse="${verseKey}"]`).forEach(el => el.classList.add("currently-recited"));
+      },
+
+      clearHighlight() {
+        document.querySelectorAll(".currently-recited").forEach(el => el.classList.remove("currently-recited"));
+      }
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       4. Main Coordinator App
+       ═══════════════════════════════════════════════════════════ */
+    const App = {
+      currentPage: 1,
+      institutions: [],
+      activeInstitution: null,
+      students: [],
+      activeStudent: null,
+      chapters: [],
+      loadedFonts: new Set(),
+
+      async init() {
+        await DB.init();
+        AudioEngine.init();
+        await this.fetchChapters();
+
+        // 1. Institutions
+        this.institutions = await DB.getAll("institutions");
+        if (this.institutions.length === 0) {
+          const instId = await DB.add("institutions", { name: "General Halaqah", created: Date.now() });
+          this.activeInstitution = { id: instId, name: "General Halaqah" };
+          this.institutions = [this.activeInstitution];
+        } else {
+          this.activeInstitution = this.institutions[0];
+        }
+
+        // 2. Students
+        await this.syncStudents();
+
+        this.updateBadgeUI();
+        this.render();
+
+        window.addEventListener("resize", () => {
+          CanvasOverlay.resizeCanvas('Right');
+          CanvasOverlay.resizeCanvas('Left');
+          this.render();
+        });
+
+        document.addEventListener("keydown", e => {
+          if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+          if (e.key === "ArrowLeft") this.turnPage(-1);
+          if (e.key === "ArrowRight") this.turnPage(1);
+          if (e.key === " ") { e.preventDefault(); AudioEngine.togglePlay(); }
+        });
+      },
+
+      async syncStudents() {
+        const allStudents = await DB.getAll("students");
+        this.students = allStudents.filter(s => s.institutionId === this.activeInstitution.id);
+        if (this.students.length === 0) {
+          const sId = await DB.add("students", {
+            institutionId: this.activeInstitution.id,
+            name: "Hafidh Student 1",
+            script: "madani",
+            lastPage: 1
+          });
+          this.activeStudent = { id: sId, institutionId: this.activeInstitution.id, name: "Hafidh Student 1", script: "madani", lastPage: 1 };
+          this.students = [this.activeStudent];
+        } else {
+          this.activeStudent = this.students[0];
+        }
+        this.currentPage = this.activeStudent.lastPage || 1;
+      },
+
+      isSpreadView() {
+        return window.innerWidth > 960 && window.innerWidth > window.innerHeight;
+      },
+
+      async fetchChapters() {
+        try {
+          const r = await fetch(`${API_ROOT}/chapters?language=ar`);
+          const j = await r.json();
+          this.chapters = j.chapters || [];
+        } catch (e) {
+          this.chapters = [];
+        }
+      },
+
+      async ensureFont(p) {
+        if (this.activeStudent?.script === 'indopak') return 'Noto Nastaliq Urdu';
+        const fontName = `QCF_P${p}`;
+        if (this.loadedFonts.has(fontName)) return fontName;
+        try {
+          const font = new FontFace(fontName, `url('${FONT_ROOT}/p${p}.woff2')`);
+          await font.load();
+          document.fonts.add(font);
+          this.loadedFonts.add(fontName);
+          return fontName;
+        } catch (e) {
+          return "'Amiri', serif";
+        }
+      },
+
+      // Get page from Offline Storage first; Fallback to network
+      async fetchPageVerses(p) {
+        if (p < 1 || p > 604) return [];
+        const script = this.activeStudent?.script || 'madani';
+
+        // 1. Check local offline IndexedDB
+        const offlineData = await DB.getOfflinePage(script, p);
+        if (offlineData) return offlineData;
+
+        // 2. Fetch online if not stored
+        try {
+          const res = await fetch(`${API_ROOT}/verses/by_page/${p}?words=true&word_fields=code_v1,char_type_name,line_number,v1_page,text_uthmani,text_indopak&per_page=60`);
+          const j = await res.json();
+          if (j && j.verses) {
+            DB.saveOfflinePage(script, p, j.verses);
+            return j.verses;
+          }
+        } catch (e) {
+          return [];
+        }
+        return [];
+      },
+
+      async render() {
+        const isDouble = this.isSpreadView();
+        let rightP = this.currentPage;
+        let leftP = null;
+
+        const isIndoPak = this.activeStudent?.script === 'indopak';
+        document.getElementById("mainStage").classList.toggle("indopak-script", isIndoPak);
+
+        if (isDouble) {
+          rightP = (this.currentPage % 2 === 1) ? this.currentPage : this.currentPage - 1;
+          leftP = rightP + 1;
+          document.getElementById("pageBadge").textContent = `p. ${rightP} - ${leftP}`;
+          document.getElementById("sheetLeft").style.display = "flex";
+        } else {
+          document.getElementById("pageBadge").textContent = `p. ${rightP}`;
+          document.getElementById("sheetLeft").style.display = "none";
+        }
+
+        if (this.activeStudent) {
+          this.activeStudent.lastPage = rightP;
+          await DB.put("students", this.activeStudent);
+        }
+
+        if (AudioEngine.isPlaying) AudioEngine.pause();
+
+        await Promise.all([
+          this.renderPageSheet(rightP, 'Right'),
+          isDouble && leftP <= 604 ? this.renderPageSheet(leftP, 'Left') : null
+        ]);
+      },
+
+      async renderPageSheet(pageNum, side) {
+        const fontName = await this.ensureFont(pageNum);
+        const verses = await this.fetchPageVerses(pageNum);
+        const container = document.getElementById(`lines${side}`);
+        container.innerHTML = "";
+
+        const lineMap = new Map();
+        const surahHeaderSlots = new Map();
+        const bismillahSlots = new Map();
+        const isIndoPak = this.activeStudent?.script === 'indopak';
+
+        verses.forEach(v => {
+          const [s, a] = v.verse_key.split(':').map(Number);
+          (v.words || []).forEach(w => {
+            const ln = Number(w.line_number);
+            if (!ln) return;
+            if (!lineMap.has(ln)) lineMap.set(ln, []);
+            lineMap.get(ln).push({ ...w, verse_key: v.verse_key, surah: s, ayah: a });
+          });
+        });
+
+        verses.forEach(v => {
+          const [s, a] = v.verse_key.split(':').map(Number);
+          if (a === 1 && v.words?.[0]?.line_number) {
+            const firstLine = Number(v.words[0].line_number);
+            if (s === 1) {
+              surahHeaderSlots.set(1, s);
+            } else if (s === 9) {
+              surahHeaderSlots.set(firstLine - 1, s);
+            } else {
+              surahHeaderSlots.set(firstLine - 2, s);
+              bismillahSlots.set(firstLine - 1, s);
+            }
+          }
+        });
+
+        // 15 Lines Structure
+        for (let ln = 1; ln <= 15; ln++) {
+          if (surahHeaderSlots.has(ln)) {
+            const sId = surahHeaderSlots.get(ln);
+            const ch = this.chapters.find(c => c.id === sId) || { name_arabic: `سورة ${sId}`, verses_count: 0 };
+            const banner = document.createElement("div");
+            banner.className = "surah-header-row";
+            banner.innerHTML = `
+              <span class="surah-meta">آيَاتُهَا ${toArabicNumeral(ch.verses_count)}</span>
+              <span class="surah-title">سُورَةُ ${ch.name_arabic}</span>
+              <span class="surah-meta">تَرْتِيبُهَا ${toArabicNumeral(ch.id)}</span>
+            `;
+            container.appendChild(banner);
+          } else if (bismillahSlots.has(ln)) {
+            const bism = document.createElement("div");
+            bism.className = "bismillah-row";
+            bism.innerHTML = `بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ`;
+            container.appendChild(bism);
+          } else {
+            const row = document.createElement("div");
+            row.className = "mushaf-line";
+            const words = lineMap.get(ln) || [];
+
+            if (!words.length) {
+              row.innerHTML = "&nbsp;";
+            } else {
+              if (words.length <= 4 || (pageNum <= 2 && words.length < 6)) {
+                row.classList.add("natural-center");
+              }
+              words.forEach(w => {
+                const span = document.createElement("span");
+                span.className = "mushaf-word";
+                span.setAttribute("data-verse", w.verse_key);
+
+                if (isIndoPak) {
+                  span.textContent = (w.text_indopak || w.text_uthmani || w.text) + " ";
+                } else {
+                  span.style.fontFamily = `'${fontName}', 'Amiri', serif`;
+                  span.innerHTML = w.code_v1 || w.text;
+                }
+
+                if (isDivineName(w.text_uthmani)) span.classList.add("lafdh-jalalah");
+                row.appendChild(span);
+              });
+            }
+            container.appendChild(row);
+          }
+        }
+
+        // Header & Footer
+        const firstV = verses[0];
+        if (firstV) {
+          const sId = Number(firstV.verse_key.split(':')[0]);
+          const ch = this.chapters.find(c => c.id === sId);
+          document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = ch ? `سورة ${ch.name_arabic}` : "";
+          document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabicNumeral(firstV.juz_number || Math.ceil(pageNum / 20))}`;
+        }
+        document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabicNumeral(pageNum);
+
+        CanvasOverlay.init(side, pageNum);
+      },
+
+      turnPage(delta) {
+        const step = this.isSpreadView() ? 2 : 1;
+        const target = Math.max(1, Math.min(604, this.currentPage + (delta * step)));
+        if (target !== this.currentPage) {
+          this.currentPage = target;
+          this.render();
+        }
+      },
+
+      jumpPrompt() {
+        const val = prompt("Jump to Quran Page (1 - 604):", this.currentPage);
+        const n = parseInt(val);
+        if (n >= 1 && n <= 604) {
+          this.currentPage = n;
+          this.render();
+        }
+      },
+
+      openSheet(tab) {
+        document.getElementById("sheetScrim").classList.add("open");
+        this.setTab(tab);
+        if (tab === "students") this.renderStudentsTab();
+        if (tab === "institutions") this.renderInstitutionsList();
+      },
+
+      closeSheet() {
+        document.getElementById("sheetScrim").classList.remove("open");
+      },
+
+      setTab(tab) {
+        ["tools", "students", "offline", "audio", "institutions"].forEach(t => {
+          document.getElementById(`tabHead${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+          document.getElementById(`tabBody${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle("active", t === tab);
+        });
+      },
+
+      /* Institutions */
+      async addInstitution() {
+        const input = document.getElementById("newInstitutionName");
+        const name = input.value.trim();
+        if (!name) return;
+        const id = await DB.add("institutions", { name, created: Date.now() });
+        this.institutions = await DB.getAll("institutions");
+        this.activeInstitution = this.institutions.find(i => i.id === id);
+        input.value = "";
+        await this.syncStudents();
+        this.updateBadgeUI();
+        this.renderInstitutionsList();
+        this.render();
+      },
+
+      renderInstitutionsList() {
+        const box = document.getElementById("institutionsListContainer");
+        box.innerHTML = "";
+        this.institutions.forEach(inst => {
+          const div = document.createElement("div");
+          div.className = "list-card" + (this.activeInstitution?.id === inst.id ? " active" : "");
+          div.innerHTML = `
+            <span><b>🏛️ ${inst.name}</b></span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="App.selectInstitution(${inst.id})">Select</button>
+              ${this.institutions.length > 1 ? `<button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteInstitution(${inst.id}, event)">&times;</button>` : ''}
+            </div>
+          `;
+          box.appendChild(div);
+        });
+      },
+
+      async selectInstitution(id) {
+        this.activeInstitution = this.institutions.find(i => i.id === id);
+        await this.syncStudents();
+        this.updateBadgeUI();
+        this.renderInstitutionsList();
+        this.render();
+      },
+
+      async deleteInstitution(id, e) {
+        e.stopPropagation();
+        if (!confirm("Delete this institution and its students?")) return;
+        await DB.delete("institutions", id);
+        this.institutions = await DB.getAll("institutions");
+        this.activeInstitution = this.institutions[0];
+        await this.syncStudents();
+        this.updateBadgeUI();
+        this.renderInstitutionsList();
+        this.render();
+      },
+
+      async onInstitutionFilter(id) {
+        await this.selectInstitution(Number(id));
+        this.renderStudentsTab();
+      },
+
+      /* Students */
+      renderStudentsTab() {
+        const sel = document.getElementById("studentInstitutionSelect");
+        sel.innerHTML = "";
+        this.institutions.forEach(inst => {
+          const opt = document.createElement("option");
+          opt.value = inst.id;
+          opt.textContent = `Circle: ${inst.name}`;
+          opt.selected = (inst.id === this.activeInstitution.id);
+          sel.appendChild(opt);
+        });
+
+        const box = document.getElementById("studentsListContainer");
+        box.innerHTML = "";
+        this.students.forEach(s => {
+          const div = document.createElement("div");
+          div.className = "list-card" + (this.activeStudent?.id === s.id ? " active" : "");
+          div.innerHTML = `
+            <div>
+              <b>${s.name}</b>
+              <span class="tag-badge">${s.script === 'indopak' ? 'Indo-Pak' : 'Madani 1405H'}</span>
+              <small style="opacity:0.75; margin-left:6px;">(p. ${s.lastPage || 1})</small>
+            </div>
+            <button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteStudent(${s.id}, event)">&times;</button>
+          `;
+          div.onclick = () => {
+            this.activeStudent = s;
+            this.currentPage = s.lastPage || 1;
+            this.updateBadgeUI();
+            this.render();
+            this.closeSheet();
+          };
+          box.appendChild(div);
+        });
+      },
+
+      async addStudent() {
+        const nameInput = document.getElementById("newStudentName");
+        const scriptSelect = document.getElementById("newStudentScript");
+        const name = nameInput.value.trim();
+        if (!name) return;
+
+        const id = await DB.add("students", {
+          institutionId: this.activeInstitution.id,
+          name,
+          script: scriptSelect.value,
+          lastPage: this.currentPage
+        });
+
+        await this.syncStudents();
+        this.activeStudent = this.students.find(s => s.id === id);
+        nameInput.value = "";
+        this.updateBadgeUI();
+        this.renderStudentsTab();
+        this.render();
+      },
+
+      async deleteStudent(id, e) {
+        e.stopPropagation();
+        if (this.students.length <= 1) return alert("At least one student profile is required.");
+        if (!confirm("Delete this student profile and records?")) return;
+        await DB.delete("students", id);
+        await this.syncStudents();
+        this.updateBadgeUI();
+        this.renderStudentsTab();
+        this.render();
+      },
+
+      updateBadgeUI() {
+        const badgeTitle = document.getElementById("badgeStudentTitle");
+        if (this.activeStudent && this.activeInstitution) {
+          badgeTitle.textContent = `${this.activeStudent.name} (${this.activeStudent.script === 'indopak' ? 'Indo-Pak' : 'Madani'})`;
         }
       }
     };
-    c.onpointerup = stop;
-    c.onpointercancel = stop;
-  },
 
-  clearActiveCanvas() {
-    if (!confirm("ഈ പേജിലെ അടയാളങ്ങൾ മായ്ക്കണോ?")) return;
-    const c = document.getElementById(`canvas${this.activeSide}`);
-    c.getContext("2d").clearRect(0, 0, c.width, c.height);
-    if (App.activeStudent) {
-      DB.saveMarking(App.activeStudent.id, this.pageMap[this.activeSide], c.toDataURL());
+    /* ═══════════════════════════════════════════════════════════
+       5. Canvas Overlay Slate (Per-Student, Script & Timestamped)
+       ═══════════════════════════════════════════════════════════ */
+    const CanvasOverlay = {
+      currentTool: 'pencil',
+      strokeColor: 'rgba(45,35,20,0.85)',
+      strokeWidth: 2,
+      activeSide: 'Right',
+      isDrawing: false,
+      lastX: 0,
+      lastY: 0,
+      pageMap: { Right: 1, Left: 2 },
+
+      selectTool(tool, color, size) {
+        this.currentTool = tool;
+        if (color) this.strokeColor = color;
+        this.strokeWidth = size;
+        document.querySelectorAll(".tool-tile").forEach(b => b.classList.remove("active"));
+        const idMap = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
+        if (idMap[tool]) document.getElementById(idMap[tool]).classList.add("active");
+      },
+
+      init(side, pageNum) {
+        this.pageMap[side] = pageNum;
+        this.resizeCanvas(side);
+        this.loadDrawing(side, pageNum);
+        this.attachEvents(side);
+      },
+
+      resizeCanvas(side) {
+        const c = document.getElementById(`canvas${side}`);
+        const sheet = document.getElementById(`sheet${side}`);
+        if (!c || !sheet) return;
+        const r = sheet.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        if (c.width !== Math.round(r.width * dpr) || c.height !== Math.round(r.height * dpr)) {
+          const temp = document.createElement("canvas");
+          temp.width = c.width;
+          temp.height = c.height;
+          if (c.width && c.height) temp.getContext("2d").drawImage(c, 0, 0);
+
+          c.width = Math.round(r.width * dpr);
+          c.height = Math.round(r.height * dpr);
+          const ctx = c.getContext("2d");
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          if (temp.width && temp.height) ctx.drawImage(temp, 0, 0, r.width, r.height);
+        }
+      },
+
+      async loadDrawing(side, pageNum) {
+        const c = document.getElementById(`canvas${side}`);
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+        if (App.activeStudent) {
+          const script = App.activeStudent.script || 'madani';
+          const data = await DB.loadDrawing(App.activeStudent.id, pageNum, script);
+          if (data) {
+            const img = new Image();
+            img.onload = () => {
+              const r = document.getElementById(`sheet${side}`).getBoundingClientRect();
+              ctx.drawImage(img, 0, 0, r.width, r.height);
+            };
+            img.src = data;
+          }
+        }
+      },
+
+      attachEvents(side) {
+        const c = document.getElementById(`canvas${side}`);
+        const ctx = c.getContext("2d");
+
+        c.onpointerdown = e => {
+          this.isDrawing = true;
+          this.activeSide = side;
+          c.setPointerCapture(e.pointerId);
+          const r = c.getBoundingClientRect();
+          this.lastX = e.clientX - r.left;
+          this.lastY = e.clientY - r.top;
+        };
+
+        c.onpointermove = e => {
+          if (!this.isDrawing || this.activeSide !== side) return;
+          const r = c.getBoundingClientRect();
+          const x = e.clientX - r.left;
+          const y = e.clientY - r.top;
+
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          if (this.currentTool === "eraser") {
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.lineWidth = this.strokeWidth;
+          } else if (this.currentTool === "high") {
+            ctx.globalCompositeOperation = "multiply";
+            ctx.strokeStyle = this.strokeColor;
+            ctx.lineWidth = this.strokeWidth;
+            ctx.lineCap = "square";
+          } else {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.strokeStyle = this.strokeColor;
+            ctx.lineWidth = this.strokeWidth;
+          }
+
+          ctx.beginPath();
+          ctx.moveTo(this.lastX, this.lastY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          ctx.restore();
+
+          this.lastX = x;
+          this.lastY = y;
+        };
+
+        const stop = () => {
+          if (this.isDrawing && this.activeSide === side) {
+            this.isDrawing = false;
+            if (App.activeStudent) {
+              const script = App.activeStudent.script || 'madani';
+              DB.saveDrawing(App.activeStudent.id, this.pageMap[side], script, c.toDataURL());
+            }
+          }
+        };
+
+        c.onpointerup = stop;
+        c.onpointercancel = stop;
+      },
+
+      clearActiveCanvas() {
+        if (!confirm("Clear evaluation markings for this page?")) return;
+        const c = document.getElementById(`canvas${this.activeSide}`);
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+        if (App.activeStudent) {
+          const script = App.activeStudent.script || 'madani';
+          DB.saveDrawing(App.activeStudent.id, this.pageMap[this.activeSide], script, c.toDataURL());
+        }
+      }
+    };
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
     }
-  }
-};
 
-/* ═══════════════════════════════════════════════════════════
-   4. SERVICE WORKER REGISTRATION
-   ═══════════════════════════════════════════════════════════ */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
-}
-
-window.addEventListener("DOMContentLoaded", () => App.init());
-</script>
+    window.addEventListener("DOMContentLoaded", () => App.init());
+  </script>
 </body>
 </html>
