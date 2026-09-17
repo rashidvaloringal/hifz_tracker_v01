@@ -1,5 +1,5 @@
-const CACHE_NAME = 'mushaf-core-v1';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'mushaf-hifdh-cache-v1';
+const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json'
@@ -7,7 +7,7 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
   );
   self.skipWaiting();
 });
@@ -24,13 +24,14 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Audio streams using Range headers bypass service worker cache
-  if (e.request.headers.has('range') || url.hostname.includes('everyayah.com') || url.hostname.includes('verses.quran.com')) {
-    return;
-  }
-
-  // Dynamic Cache for Fonts and Quran API
-  if (url.hostname.includes('api.quran.com') || url.hostname.includes('static.qurancdn.com')) {
+  // Cache Quran Fonts, APIs and External Scripts
+  if (
+    url.hostname.includes('api.quran.com') ||
+    url.hostname.includes('static.qurancdn.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com') ||
+    url.hostname.includes('verses.quran.com')
+  ) {
     e.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(e.request);
@@ -47,6 +48,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  // App Shell offline routing
   e.respondWith(
     caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match('./index.html')))
   );
