@@ -1,18 +1,17 @@
 {
-  "name": "Al-Mushaf Al-Madani 1405H",
-  "short_name": "Mushaf1405",
-  "description": "Offline 15-Line Madani Quran Slate for Teachers and Students",
+  "name": "Al-Halaqah: Universal Quran Hifdh Slate",
+  "short_name": "HifdhSlate",
+  "description": "Offline 15-Line Madani & Indo-Pak Quran Hifdh Evaluation Slate for Teachers",
   "start_url": "./index.html",
   "display": "standalone",
+  "background_color": "#0d110f",
+  "theme_color": "#0d110f",
   "orientation": "any",
-  "background_color": "#0e1310",
-  "theme_color": "#121a15",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23121a15'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23c9a961' stroke-width='14'/><text x='256' y='325' font-size='220' text-anchor='middle' fill='%23c9a961' font-family='serif'>﷽</text></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "https://raw.githubusercontent.com/quran/quran.com-frontend-next/master/public/images/logo/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
     }
   ]
 }
