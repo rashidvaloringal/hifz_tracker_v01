@@ -1,3662 +1,403 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!doctype html>
+<html lang="ml" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101612">
+<meta name="description" content="Al-Halaqah — Dual Mushaf Hifdh Reader using root-folder CSV data">
+<link rel="manifest" href="./manifest.webmanifest">
 <title>Al-Halaqah — QUL Dual Mushaf</title>
-
-<!-- SQLite WASM wrapper -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
-
 <style>
 :root{
-  --bg:#0d110f;
-  --surface:#18201b;
-  --surface2:#202a23;
-  --border:#39483e;
-  --gold:#c8a35d;
-  --gold2:#e3c47e;
-  --paper:#fbf8ef;
-  --ink:#16130e;
-  --red:#b51e1e;
-  --green:#315c43;
+  --bg:#0c110e;--panel:#151d18;--panel2:#1b251f;--line:#3a493f;
+  --gold:#d1ad64;--gold2:#ead18f;--paper:#fbf8ef;--ink:#17130d;
+  --red:#b51e1e;--green:#315d45;--muted:#9eaaa3;
 }
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
-
-body{
-  background:var(--bg);
-  color:#eee;
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-}
-
-button,
-input,
-select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-#app{
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-}
-
-#stage{
-  flex:1;
-  overflow:auto;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:16px 12px 90px;
-  background:
-    radial-gradient(circle at center,#1b261f 0%,#080b09 75%);
-}
-
-.spread{
-  display:flex;
-  direction:rtl;
-  gap:18px;
-  justify-content:center;
-  align-items:center;
-  max-width:100%;
-}
-
-.sheet{
-  position:relative;
-  width:min(520px,47vw);
-  height:min(calc(100vh - 115px),860px);
-  min-height:560px;
-
-  background:var(--paper);
-  color:var(--ink);
-
-  border:2px solid #332817;
-  outline:2px solid var(--gold);
-  outline-offset:3px;
-
-  box-shadow:0 18px 50px #000c;
-  flex-shrink:0;
-
-  display:flex;
-  flex-direction:column;
-
-  overflow:hidden;
-}
-
-.sheet-header,
-.sheet-footer{
-  height:32px;
-  flex:0 0 32px;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  padding:0 18px;
-
-  font-family:"Amiri",serif;
-  color:#57401d;
-
-  border-bottom:1px solid #d8c9a6;
-}
-
-.sheet-footer{
-  border-bottom:0;
-  border-top:1px solid #d8c9a6;
-}
-
-.page-number{
-  font-size:16px;
-  font-weight:700;
-}
-
-.juz-label,
-.surah-label{
-  font-size:13px;
-  font-weight:700;
-}
-
-.lines{
-  flex:1;
-  min-height:0;
-
-  display:grid;
-  grid-template-rows:repeat(15,1fr);
-
-  padding:6px 20px;
-}
-
-.qul-line{
-  min-width:0;
-  min-height:0;
-
-  display:flex;
-  align-items:center;
-
-  white-space:nowrap;
-  overflow:hidden;
-
-  font-family:"QULMadani",serif;
-  font-size:clamp(18px,2.15vh,31px);
-
-  line-height:1;
-}
-
-.qul-line.centered{
-  justify-content:center;
-}
-
-.qul-line.justified{
-  justify-content:space-between;
-}
-
-.word{
-  display:inline-block;
-  flex:0 0 auto;
-}
-
-.word[data-lafdh="true"]{
-  color:var(--red);
-}
-
-.surah-line{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  width:100%;
-  height:100%;
-
-  border:1px solid #927440;
-  background:linear-gradient(#fffaf0,#ead8aa,#fffaf0);
-
-  color:#1c3224;
-
-  font-family:"Amiri",serif;
-  font-size:18px;
-  font-weight:700;
-}
-
-.bismillah-line{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  width:100%;
-  height:100%;
-
-  font-family:"Amiri",serif;
-  font-size:23px;
-  color:#183021;
-}
-
-#status{
-  position:fixed;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-
-  z-index:500;
-
-  padding:7px 14px;
-
-  background:#111813eF;
-  border:1px solid var(--border);
-  border-radius:20px;
-
-  color:#b9c8be;
-  font-size:12px;
-
-  pointer-events:none;
-}
-
-#dock{
-  position:fixed;
-  z-index:400;
-
-  left:50%;
-  bottom:14px;
-  transform:translateX(-50%);
-
-  display:flex;
-  align-items:center;
-  gap:7px;
-
-  padding:6px 9px;
-
-  background:#141b17F2;
-  border:1px solid var(--gold);
-  border-radius:30px;
-
-  box-shadow:0 10px 35px #000b;
-
-  direction:ltr;
-}
-
-.dock-btn{
-  min-width:38px;
-  height:34px;
-
-  border:0;
-  border-radius:18px;
-
-  background:transparent;
-  color:var(--gold2);
-}
-
-.dock-btn:hover{
-  background:#ffffff12;
-}
-
-.page-badge,
-.mushaf-badge,
-.student-badge{
-  border:1px solid #3b493f;
-  background:#0d120f;
-  color:#dfc889;
-
-  padding:6px 11px;
-  border-radius:14px;
-
-  font-size:12px;
-  font-weight:700;
-
-  white-space:nowrap;
-}
-
-.student-badge{
-  color:#bcd5c5;
-}
-
-#panel{
-  position:fixed;
-  z-index:600;
-
-  inset:auto 0 0 0;
-
-  max-height:82vh;
-  overflow:auto;
-
-  background:#151d18;
-
-  border-top:1px solid var(--gold);
-  border-radius:22px 22px 0 0;
-
-  padding:18px;
-
-  transform:translateY(105%);
-  transition:transform .25s ease;
-
-  box-shadow:0 -15px 50px #000c;
-}
-
-#panel.open{
-  transform:translateY(0);
-}
-
-.panel-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  margin-bottom:15px;
-}
-
-.panel-title h2{
-  font-size:16px;
-  color:var(--gold2);
-}
-
-.close{
-  border:0;
-  background:none;
-  color:#aaa;
-  font-size:25px;
-}
-
-.tabs{
-  display:flex;
-  gap:6px;
-  overflow-x:auto;
-  margin-bottom:15px;
-}
-
-.tab{
-  flex:0 0 auto;
-
-  border:1px solid var(--border);
-  background:#0e1410;
-
-  color:#aebbb2;
-
-  padding:8px 12px;
-  border-radius:9px;
-
-  font-size:12px;
-}
-
-.tab.active{
-  background:var(--gold);
-  color:#111;
-}
-
-.tab-content{
-  display:none;
-}
-
-.tab-content.active{
-  display:block;
-}
-
-.row{
-  display:flex;
-  gap:8px;
-  margin-bottom:10px;
-}
-
-input,
-select{
-  flex:1;
-
-  min-width:0;
-
-  padding:10px 12px;
-
-  border:1px solid var(--border);
-  border-radius:8px;
-
-  background:#0d120f;
-  color:#fff;
-}
-
-.action{
-  border:0;
-  border-radius:8px;
-
-  padding:9px 14px;
-
-  background:var(--gold);
-  color:#111;
-  font-weight:700;
-}
-
-.card{
-  padding:12px;
-
-  margin-bottom:8px;
-
-  border:1px solid var(--border);
-  border-radius:10px;
-
-  background:var(--surface);
-}
-
-.card strong{
-  color:#eee;
-}
-
-.card small{
-  color:#91a097;
-}
-
-.danger{
-  background:#351818;
-  color:#ffaaaa;
-  border:1px solid #652727;
-}
-
-.progress{
-  height:7px;
-  margin-top:8px;
-
-  border-radius:4px;
-
-  background:#29332d;
-  overflow:hidden;
-}
-
-.progress > div{
-  width:0;
-  height:100%;
-  background:var(--gold);
-}
-
-.file-label{
-  display:block;
-
-  padding:11px;
-
-  margin-bottom:10px;
-
-  border:1px dashed var(--gold);
-  border-radius:9px;
-
-  color:#dfc889;
-  text-align:center;
-
-  cursor:pointer;
-}
-
-.file-label input{
-  display:none;
-}
-
-.warning{
-  padding:10px;
-
-  background:#302718;
-  border:1px solid #715827;
-
-  border-radius:8px;
-
-  color:#e6ca8d;
-
-  font-size:12px;
-  line-height:1.6;
-}
-
-.success{
-  color:#9fd4b0;
-}
-
-.error{
-  color:#ff9d9d;
-}
-
-.canvas{
-  position:absolute;
-  inset:0;
-
-  z-index:50;
-
-  width:100%;
-  height:100%;
-
-  touch-action:none;
-  pointer-events:auto;
-}
-
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:var(--bg);color:#eee;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column}
+#stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:14px 10px 86px;background:radial-gradient(circle at center,#1b261f,#070a08 75%)}
+.spread{display:flex;direction:rtl;gap:18px;align-items:center;justify-content:center}
+.sheet{position:relative;width:min(535px,47vw);height:min(calc(100vh - 112px),900px);min-height:540px;background:var(--paper);color:var(--ink);border:2px solid #3a2d18;outline:2px solid var(--gold);outline-offset:3px;box-shadow:0 18px 55px #000c;display:flex;flex-direction:column;overflow:hidden}
+.sheet-head,.sheet-foot{height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#5b441e;border-bottom:1px solid #d6c6a1;font-family:serif}
+.sheet-foot{border:0;border-top:1px solid #d6c6a1}
+.page-no{font-weight:700;font-size:16px}
+.meta{font-size:12px;font-weight:700}
+.lines{flex:1;min-height:0;display:grid;grid-template-rows:repeat(15,1fr);padding:6px 16px}
+.qline{min-width:0;min-height:0;display:flex;align-items:center;overflow:hidden;white-space:nowrap;line-height:1;font-size:clamp(18px,2.15vh,32px)}
+.qline.center{justify-content:center}.qline.start{justify-content:flex-start}
+.qline.qcf{font-family:var(--qcf-font),serif;letter-spacing:0}
+.qline.indopak{font-family:var(--indo-font),serif;font-size:clamp(19px,2.25vh,33px)}
+.glyph{display:inline-block;flex:0 0 auto}
+.surah-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:1px solid #9a7b3d;background:linear-gradient(#fffaf0,#e9d8a8,#fffaf0);font-family:serif;font-size:17px;font-weight:700;color:#173121}
+.basmallah{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:24px;color:#183021}
+#dock{position:fixed;z-index:50;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;max-width:97vw;overflow:auto;padding:6px 8px;background:#121914f5;border:1px solid var(--gold);border-radius:28px;box-shadow:0 10px 35px #000b;direction:ltr}
+.dock-btn,.badge{height:34px;border:0;border-radius:18px;background:transparent;color:var(--gold2);padding:0 11px;white-space:nowrap}
+.badge{display:flex;align-items:center;border:1px solid #3b493f;background:#0d120f;font-size:12px;font-weight:700}
+#status{position:fixed;z-index:100;top:9px;left:50%;transform:translateX(-50%);padding:7px 13px;border:1px solid #3d4b42;border-radius:18px;background:#111813ed;color:#c4d0c9;font-size:12px;pointer-events:none;max-width:90vw;text-align:center}
+#panel{position:fixed;z-index:80;left:0;right:0;bottom:0;max-height:84vh;overflow:auto;padding:18px;background:var(--panel);border-top:1px solid var(--gold);border-radius:22px 22px 0 0;box-shadow:0 -15px 50px #000c;transform:translateY(105%);transition:transform .22s ease}
+#panel.open{transform:translateY(0)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.panel-head h2{font-size:16px;color:var(--gold2)}.close{border:0;background:none;color:#aaa;font-size:25px}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:13px}.tab{border:1px solid var(--line);background:#0e1410;color:#b6c0ba;padding:8px 12px;border-radius:9px;font-size:12px}.tab.active{background:var(--gold);color:#111}
+.tab-body{display:none}.tab-body.active{display:block}
+.card{padding:12px;margin-bottom:9px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.row{display:flex;gap:8px;margin-bottom:9px}.row>*{min-width:0;flex:1}
+input,select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#0d120f;color:#fff}
+.action{border:0;border-radius:8px;padding:9px 13px;background:var(--gold);color:#111;font-weight:700}
+.danger{background:#391919;color:#ffb0b0;border:1px solid #6a2a2a}
+.note{padding:10px;border:1px solid #6d5827;background:#302718;border-radius:8px;color:#e6ca8d;font-size:12px;line-height:1.6}
+.ok{color:#a7d8b7}.err{color:#ff9d9d}.muted{color:var(--muted)}
+.student{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#101713}
+.progress{height:7px;background:#29332d;border-radius:4px;overflow:hidden;margin-top:7px}.progress>div{height:100%;width:0;background:var(--gold)}
+.canvas{position:absolute;inset:0;width:100%;height:100%;z-index:20;touch-action:none}
 @media(max-width:960px),(orientation:portrait){
-  .sheet{
-    width:min(520px,94vw);
-    height:min(calc(100vh - 120px),850px);
-  }
-
-  .left{
-    display:none !important;
-  }
-
-  .lines{
-    padding-left:13px;
-    padding-right:13px;
-  }
-
-  #dock{
-    max-width:96vw;
-    overflow-x:auto;
-  }
+  .sheet{width:min(535px,94vw);height:min(calc(100vh - 118px),900px)}
+  .sheet.left{display:none!important}
+  .lines{padding-left:11px;padding-right:11px}
 }
 </style>
 </head>
-
 <body>
-
 <div id="app">
-
-  <div id="status">QUL Engine starting…</div>
-
-  <main id="stage">
-    <div class="spread">
-
-      <article class="sheet" id="sheetRight">
-        <header class="sheet-header">
-          <span id="rightJuz">الجزء --</span>
-          <span id="rightSurah">سورة --</span>
-        </header>
-
-        <section class="lines" id="linesRight"></section>
-
-        <footer class="sheet-footer">
-          <span id="rightMushaf">Madani 1405H</span>
-          <span class="page-number" id="rightPage">١</span>
-        </footer>
-
-        <canvas class="canvas" id="canvasRight"></canvas>
-      </article>
-
-      <article class="sheet left" id="sheetLeft">
-        <header class="sheet-header">
-          <span id="leftJuz">الجزء --</span>
-          <span id="leftSurah">سورة --</span>
-        </header>
-
-        <section class="lines" id="linesLeft"></section>
-
-        <footer class="sheet-footer">
-          <span id="leftMushaf">Madani 1405H</span>
-          <span class="page-number" id="leftPage">٢</span>
-        </footer>
-
-        <canvas class="canvas" id="canvasLeft"></canvas>
-      </article>
-
-    </div>
-  </main>
+  <div id="status">Loading Quran data…</div>
+  <main id="stage"><div class="spread">
+    <article class="sheet" id="rightSheet">
+      <header class="sheet-head"><span id="rMeta">سورة --</span><span id="rMushaf">Madani 1405H</span></header>
+      <section class="lines" id="rightLines"></section>
+      <footer class="sheet-foot"><span id="rPage" class="page-no">١</span><span>الجزء --</span></footer>
+      <canvas class="canvas" id="rightCanvas"></canvas>
+    </article>
+    <article class="sheet left" id="leftSheet">
+      <header class="sheet-head"><span id="lMeta">سورة --</span><span id="lMushaf">Madani 1405H</span></header>
+      <section class="lines" id="leftLines"></section>
+      <footer class="sheet-foot"><span id="lPage" class="page-no">٢</span><span>الجزء --</span></footer>
+      <canvas class="canvas" id="leftCanvas"></canvas>
+    </article>
+  </div></main>
 
   <nav id="dock">
-
-    <button class="dock-btn" onclick="App.turnPage(-1)">◀</button>
-
-    <span class="page-badge"
-          id="pageBadge"
-          onclick="App.jump()">
-      p. 1
-    </span>
-
-    <button class="dock-btn" onclick="App.turnPage(1)">▶</button>
-
-    <button class="mushaf-badge"
-            id="mushafBadge"
-            onclick="App.toggleMushaf()">
-      📖 Madani 1405H
-    </button>
-
-    <button class="dock-btn"
-            onclick="AudioEngine.toggle()">
-      🔊
-    </button>
-
-    <button class="student-badge"
-            id="studentBadge"
-            onclick="UI.open('students')">
-      👤 Student
-    </button>
-
-    <button class="dock-btn"
-            onclick="UI.open('tools')">
-      ⚙️
-    </button>
-
+    <button class="dock-btn" id="prevBtn">◀</button>
+    <button class="badge" id="pageBadge">p. 1</button>
+    <button class="dock-btn" id="nextBtn">▶</button>
+    <button class="badge" id="mushafBtn">📖 Madani 1405H</button>
+    <button class="badge" id="studentBtn">👤 Student</button>
+    <button class="dock-btn" id="panelBtn">⚙️</button>
   </nav>
 
   <section id="panel">
-
-    <div class="panel-title">
-      <h2 id="panelTitle">Al-Halaqah</h2>
-      <button class="close" onclick="UI.close()">×</button>
-    </div>
-
+    <div class="panel-head"><h2>Al-Halaqah</h2><button class="close" id="closePanel">×</button></div>
     <div class="tabs">
-
-      <button class="tab active"
-              data-tab="tools"
-              onclick="UI.tab('tools')">
-        ✏️ Tools
-      </button>
-
-      <button class="tab"
-              data-tab="students"
-              onclick="UI.tab('students')">
-        🎓 Students
-      </button>
-
-      <button class="tab"
-              data-tab="packs"
-              onclick="UI.tab('packs')">
-        💾 QUL Packs
-      </button>
-
-      <button class="tab"
-              data-tab="audio"
-              onclick="UI.tab('audio')">
-        🎙️ Audio
-      </button>
-
+      <button class="tab active" data-tab="data">📦 Data</button>
+      <button class="tab" data-tab="students">🎓 Students</button>
+      <button class="tab" data-tab="tools">✏️ Marking</button>
     </div>
 
-    <!-- TOOLS -->
-
-    <section class="tab-content active" id="tab-tools">
-
-      <div class="card">
-
-        <div class="row">
-
-          <button class="action"
-                  onclick="CanvasTool.select('pencil')">
-            ✏️ Pencil
-          </button>
-
-          <button class="action"
-                  onclick="CanvasTool.select('red')">
-            🔴 Error
-          </button>
-
-          <button class="action"
-                  onclick="CanvasTool.select('high')">
-            🟡 Highlight
-          </button>
-
-          <button class="action"
-                  onclick="CanvasTool.select('eraser')">
-            🧹 Erase
-          </button>
-
-        </div>
-
-        <button class="action danger"
-                style="width:100%"
-                onclick="CanvasTool.clear()">
-          Clear current page markings
-        </button>
-
+    <section class="tab-body active" id="tab-data">
+      <div class="note">
+        ഈ version GitHub main/root folder-ൽ ഉള്ള <b>qpcv1-35.csv</b>,
+        <b>indpak-20.csv</b>, <b>word.csv</b> മാത്രം ഉപയോഗിക്കുന്നു.
+        SQLite package ആവശ്യമില്ല. Layout CSV-യിൽ നിന്നുതന്നെ വായിക്കുന്നു; missing line ഉണ്ടെങ്കിൽ blank line ആയി മാത്രം കാണിക്കും.
       </div>
-
+      <div class="card">
+        <b>Madani 1405H</b><br><small id="madaniStatus" class="muted">Not loaded</small>
+        <div class="progress"><div id="madaniProgress"></div></div>
+      </div>
+      <div class="card">
+        <b>Indo-Pak Qudratullah 15L</b><br><small id="indoStatus" class="muted">Not loaded</small>
+        <div class="progress"><div id="indoProgress"></div></div>
+      </div>
+      <button class="action" id="reloadData">↻ Reload root CSV data</button>
     </section>
 
-    <!-- STUDENTS -->
-
-    <section class="tab-content" id="tab-students">
-
+    <section class="tab-body" id="tab-students">
       <div class="row">
-
-        <input id="studentName"
-               placeholder="Student name">
-
-        <select id="studentMushaf">
-          <option value="madani1405">
-            Madani 1405H
-          </option>
-          <option value="indopakQudratullah">
-            Qudratullah 15L
-          </option>
-        </select>
-
-        <button class="action"
-                onclick="Students.add()">
-          Add
-        </button>
-
+        <input id="studentName" placeholder="Student name">
+        <select id="studentMushaf"><option value="madani">Madani 1405H</option><option value="indopak">Qudratullah 15L</option></select>
+        <button class="action" id="addStudent">Add</button>
       </div>
-
       <div id="studentsList"></div>
-
     </section>
 
-    <!-- PACKS -->
-
-    <section class="tab-content" id="tab-packs">
-
-      <div class="warning">
-        QUL layout must come from the actual downloaded SQLite/JSON
-        package. This app deliberately does NOT fabricate a fallback
-        layout when the package is missing.
-      </div>
-
-      <br>
-
-      <label class="file-label">
-        Load Madani 1405H QUL SQLite
-        <input type="file"
-               accept=".sqlite,.db"
-               onchange="QULAssets.loadSQLite('madani1405',this.files[0])">
-      </label>
-
-      <div class="card">
-        <strong>Madani 1405H</strong>
-        <br>
-        <small id="packStatusMadani">
-          Not loaded
-        </small>
-        <div class="progress">
-          <div id="progressMadani"></div>
-        </div>
-      </div>
-
-      <label class="file-label">
-        Load Qudratullah 15L QUL SQLite
-        <input type="file"
-               accept=".sqlite,.db"
-               onchange="QULAssets.loadSQLite('indopakQudratullah',this.files[0])">
-      </label>
-
-      <div class="card">
-        <strong>Qudratullah 15L</strong>
-        <br>
-        <small id="packStatusQudratullah">
-          Not loaded
-        </small>
-        <div class="progress">
-          <div id="progressQudratullah"></div>
-        </div>
-      </div>
-
-      <div class="warning">
-        QUL SQLite is the layout source.
-        The app validates the actual <code>pages</code> table before
-        importing it. No line inference is performed.
-      </div>
-
-    </section>
-
-    <!-- AUDIO -->
-
-    <section class="tab-content" id="tab-audio">
-
+    <section class="tab-body" id="tab-tools">
       <div class="row">
-
-        <select id="reciter">
-
-          <option value="Alafasy_128kbps">
-            Mishary Alafasy
-          </option>
-
-          <option value="Husary_128kbps">
-            Mahmoud Al-Husary
-          </option>
-
-          <option value="Minshawy_Murattal_128kbps">
-            Al-Minshawi
-          </option>
-
-          <option value="Abdul_Basit_Murattal_192kbps">
-            Abdul Basit
-          </option>
-
-          <option value="Abdurrahmaan_As-Sudais_192kbps">
-            As-Sudais
-          </option>
-
-        </select>
-
+        <button class="action" data-tool="pencil">✏️ Pencil</button>
+        <button class="action" data-tool="red">🔴 Error</button>
+        <button class="action" data-tool="high">🟡 Highlight</button>
+        <button class="action" data-tool="eraser">🧹 Erase</button>
       </div>
-
+      <button class="action danger" id="clearMarks" style="width:100%">Clear current page marking</button>
     </section>
-
   </section>
-
 </div>
-
 
 <script>
 "use strict";
 
-/* ============================================================
-   1. CONFIG
-   ============================================================ */
-
-const CONFIG = {
-
-  madani1405: {
-    id: "madani1405",
-    layoutId: 2,
-    name: "Mushaf al-Madinah 1405H",
-    shortName: "Madani 1405H",
-    pages: 604,
-    lines: 15,
-    script: "uthmani"
-  },
-
-  indopakQudratullah: {
-    id: "indopakQudratullah",
-    layoutId: 6,
-    name: "Indo-Pak Qudratullah 15L",
-    shortName: "Qudratullah 15L",
-    pages: 610,
-    lines: 15,
-    script: "indopak"
-  }
-
+const CFG = {
+  madani:{id:"madani",name:"Madani 1405H",pages:604,map:"./qpcv1-35.csv",wordCol:"qpc_v1",fontMode:"qcf"},
+  indopak:{id:"indopak",name:"Indo-Pak Qudratullah 15L",pages:610,map:"./indpak-20.csv",wordCol:"indopak",fontMode:"indo"}
 };
 
+const SURAH_NAMES = [
+"", "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة",
+"يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+"الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+"لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى",
+"الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم",
+"القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون",
+"التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر",
+"القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق",
+"البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين",
+"العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش",
+"الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
+];
 
-/* ============================================================
-   2. HELPERS
-   ============================================================ */
+const arabicDigits="٠١٢٣٤٥٦٧٨٩";
+const ar=n=>String(n).replace(/\d/g,d=>arabicDigits[d]);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 
-const ArabicDigits = "٠١٢٣٤٥٦٧٨٩";
-
-function arNumber(n){
-  return String(n).replace(
-    /\d/g,
-    d => ArabicDigits[d]
-  );
-}
-
-function escapeHTML(value){
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function isAllah(text){
-
-  if(!text) return false;
-
-  const x = String(text)
-    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
-    .replace(/\u0640/g,"")
-    .replace(/[ٱإأآ]/g,"ا")
-    .trim();
-
-  return (
-    x === "الله" ||
-    x === "لله" ||
-    x === "اللهم"
-  );
-}
-
-
-/* ============================================================
-   3. STATUS
-   ============================================================ */
-
-const Status = {
-
-  set(text,type=""){
-    const el = document.getElementById("status");
-
-    el.textContent = text;
-
-    el.className = type;
-
-    clearTimeout(this.timer);
-
-    this.timer = setTimeout(()=>{
-      el.textContent = "";
-    },3500);
+function csv(text){
+  const rows=[]; let row=[], cell="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){
+      if(q && text[i+1]==='"'){cell+='"';i++} else q=!q;
+    } else if(c===','&&!q){row.push(cell);cell=""}
+    else if((c==='\n'||c==='\r')&&!q){
+      if(c==='\r'&&text[i+1]==='\n')i++;
+      row.push(cell);cell=""; if(row.some(x=>x!==""))rows.push(row); row=[];
+    } else cell+=c;
   }
-
-};
-
-
-/* ============================================================
-   4. INDEXED DB
-   ============================================================ */
+  if(cell!==""||row.length){row.push(cell);rows.push(row)}
+  const h=rows.shift().map(x=>x.trim().replace(/^['"]|['"]$/g,""));
+  return rows.map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]??"").trim().replace(/^['"]|['"]$/g,"")])));
+}
 
 const DB = {
-
-  db:null,
-
-  async init(){
-
-    return new Promise((resolve,reject)=>{
-
-      const req =
-        indexedDB.open(
-          "AlHalaqah_QUL_Authoritative_v1",
-          1
-        );
-
-      req.onupgradeneeded = e => {
-
-        const db = e.target.result;
-
-        if(!db.objectStoreNames.contains("students")){
-
-          db.createObjectStore(
-            "students",
-            {
-              keyPath:"id",
-              autoIncrement:true
-            }
-          );
-
-        }
-
-        if(!db.objectStoreNames.contains("drawings")){
-
-          const s =
-            db.createObjectStore(
-              "drawings",
-              {
-                keyPath:"id",
-                autoIncrement:true
-              }
-            );
-
-          s.createIndex(
-            "student_mushaf_page",
-            ["studentId","mushafId","page"],
-            {unique:true}
-          );
-
-        }
-
-        if(!db.objectStoreNames.contains("qul_lines")){
-
-          const s =
-            db.createObjectStore(
-              "qul_lines",
-              {
-                keyPath:[
-                  "mushafId",
-                  "page",
-                  "line"
-                ]
-              }
-            );
-
-          s.createIndex(
-            "mushaf_page",
-            ["mushafId","page"],
-            {unique:false}
-          );
-
-        }
-
-        if(!db.objectStoreNames.contains("qul_words")){
-
-          db.createObjectStore(
-            "qul_words",
-            {
-              keyPath:[
-                "mushafId",
-                "wordId"
-              ]
-            }
-          );
-
-        }
-
-        if(!db.objectStoreNames.contains("qul_meta")){
-
-          db.createObjectStore(
-            "qul_meta",
-            {
-              keyPath:[
-                "mushafId",
-                "page"
-              ]
-            }
-          );
-
-        }
-
-      };
-
-      req.onsuccess = ()=>{
-        this.db=req.result;
-        resolve();
-      };
-
-      req.onerror = ()=>{
-        reject(req.error);
-      };
-
-    });
-
+  key:"AlHalaqah_RootCSV_v1",
+  data:{maps:{madani:new Map(),indopak:new Map()},words:new Map(),loaded:false},
+  students:[], currentStudent:null,
+  async load(){
+    setStatus("Reading root-folder CSV files…");
+    const [a,b,w]=await Promise.all([fetch(CFG.madani.map),fetch(CFG.indopak.map),fetch("./word.csv")]);
+    if(!a.ok||!b.ok||!w.ok) throw new Error("Root CSV file not found. Check filenames.");
+    const [at,bt,wt]=await Promise.all([a.text(),b.text(),w.text()]);
+    const ar=csv(at), br=csv(bt), wr=csv(wt);
+    this.data.maps.madani=this.buildMap(ar);
+    this.data.maps.indopak=this.buildMap(br);
+    this.data.words=new Map(wr.map(x=>[Number(x.word_number_all),x]));
+    if(this.data.words.size<80000) throw new Error("word.csv appears incomplete ("+this.data.words.size+" words read).");
+    this.data.loaded=true;
+    document.getElementById("madaniStatus").textContent=`✓ ${this.data.maps.madani.size} pages · ${ar.length} layout rows · ${this.data.words.size.toLocaleString()} words`;
+    document.getElementById("indoStatus").textContent=`✓ ${this.data.maps.indopak.size} pages · ${br.length} layout rows · ${this.data.words.size.toLocaleString()} words`;
+    setStatus("Quran data loaded");
   },
-
-
-  async getAll(store){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(store,"readonly");
-
-      const req =
-        tx.objectStore(store).getAll();
-
-      req.onsuccess =
-        ()=>resolve(req.result || []);
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async add(store,value){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(store,"readwrite");
-
-      const req =
-        tx.objectStore(store).add(value);
-
-      req.onsuccess =
-        ()=>resolve(req.result);
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async put(store,value){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(store,"readwrite");
-
-      const req =
-        tx.objectStore(store).put(value);
-
-      req.onsuccess =
-        ()=>resolve(req.result);
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async get(store,key){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(store,"readonly");
-
-      const req =
-        tx.objectStore(store).get(key);
-
-      req.onsuccess =
-        ()=>resolve(req.result || null);
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async getPageLines(mushafId,page){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(
-          "qul_lines",
-          "readonly"
-        );
-
-      const index =
-        tx.objectStore("qul_lines")
-          .index("mushaf_page");
-
-      const req =
-        index.getAll(
-          IDBKeyRange.only([mushafId,page])
-        );
-
-      req.onsuccess = ()=>{
-
-        const rows =
-          (req.result || [])
-            .sort(
-              (a,b)=>a.line-b.line
-            );
-
-        resolve(rows);
-
-      };
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async getWordsRange(
-    mushafId,
-    first,
-    last
-  ){
-
-    if(
-      first === null ||
-      last === null ||
-      first === undefined ||
-      last === undefined ||
-      first > last
-    ){
-      return [];
-    }
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(
-          "qul_words",
-          "readonly"
-        );
-
-      const store =
-        tx.objectStore("qul_words");
-
-      const range =
-        IDBKeyRange.bound(
-          [mushafId,first],
-          [mushafId,last]
-        );
-
-      const result=[];
-
-      const req =
-        store.openCursor(range);
-
-      req.onsuccess = e => {
-
-        const cursor =
-          e.target.result;
-
-        if(!cursor){
-
-          result.sort(
-            (a,b)=>a.wordId-b.wordId
-          );
-
-          resolve(result);
-          return;
-        }
-
-        result.push(cursor.value);
-
-        cursor.continue();
-
-      };
-
-      req.onerror =
-        ()=>reject(req.error);
-
-    });
-
-  },
-
-
-  async getDrawing(
-    studentId,
-    mushafId,
-    page
-  ){
-
-    return new Promise(resolve=>{
-
-      const tx =
-        this.db.transaction(
-          "drawings",
-          "readonly"
-        );
-
-      const index =
-        tx.objectStore("drawings")
-          .index("student_mushaf_page");
-
-      const req =
-        index.get(
-          [studentId,mushafId,page]
-        );
-
-      req.onsuccess =
-        ()=>resolve(req.result?.data || null);
-
-      req.onerror =
-        ()=>resolve(null);
-
-    });
-
-  },
-
-
-  async saveDrawing(
-    studentId,
-    mushafId,
-    page,
-    data
-  ){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(
-          "drawings",
-          "readwrite"
-        );
-
-      const store =
-        tx.objectStore("drawings");
-
-      const index =
-        store.index(
-          "student_mushaf_page"
-        );
-
-      const req =
-        index.get(
-          [studentId,mushafId,page]
-        );
-
-      req.onsuccess = ()=>{
-
-        const old=req.result;
-
-        const value={
-          studentId,
-          mushafId,
-          page,
-          data,
-          updatedAt:Date.now()
-        };
-
-        if(old){
-          value.id=old.id;
-        }
-
-        store.put(value);
-
-      };
-
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
-
-    });
-
-  },
-
-
-  async writeQULBundle(
-    mushafId,
-    pages,
-    words,
-    meta
-  ){
-
-    return new Promise((resolve,reject)=>{
-
-      const tx =
-        this.db.transaction(
-          [
-            "qul_lines",
-            "qul_words",
-            "qul_meta"
-          ],
-          "readwrite"
-        );
-
-      const lineStore =
-        tx.objectStore("qul_lines");
-
-      const wordStore =
-        tx.objectStore("qul_words");
-
-      const metaStore =
-        tx.objectStore("qul_meta");
-
-      for(const row of pages){
-
-        lineStore.put({
-          mushafId,
-          page:Number(row.page_number),
-          line:Number(row.line_number),
-
-          lineType:row.line_type,
-
-          centered:Boolean(
-            row.is_centered
-          ),
-
-          firstWordId:
-            row.first_word_id == null
-              ? null
-              : Number(row.first_word_id),
-
-          lastWordId:
-            row.last_word_id == null
-              ? null
-              : Number(row.last_word_id),
-
-          surahNumber:
-            row.surah_number == null
-              ? null
-              : Number(row.surah_number)
-
-        });
-
-      }
-
-      for(const word of words){
-
-        wordStore.put({
-
-          mushafId,
-
-          wordId:Number(
-            word.word_index
-          ),
-
-          wordKey:
-            word.word_key ?? null,
-
-          surah:
-            word.surah == null
-              ? null
-              : Number(word.surah),
-
-          ayah:
-            word.ayah == null
-              ? null
-              : Number(word.ayah),
-
-          text:
-            word.text ?? ""
-
-        });
-
-      }
-
-      if(meta){
-
-        for(const [page,value] of Object.entries(meta)){
-
-          metaStore.put({
-
-            mushafId,
-            page:Number(page),
-
-            juz:
-              value.juz == null
-                ? null
-                : Number(value.juz),
-
-            surah:
-              value.surah == null
-                ? null
-                : Number(value.surah)
-
-          });
-
-        }
-
-      }
-
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
-
-    });
-
-  }
-
-};
-
-
-/* ============================================================
-   5. QUL PAGE VALIDATION
-   ============================================================ */
-
-function validateQULPage(
-  rows,
-  expectedLines
-){
-
-  if(
-    !Array.isArray(rows) ||
-    rows.length !== expectedLines
-  ){
-    return false;
-  }
-
-  const sorted =
-    [...rows].sort(
-      (a,b)=>
-        Number(a.line_number) -
-        Number(b.line_number)
-    );
-
-  for(let i=0;i<expectedLines;i++){
-
-    const row=sorted[i];
-
-    if(
-      Number(row.line_number) !== i+1
-    ){
-      return false;
-    }
-
-    if(
-      ![
-        "ayah",
-        "surah_name",
-        "basmallah"
-      ].includes(row.line_type)
-    ){
-      return false;
-    }
-
-    if(
-      typeof row.is_centered !== "boolean" &&
-      row.is_centered !== 0 &&
-      row.is_centered !== 1
-    ){
-      return false;
-    }
-
-    if(row.line_type==="ayah"){
-
-      if(
-        row.first_word_id == null ||
-        row.last_word_id == null
-      ){
-        return false;
-      }
-
-      if(
-        !Number.isInteger(
-          Number(row.first_word_id)
-        ) ||
-        !Number.isInteger(
-          Number(row.last_word_id)
-        )
-      ){
-        return false;
-      }
-
-      if(
-        Number(row.first_word_id) >
-        Number(row.last_word_id)
-      ){
-        return false;
-      }
-
-    }else{
-
-      if(
-        row.first_word_id != null ||
-        row.last_word_id != null
-      ){
-        return false;
-      }
-
-    }
-
-  }
-
-  return true;
-
-}
-
-
-/* ============================================================
-   6. SQL HELPERS
-   ============================================================ */
-
-function sqlValue(
-  row,
-  names,
-  fallback=null
-){
-
-  for(const name of names){
-
-    if(
-      Object.prototype.hasOwnProperty.call(
-        row,
-        name
-      )
-    ){
-
-      return row[name];
-
-    }
-
-  }
-
-  return fallback;
-}
-
-
-function normalizeBoolean(value){
-
-  if(
-    value === true ||
-    value === 1 ||
-    value === "1" ||
-    value === "true"
-  ){
-    return true;
-  }
-
-  return false;
-}
-
-
-function execRows(db,sql){
-
-  const result =
-    db.exec(sql);
-
-  if(!result.length){
-    return [];
-  }
-
-  const columns =
-    result[0].columns;
-
-  return result[0].values.map(values=>{
-
-    const obj={};
-
-    columns.forEach(
-      (column,i)=>{
-        obj[column]=values[i];
-      }
-    );
-
-    return obj;
-
-  });
-
-}
-
-
-/* ============================================================
-   7. QUL SQLITE IMPORTER
-   ============================================================ */
-
-const QULAssets = {
-
-  SQL:null,
-
-  packages:{},
-
-  async init(){
-
-    this.SQL =
-      await initSqlJs({
-        locateFile:
-          file =>
-            `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
+  buildMap(rows){
+    const m=new Map();
+    for(const r of rows){
+      const page=Number(r.page), line=Number(r.line);
+      if(!page||!line) continue;
+      if(!m.has(page))m.set(page,[]);
+      m.get(page).push({
+        line,type:String(r.type||"").replaceAll("'",""),
+        centered:Number(r.is_centered)===1,
+        start:Number(r.range_start)||0,end:Number(r.range_end)||Number(r.range_start)||0
       });
-
-  },
-
-
-  async loadSQLite(
-    mushafId,
-    file
-  ){
-
-    if(!file) return;
-
-    try{
-
-      Status.set(
-        `Reading QUL SQLite: ${file.name}`
-      );
-
-      const buffer =
-        await file.arrayBuffer();
-
-      const db =
-        new this.SQL.Database(
-          new Uint8Array(buffer)
-        );
-
-      const tables =
-        execRows(
-          db,
-          `
-          SELECT name
-          FROM sqlite_master
-          WHERE type='table'
-          ORDER BY name
-          `
-        );
-
-      const tableNames =
-        tables.map(
-          x=>String(x.name).toLowerCase()
-        );
-
-      if(!tableNames.includes("pages")){
-        throw new Error(
-          "This SQLite file does not contain a pages table."
-        );
-      }
-
-      if(!tableNames.includes("words")){
-        throw new Error(
-          "This SQLite file does not contain a words table."
-        );
-      }
-
-      const pages =
-        execRows(
-          db,
-          `
-          SELECT *
-          FROM pages
-          ORDER BY
-            page_number,
-            line_number
-          `
-        );
-
-      const words =
-        execRows(
-          db,
-          `
-          SELECT *
-          FROM words
-          ORDER BY word_index
-          `
-        );
-
-      if(!pages.length){
-        throw new Error(
-          "QUL pages table is empty."
-        );
-      }
-
-      if(!words.length){
-        throw new Error(
-          "QUL words table is empty."
-        );
-      }
-
-      const config =
-        CONFIG[mushafId];
-
-      const normalizedPages =
-        pages.map(row=>({
-
-          page_number:
-            Number(
-              sqlValue(
-                row,
-                ["page_number"]
-              )
-            ),
-
-          line_number:
-            Number(
-              sqlValue(
-                row,
-                ["line_number"]
-              )
-            ),
-
-          line_type:
-            String(
-              sqlValue(
-                row,
-                ["line_type"],
-                ""
-              )
-            ),
-
-          is_centered:
-            normalizeBoolean(
-              sqlValue(
-                row,
-                ["is_centered"],
-                0
-              )
-            ),
-
-          first_word_id:
-            sqlValue(
-              row,
-              ["first_word_id"],
-              null
-            ),
-
-          last_word_id:
-            sqlValue(
-              row,
-              ["last_word_id"],
-              null
-            ),
-
-          surah_number:
-            sqlValue(
-              row,
-              ["surah_number"],
-              null
-            )
-
-        }));
-
-
-      /*
-       * STRICT PAGE VALIDATION
-       *
-       * No line is generated.
-       * No line is inferred.
-       * No line is redistributed.
-       */
-
-      for(
-        let page=1;
-        page<=config.pages;
-        page++
-      ){
-
-        const pageRows =
-          normalizedPages.filter(
-            r =>
-              r.page_number === page
-          );
-
-        if(
-          !validateQULPage(
-            pageRows,
-            config.lines
-          )
-        ){
-
-          throw new Error(
-            `QUL validation failed: ${config.name}, page ${page}`
-          );
-
-        }
-
-      }
-
-
-      /*
-       * Normalize word table.
-       */
-
-      const normalizedWords =
-        words.map(row=>({
-
-          word_index:
-            Number(
-              sqlValue(
-                row,
-                ["word_index"]
-              )
-            ),
-
-          word_key:
-            sqlValue(
-              row,
-              ["word_key"],
-              null
-            ),
-
-          surah:
-            sqlValue(
-              row,
-              ["surah"],
-              null
-            ),
-
-          ayah:
-            sqlValue(
-              row,
-              ["ayah"],
-              null
-            ),
-
-          text:
-            sqlValue(
-              row,
-              ["text"],
-              ""
-            )
-
-        }));
-
-
-      /*
-       * Verify every ayah range can resolve
-       * against the word table.
-       */
-
-      const wordIds =
-        new Set(
-          normalizedWords.map(
-            w=>w.word_index
-          )
-        );
-
-      for(const row of normalizedPages){
-
-        if(row.line_type!=="ayah"){
-          continue;
-        }
-
-        const first =
-          Number(row.first_word_id);
-
-        const last =
-          Number(row.last_word_id);
-
-        if(
-          !wordIds.has(first) ||
-          !wordIds.has(last)
-        ){
-
-          throw new Error(
-            `Word range missing for page ${row.page_number}, line ${row.line_number}`
-          );
-
-        }
-
-      }
-
-
-      /*
-       * Group metadata only from actual QUL rows.
-       *
-       * No Juz calculation is invented.
-       */
-
-      const meta={};
-
-      for(
-        let page=1;
-        page<=config.pages;
-        page++
-      ){
-
-        const rows =
-          normalizedPages.filter(
-            r =>
-              r.page_number === page
-          );
-
-        const surahRow =
-          rows.find(
-            r =>
-              r.surah_number != null
-          );
-
-        meta[page]={
-          juz:null,
-          surah:
-            surahRow
-              ? Number(surahRow.surah_number)
-              : null
-        };
-
-      }
-
-
-      Status.set(
-        `Importing ${config.name}…`
-      );
-
-      /*
-       * One transaction writes the entire
-       * authoritative package.
-       */
-
-      await DB.writeQULBundle(
-        mushafId,
-        normalizedPages,
-        normalizedWords,
-        meta
-      );
-
-
-      this.packages[mushafId]={
-        loaded:true,
-        fileName:file.name,
-        pages:normalizedPages.length,
-        words:normalizedWords.length
-      };
-
-
-      const statusId =
-        mushafId==="madani1405"
-          ? "packStatusMadani"
-          : "packStatusQudratullah";
-
-      document.getElementById(
-        statusId
-      ).textContent =
-        `✓ Loaded ${config.pages} pages / ${normalizedWords.length} words from ${file.name}`;
-
-
-      Status.set(
-        `${config.shortName}: authoritative QUL package loaded`,
-        "success"
-      );
-
-
-      /*
-       * Render current page if this is
-       * the active Mushaf.
-       */
-
-      if(
-        App.currentMushaf === mushafId
-      ){
-
-        await App.render();
-
-      }
-
-    }catch(error){
-
-      console.error(error);
-
-      Status.set(
-        `QUL import failed: ${error.message}`,
-        "error"
-      );
-
-      alert(
-        `QUL package rejected.\n\n${error.message}`
-      );
-
     }
-
+    for(const v of m.values())v.sort((x,y)=>x.line-y.line);
+    return m;
   }
-
 };
 
-
-/* ============================================================
-   8. QUL REPOSITORY
-   ============================================================ */
-
-const QULRepository = {
-
-  async getPage(
-    mushafId,
-    page
-  ){
-
-    const rows =
-      await DB.getPageLines(
-        mushafId,
-        page
-      );
-
-    const config =
-      CONFIG[mushafId];
-
-    if(
-      !validateStoredPage(
-        rows,
-        config.lines
-      )
-    ){
-
-      throw new Error(
-        `No valid authoritative QUL page stored: ${mushafId}/${page}`
-      );
-
+const Font = {
+  qcf:new Map(), indo:null,
+  async loadFor(mushaf,page){
+    if(mushaf==="indopak"){
+      if(this.indo)return this.indo;
+      const name="QUL_IndoPak_Nastaleeq";
+      const url="https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2";
+      const f=new FontFace(name,`url("${url}")`);
+      await f.load(); document.fonts.add(f); this.indo=name; return name;
     }
-
-    return rows;
-
-  },
-
-
-  async getWords(
-    mushafId,
-    first,
-    last
-  ){
-
-    return DB.getWordsRange(
-      mushafId,
-      first,
-      last
-    );
-
+    if(this.qcf.has(page))return this.qcf.get(page);
+    const name="QUL_QCF_"+page;
+    const url=`https://verses.quran.foundation/fonts/quran/hafs/v1/woff2/p${page}.woff2`;
+    const f=new FontFace(name,`url("${url}")`);
+    await f.load(); document.fonts.add(f); this.qcf.set(page,name); return name;
   }
-
 };
 
-
-function validateStoredPage(
-  rows,
-  expected
-){
-
-  if(
-    !Array.isArray(rows) ||
-    rows.length !== expected
-  ){
-    return false;
-  }
-
-  return rows.every(
-    (row,index)=>{
-
-      if(
-        Number(row.line)!==
-        index+1
-      ){
-        return false;
-      }
-
-      if(
-        ![
-          "ayah",
-          "surah_name",
-          "basmallah"
-        ].includes(row.lineType)
-      ){
-        return false;
-      }
-
-      if(
-        typeof row.centered!=="boolean"
-      ){
-        return false;
-      }
-
-      if(row.lineType==="ayah"){
-
-        return (
-          Number.isInteger(
-            row.firstWordId
-          ) &&
-          Number.isInteger(
-            row.lastWordId
-          ) &&
-          row.firstWordId <=
-          row.lastWordId
-        );
-
-      }
-
-      return (
-        row.firstWordId===null &&
-        row.lastWordId===null
-      );
-
-    }
-  );
-
-}
-
-
-/* ============================================================
-   9. SURAH NAMES
-   ============================================================ */
-
-const SURAH_NAMES = {
-
-  1:"الفاتحة",
-  2:"البقرة",
-  3:"آل عمران",
-  4:"النساء",
-  5:"المائدة",
-  6:"الأنعام",
-  7:"الأعراف",
-  8:"الأنفال",
-  9:"التوبة",
-  10:"يونس",
-  11:"هود",
-  12:"يوسف",
-  13:"الرعد",
-  14:"إبراهيم",
-  15:"الحجر",
-  16:"النحل",
-  17:"الإسراء",
-  18:"الكهف",
-  19:"مريم",
-  20:"طه",
-  21:"الأنبياء",
-  22:"الحج",
-  23:"المؤمنون",
-  24:"النور",
-  25:"الفرقان",
-  26:"الشعراء",
-  27:"النمل",
-  28:"القصص",
-  29:"العنكبوت",
-  30:"الروم",
-  31:"لقمان",
-  32:"السجدة",
-  33:"الأحزاب",
-  34:"سبإ",
-  35:"فاطر",
-  36:"يس",
-  37:"الصافات",
-  38:"ص",
-  39:"الزمر",
-  40:"غافر",
-  41:"فصلت",
-  42:"الشورى",
-  43:"الزخرف",
-  44:"الدخان",
-  45:"الجاثية",
-  46:"الأحقاف",
-  47:"محمد",
-  48:"الفتح",
-  49:"الحجرات",
-  50:"ق",
-  51:"الذاريات",
-  52:"الطور",
-  53:"النجم",
-  54:"القمر",
-  55:"الرحمن",
-  56:"الواقعة",
-  57:"الحديد",
-  58:"المجادلة",
-  59:"الحشر",
-  60:"الممتحنة",
-  61:"الصف",
-  62:"الجمعة",
-  63:"المنافقون",
-  64:"التغابن",
-  65:"الطلاق",
-  66:"التحريم",
-  67:"الملك",
-  68:"القلم",
-  69:"الحاقة",
-  70:"المعارج",
-  71:"نوح",
-  72:"الجن",
-  73:"المزمل",
-  74:"المدثر",
-  75:"القيامة",
-  76:"الإنسان",
-  77:"المرسلات",
-  78:"النبأ",
-  79:"النازعات",
-  80:"عبس",
-  81:"التكوير",
-  82:"الانفطار",
-  83:"المطففين",
-  84:"الانشقاق",
-  85:"البروج",
-  86:"الطارق",
-  87:"الأعلى",
-  88:"الغاشية",
-  89:"الفجر",
-  90:"البلد",
-  91:"الشمس",
-  92:"الليل",
-  93:"الضحى",
-  94:"الشرح",
-  95:"التين",
-  96:"العلق",
-  97:"القدر",
-  98:"البينة",
-  99:"الزلزلة",
-  100:"العاديات",
-  101:"القارعة",
-  102:"التكاثر",
-  103:"العصر",
-  104:"الهمزة",
-  105:"الفيل",
-  106:"قريش",
-  107:"الماعون",
-  108:"الكوثر",
-  109:"الكافرون",
-  110:"النصر",
-  111:"المسد",
-  112:"الإخلاص",
-  113:"الفلق",
-  114:"الناس"
-
+const Store = {
+  key:"AlHalaqah_RootCSV_App_v1",
+  state:{mushaf:"madani",page:1,studentId:null},
+  async get(){
+    try{return JSON.parse(localStorage.getItem(this.key)||"{}")}catch{return{}}
+  },
+  save(){localStorage.setItem(this.key,JSON.stringify(this.state))}
 };
 
-
-/* ============================================================
-   10. APP
-   ============================================================ */
-
-const App = {
-
-  currentMushaf:"madani1405",
-
-  currentPage:1,
-
-  student:null,
-
-  students:[],
-
-  async init(){
-
-    try{
-
-      await DB.init();
-
-      await QULAssets.init();
-
-      await this.initStudent();
-
-      this.updateUI();
-
-      await this.render();
-
-      window.addEventListener(
-        "resize",
-        ()=>{
-          CanvasTool.resizeAll();
-        }
-      );
-
-      document.addEventListener(
-        "keydown",
-        e=>{
-
-          if(
-            e.target.matches(
-              "input,select,textarea"
-            )
-          ){
-            return;
-          }
-
-          if(e.key==="ArrowLeft"){
-            this.turnPage(-1);
-          }
-
-          if(e.key==="ArrowRight"){
-            this.turnPage(1);
-          }
-
-        }
-      );
-
-      Status.set(
-        "QUL engine ready",
-        "success"
-      );
-
-    }catch(error){
-
-      console.error(error);
-
-      Status.set(
-        `Startup error: ${error.message}`,
-        "error"
-      );
-
+const Marks = {
+  active:"right", tool:"pencil", color:"rgba(55,35,20,.85)", width:2,
+  canvases:{},
+  resize(side){
+    const c=document.getElementById(side+"Canvas"), s=document.getElementById(side+"Sheet"); if(!c||!s)return;
+    const r=s.getBoundingClientRect(), d=devicePixelRatio||1, old=document.createElement("canvas");
+    old.width=c.width; old.height=c.height; if(old.width&&old.height)old.getContext("2d").drawImage(c,0,0);
+    c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);c.style.width=r.width+"px";c.style.height=r.height+"px";
+    const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);
+    if(old.width&&old.height)x.drawImage(old,0,0,r.width,r.height);
+  },
+  resizeAll(){this.resize("right");this.resize("left")},
+  bind(side){
+    const c=document.getElementById(side+"Canvas"); if(c.dataset.bound)return;c.dataset.bound=1;
+    let drawing=false,x0=0,y0=0;
+    c.addEventListener("pointerdown",e=>{
+      this.active=side;drawing=true;c.setPointerCapture(e.pointerId);
+      const r=c.getBoundingClientRect();x0=e.clientX-r.left;y0=e.clientY-r.top;
+    });
+    c.addEventListener("pointermove",e=>{
+      if(!drawing)return; const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,ctx=c.getContext("2d");
+      ctx.save();ctx.lineCap="round";ctx.lineJoin="round";
+      if(this.tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=this.width}
+      else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle=this.color;ctx.lineWidth=this.width}
+      ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x,y);ctx.stroke();ctx.restore();x0=x;y0=y;
+    });
+    const stop=()=>{drawing=false;this.save()};
+    c.addEventListener("pointerup",stop);c.addEventListener("pointercancel",stop);
+  },
+  select(t){
+    this.tool=t;
+    if(t==="pencil"){this.color="rgba(55,35,20,.85)";this.width=2}
+    if(t==="red"){this.color="rgba(210,25,25,.9)";this.width=2.5}
+    if(t==="high"){this.color="rgba(230,180,20,.35)";this.width=16}
+    if(t==="eraser"){this.width=25}
+  },
+  key(){return `ah_marks_${DB.currentStudent?.id||"default"}_${Store.state.mushaf}_${Store.state.page}_${this.active}`},
+  save(){try{localStorage.setItem(this.key(),document.getElementById(this.active+"Canvas").toDataURL("image/png"))}catch{}},
+  load(side){
+    const c=document.getElementById(side+"Canvas"),src=localStorage.getItem(`ah_marks_${DB.currentStudent?.id||"default"}_${Store.state.mushaf}_${Store.state.page}_${side}`);
+    const x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);if(!src)return;
+    const img=new Image();img.onload=()=>x.drawImage(img,0,0,c.width,c.height);img.src=src;
+  },
+  clear(){
+    if(!confirm("Clear markings for the current page?"))return;
+    for(const side of ["right","left"]){
+      localStorage.removeItem(`ah_marks_${DB.currentStudent?.id||"default"}_${Store.state.mushaf}_${Store.state.page}_${side}`);
+      const c=document.getElementById(side+"Canvas");c.getContext("2d").clearRect(0,0,c.width,c.height);
     }
-
-  },
-
-
-  async initStudent(){
-
-    this.students =
-      await DB.getAll("students");
-
-    if(!this.students.length){
-
-      const id =
-        await DB.add(
-          "students",
-          {
-            name:"Hifdh Student",
-            mushafId:"madani1405",
-            lastPages:{
-              madani1405:1,
-              indopakQudratullah:1
-            }
-          }
-        );
-
-      this.student={
-        id,
-        name:"Hifdh Student",
-        mushafId:"madani1405",
-        lastPages:{
-          madani1405:1,
-          indopakQudratullah:1
-        }
-      };
-
-      this.students=[this.student];
-
-    }else{
-
-      this.student=this.students[0];
-
-    }
-
-    this.currentMushaf =
-      this.student.mushafId ||
-      "madani1405";
-
-    this.currentPage =
-      this.student.lastPages?.[
-        this.currentMushaf
-      ] || 1;
-
-  },
-
-
-  async saveStudent(){
-
-    if(!this.student) return;
-
-    await DB.put(
-      "students",
-      this.student
-    );
-
-  },
-
-
-  async setMushaf(id){
-
-    if(!CONFIG[id]) return;
-
-    this.currentMushaf=id;
-
-    this.student.mushafId=id;
-
-    if(!this.student.lastPages){
-      this.student.lastPages={};
-    }
-
-    this.currentPage =
-      this.student.lastPages[id] || 1;
-
-    await this.saveStudent();
-
-    this.updateUI();
-
-    await this.render();
-
-  },
-
-
-  async toggleMushaf(){
-
-    const next =
-      this.currentMushaf===
-      "madani1405"
-        ? "indopakQudratullah"
-        : "madani1405";
-
-    await this.setMushaf(next);
-
-  },
-
-
-  isSpread(){
-
-    return (
-      window.innerWidth > 960 &&
-      window.innerWidth >
-      window.innerHeight
-    );
-
-  },
-
-
-  async render(){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    const spread =
-      this.isSpread();
-
-    let rightPage =
-      this.currentPage;
-
-    let leftPage=null;
-
-    if(spread){
-
-      rightPage =
-        rightPage % 2 === 1
-          ? rightPage
-          : rightPage-1;
-
-      leftPage =
-        rightPage+1;
-
-      if(leftPage>config.pages){
-        leftPage=null;
-      }
-
-    }
-
-    this.currentPage=rightPage;
-
-    this.student.lastPages[
-      this.currentMushaf
-    ]=rightPage;
-
-    await this.saveStudent();
-
-    const leftSheet =
-      document.getElementById(
-        "sheetLeft"
-      );
-
-    leftSheet.style.display =
-      leftPage
-        ? "flex"
-        : "none";
-
-    document.getElementById(
-      "pageBadge"
-    ).textContent =
-      leftPage
-        ? `p. ${rightPage}–${leftPage} / ${config.pages}`
-        : `p. ${rightPage} / ${config.pages}`;
-
-
-    await this.renderSheet(
-      rightPage,
-      "Right"
-    );
-
-    if(leftPage){
-
-      await this.renderSheet(
-        leftPage,
-        "Left"
-      );
-
-    }
-
-    CanvasTool.resizeAll();
-
-  },
-
-
-  async renderSheet(
-    page,
-    side
-  ){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    const container =
-      document.getElementById(
-        `lines${side}`
-      );
-
-    container.innerHTML="";
-
-
-    let lines;
-
-    try{
-
-      lines =
-        await QULRepository.getPage(
-          this.currentMushaf,
-          page
-        );
-
-    }catch(error){
-
-      container.innerHTML=`
-
-        <div class="warning"
-             style="
-               grid-row:1/16;
-               display:flex;
-               align-items:center;
-               justify-content:center;
-               text-align:center;
-             ">
-
-          <div>
-
-            <strong>
-              QUL package required
-            </strong>
-
-            <br><br>
-
-            ${escapeHTML(
-              config.shortName
-            )}
-
-            <br>
-
-            Page ${page}
-
-            <br><br>
-
-            Open ⚙️ → QUL Packs
-            and load the official
-            SQLite package.
-
-          </div>
-
-        </div>
-      `;
-
-      this.setSheetMeta(
-        side,
-        page,
-        null
-      );
-
-      CanvasTool.init(
-        side,
-        page,
-        this.currentMushaf
-      );
-
-      return;
-
-    }
-
-
-    let firstSurah=null;
-
-    const verseKeys =
-      new Set();
-
-
-    for(const line of lines){
-
-      const row =
-        document.createElement("div");
-
-      row.className="qul-line";
-
-
-      if(line.centered){
-
-        row.classList.add(
-          "centered"
-        );
-
-      }else{
-
-        row.classList.add(
-          "justified"
-        );
-
-      }
-
-
-      if(
-        line.lineType===
-        "surah_name"
-      ){
-
-        const surah =
-          line.surahNumber;
-
-        if(!firstSurah && surah){
-          firstSurah=surah;
-        }
-
-        const name =
-          SURAH_NAMES[surah] ||
-          `سورة ${surah || ""}`;
-
-        row.innerHTML=`
-          <div class="surah-line">
-            ${escapeHTML(
-              `سُورَةُ ${name}`
-            )}
-          </div>
-        `;
-
-      }
-
-
-      else if(
-        line.lineType===
-        "basmallah"
-      ){
-
-        row.innerHTML=`
-          <div class="bismillah-line">
-            ﷽
-          </div>
-        `;
-
-      }
-
-
-      else if(
-        line.lineType===
-        "ayah"
-      ){
-
-        const words =
-          await QULRepository.getWords(
-            this.currentMushaf,
-            line.firstWordId,
-            line.lastWordId
-          );
-
-
-        if(
-          !words.length
-        ){
-
-          throw new Error(
-            `Missing word range ${line.firstWordId}-${line.lastWordId}`
-          );
-
-        }
-
-
-        for(const word of words){
-
-          if(word.wordKey){
-            verseKeys.add(
-              word.wordKey
-            );
-          }
-
-          const span =
-            document.createElement(
-              "span"
-            );
-
-          span.className="word";
-
-          span.textContent =
-            word.text;
-
-          span.dataset.verse =
-            word.wordKey || "";
-
-          if(
-            isAllah(word.text)
-          ){
-
-            span.dataset.lafdh="true";
-
-          }
-
-          row.appendChild(span);
-
-        }
-
-      }
-
-
-      container.appendChild(row);
-
-    }
-
-
-    this.setSheetMeta(
-      side,
-      page,
-      firstSurah
-    );
-
-
-    CanvasTool.init(
-      side,
-      page,
-      this.currentMushaf
-    );
-
-
-    return Array.from(
-      verseKeys
-    );
-
-  },
-
-
-  setSheetMeta(
-    side,
-    page,
-    surah
-  ){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    document.getElementById(
-      `${side.toLowerCase()}Mushaf`
-    ).textContent =
-      config.shortName;
-
-    document.getElementById(
-      `${side.toLowerCase()}Page`
-    ).textContent =
-      arNumber(page);
-
-    document.getElementById(
-      `${side.toLowerCase()}Surah`
-    ).textContent =
-      surah
-        ? `سورة ${SURAH_NAMES[surah] || ""}`
-        : "سورة --";
-
-    /*
-     * IMPORTANT:
-     *
-     * No approximate Juz is generated.
-     * Until the actual QUL/package metadata is
-     * imported, Juz remains "--".
-     */
-
-    document.getElementById(
-      `${side.toLowerCase()}Juz`
-    ).textContent =
-      "الجزء --";
-
-  },
-
-
-  updateUI(){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    document.getElementById(
-      "mushafBadge"
-    ).textContent =
-      `📖 ${config.shortName}`;
-
-    document.getElementById(
-      "studentBadge"
-    ).textContent =
-      `👤 ${this.student?.name || "Student"}`;
-
-  },
-
-
-  turnPage(delta){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    const step =
-      this.isSpread()
-        ? 2
-        : 1;
-
-    const target =
-      Math.max(
-        1,
-        Math.min(
-          config.pages,
-          this.currentPage +
-          delta*step
-        )
-      );
-
-    if(
-      target===
-      this.currentPage
-    ){
-      return;
-    }
-
-    this.currentPage=target;
-
-    this.render();
-
-  },
-
-
-  jump(){
-
-    const config =
-      CONFIG[this.currentMushaf];
-
-    const value =
-      prompt(
-        `Page 1-${config.pages}`,
-        this.currentPage
-      );
-
-    if(value===null) return;
-
-    const page =
-      Number.parseInt(
-        value,
-        10
-      );
-
-    if(
-      !Number.isInteger(page) ||
-      page<1 ||
-      page>config.pages
-    ){
-
-      alert(
-        `Enter a page from 1 to ${config.pages}.`
-      );
-
-      return;
-
-    }
-
-    this.currentPage=page;
-
-    this.render();
-
   }
-
 };
-
-
-/* ============================================================
-   11. STUDENTS
-   ============================================================ */
 
 const Students = {
-
-  async add(){
-
-    const input =
-      document.getElementById(
-        "studentName"
-      );
-
-    const mushaf =
-      document.getElementById(
-        "studentMushaf"
-      ).value;
-
-    const name =
-      input.value.trim();
-
-    if(!name) return;
-
-
-    const student={
-
-      name,
-
-      mushafId:mushaf,
-
-      lastPages:{
-        madani1405:1,
-        indopakQudratullah:1
-      }
-
-    };
-
-
-    const id =
-      await DB.add(
-        "students",
-        student
-      );
-
-    student.id=id;
-
-    App.students.push(student);
-
-    input.value="";
-
-    this.render();
-
+  load(){
+    try{DB.students=JSON.parse(localStorage.getItem("ah_students")||"[]")}catch{DB.students=[]}
+    if(!DB.students.length)DB.students=[{id:"default",name:"Hifdh Student",mushaf:"madani",pages:{madani:1,indopak:1}}];
+    const saved=localStorage.getItem("ah_current_student")||DB.students[0].id;
+    DB.currentStudent=DB.students.find(x=>x.id===saved)||DB.students[0];
+    Store.state.mushaf=DB.currentStudent.mushaf||"madani";
+    Store.state.page=DB.currentStudent.pages?.[Store.state.mushaf]||1;
+    Store.state.studentId=DB.currentStudent.id;
   },
-
-
-  async select(student){
-
-    App.student=student;
-
-    App.currentMushaf =
-      student.mushafId ||
-      "madani1405";
-
-    App.currentPage =
-      student.lastPages?.[
-        App.currentMushaf
-      ] || 1;
-
-    await App.saveStudent();
-
-    App.updateUI();
-
-    await App.render();
-
-    this.render();
-
-  },
-
-
+  save(){localStorage.setItem("ah_students",JSON.stringify(DB.students));localStorage.setItem("ah_current_student",DB.currentStudent.id)},
   render(){
-
-    const box =
-      document.getElementById(
-        "studentsList"
-      );
-
-    box.innerHTML="";
-
-
-    App.students.forEach(
-      student=>{
-
-        const config =
-          CONFIG[
-            student.mushafId ||
-            "madani1405"
-          ];
-
-        const card =
-          document.createElement(
-            "div"
-          );
-
-        card.className="card";
-
-        card.innerHTML=`
-
-          <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:10px;
-          ">
-
-            <div>
-
-              <strong>
-                ${escapeHTML(student.name)}
-              </strong>
-
-              <br>
-
-              <small>
-                ${escapeHTML(config.shortName)}
-                ·
-                p.
-                ${
-                  student.lastPages?.[
-                    config.id
-                  ] || 1
-                }
-              </small>
-
-            </div>
-
-            <button class="action">
-              Select
-            </button>
-
-          </div>
-
-        `;
-
-        card
-          .querySelector("button")
-          .onclick=()=>{
-            this.select(student);
-          };
-
-        box.appendChild(card);
-
-      }
-    );
-
+    const box=document.getElementById("studentsList");box.innerHTML="";
+    for(const s of DB.students){
+      const d=document.createElement("div");d.className="student";
+      d.innerHTML=`<div><b>${esc(s.name)}</b><br><small class="muted">${CFG[s.mushaf].name} · p. ${s.pages?.[s.mushaf]||1}</small></div><button class="action">Select</button>`;
+      d.querySelector("button").onclick=()=>this.select(s);box.appendChild(d);
+    }
+    document.getElementById("studentBtn").textContent="👤 "+(DB.currentStudent?.name||"Student");
+  },
+  add(){
+    const n=document.getElementById("studentName").value.trim();if(!n)return;
+    const s={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name:n,mushaf:document.getElementById("studentMushaf").value,pages:{madani:1,indopak:1}};
+    DB.students.push(s);DB.currentStudent=s;this.save();document.getElementById("studentName").value="";this.render();App.render();
+  },
+  select(s){
+    DB.currentStudent=s;Store.state.studentId=s.id;Store.state.mushaf=s.mushaf||"madani";Store.state.page=s.pages?.[Store.state.mushaf]||1;this.save();this.render();App.render();
   }
-
 };
 
-
-/* ============================================================
-   12. UI
-   ============================================================ */
-
-const UI = {
-
-  open(tab){
-
-    document
-      .getElementById("panel")
-      .classList.add("open");
-
-    this.tab(tab);
-
+const App = {
+  async init(){
+    Students.load(); Marks.bind("right");Marks.bind("left");
+    try{await DB.load();await this.render()}catch(e){setStatus(e.message,true);document.getElementById("rightLines").innerHTML=`<div class="note" style="grid-row:1/16;text-align:center;display:flex;align-items:center;justify-content:center">CSV load failed.<br><br>${esc(e.message)}<br><br>Check that qpcv1-35.csv, indpak-20.csv and word.csv are in the same GitHub folder as index.html.</div>`}
   },
-
-
-  close(){
-
-    document
-      .getElementById("panel")
-      .classList.remove("open");
-
+  async render(){
+    if(!DB.data.loaded)return;
+    const cfg=CFG[Store.state.mushaf], spread=innerWidth>960&&innerWidth>innerHeight;
+    let rp=Math.max(1,Math.min(cfg.pages,Store.state.page));if(spread&&rp%2===0)rp--;
+    let lp=spread&&rp<cfg.pages?rp+1:null;Store.state.page=rp;
+    if(DB.currentStudent){DB.currentStudent.mushaf=Store.state.mushaf;DB.currentStudent.pages[Store.state.mushaf]=rp;Students.save()}
+    document.getElementById("leftSheet").style.display=lp?"flex":"none";
+    document.getElementById("pageBadge").textContent=lp?`p. ${rp}–${lp} / ${cfg.pages}`:`p. ${rp} / ${cfg.pages}`;
+    document.getElementById("mushafBtn").textContent="📖 "+cfg.name;
+    await this.sheet("right",rp);
+    if(lp)await this.sheet("left",lp);
+    else{document.getElementById("leftLines").innerHTML="";document.getElementById("lMeta").textContent="سورة --";document.getElementById("lPage").textContent="";document.getElementById("lMushaf").textContent=cfg.name}
+    Marks.resizeAll();Marks.load("right");if(lp)Marks.load("left");
+    Store.save();
   },
-
-
-  tab(name){
-
-    document
-      .querySelectorAll(".tab")
-      .forEach(
-        btn=>{
-          btn.classList.toggle(
-            "active",
-            btn.dataset.tab===name
-          );
+  async sheet(side,page){
+    const cfg=CFG[Store.state.mushaf], font=await Font.loadFor(Store.state.mushaf,page), box=document.getElementById(side+"Lines");
+    box.innerHTML="";box.style.setProperty("--qcf-font",`"${font}"`);box.style.setProperty("--indo-font",`"${font}"`);
+    const rows=DB.data.maps[Store.state.mushaf].get(page)||[], by=new Map(rows.map(r=>[r.line,r]));
+    let firstSurah=null;
+    for(let i=1;i<=15;i++){
+      const r=by.get(i), row=document.createElement("div");row.className="qline "+(r?.centered?"center":"start");
+      if(!r){box.appendChild(row);continue}
+      if(r.type==="surah_name"){
+        firstSurah=r.start||null;row.innerHTML=`<div class="surah-box">سُورَةُ ${esc(SURAH_NAMES[firstSurah]||"")}</div>`;
+      } else if(r.type==="basmallah"){
+        row.innerHTML=`<div class="basmallah">﷽</div>`;
+      } else if(r.type==="ayah"){
+        row.classList.add(cfg.fontMode==="qcf"?"qcf":"indopak");
+        for(let id=r.start;id<=r.end;id++){
+          const w=DB.data.words.get(id);if(!w)throw new Error(`Missing word_number_all ${id} on ${cfg.name} page ${page}`);
+          const s=document.createElement("span");s.className="glyph";s.textContent=w[cfg.wordCol]||"";
+          row.appendChild(s);
         }
-      );
-
-    document
-      .querySelectorAll(".tab-content")
-      .forEach(
-        section=>{
-          section.classList.toggle(
-            "active",
-            section.id===
-            `tab-${name}`
-          );
-        }
-      );
-
-    if(name==="students"){
-      Students.render();
+      }
+      box.appendChild(row);
     }
-
-  }
-
+    document.getElementById(side==="right"?"rMeta":"lMeta").textContent=firstSurah?`سورة ${SURAH_NAMES[firstSurah]||""}`:"سورة --";
+    document.getElementById(side==="right"?"rMushaf":"lMushaf").textContent=cfg.name;
+    document.getElementById(side==="right"?"rPage":"lPage").textContent=ar(page);
+  },
+  async turn(d){
+    const cfg=CFG[Store.state.mushaf],step=innerWidth>960&&innerWidth>innerHeight?2:1;
+    Store.state.page=Math.max(1,Math.min(cfg.pages,Store.state.page+d*step));await this.render();
+  },
+  async jump(){
+    const cfg=CFG[Store.state.mushaf],v=prompt(`Page 1-${cfg.pages}`,Store.state.page);if(v===null)return;
+    const p=Number(v);if(!Number.isInteger(p)||p<1||p>cfg.pages){alert("Invalid page");return}Store.state.page=p;await this.render();
+  },
+  async toggle(){Store.state.mushaf=Store.state.mushaf==="madani"?"indopak":"madani";Store.state.page=DB.currentStudent?.pages?.[Store.state.mushaf]||1;await this.render()},
 };
 
-
-/* ============================================================
-   13. DRAWING / EVALUATION SLATE
-   ============================================================ */
-
-const CanvasTool = {
-
-  tool:"pencil",
-
-  color:"rgba(50,35,20,.85)",
-
-  width:2,
-
-  sides:{},
-
-
-  select(tool){
-
-    this.tool=tool;
-
-    if(tool==="pencil"){
-
-      this.color=
-        "rgba(50,35,20,.85)";
-
-      this.width=2;
-
-    }
-
-    if(tool==="red"){
-
-      this.color=
-        "rgba(210,25,25,.9)";
-
-      this.width=2.5;
-
-    }
-
-    if(tool==="high"){
-
-      this.color=
-        "rgba(230,180,20,.38)";
-
-      this.width=15;
-
-    }
-
-    if(tool==="eraser"){
-
-      this.width=24;
-
-    }
-
-  },
-
-
-  init(
-    side,
-    page,
-    mushafId
-  ){
-
-    const canvas =
-      document.getElementById(
-        `canvas${side}`
-      );
-
-    if(!canvas) return;
-
-
-    this.sides[side]={
-      page,
-      mushafId
-    };
-
-
-    this.resize(side);
-
-    this.load(
-      side,
-      page,
-      mushafId
-    );
-
-
-    if(canvas.dataset.bound==="1"){
-      return;
-    }
-
-    canvas.dataset.bound="1";
-
-
-    let drawing=false;
-    let lastX=0;
-    let lastY=0;
-
-
-    canvas.addEventListener(
-      "pointerdown",
-      e=>{
-
-        drawing=true;
-
-        canvas.setPointerCapture(
-          e.pointerId
-        );
-
-        const rect =
-          canvas.getBoundingClientRect();
-
-        lastX =
-          e.clientX -
-          rect.left;
-
-        lastY =
-          e.clientY -
-          rect.top;
-
-      }
-    );
-
-
-    canvas.addEventListener(
-      "pointermove",
-      e=>{
-
-        if(!drawing) return;
-
-        const rect =
-          canvas.getBoundingClientRect();
-
-        const x =
-          e.clientX -
-          rect.left;
-
-        const y =
-          e.clientY -
-          rect.top;
-
-        const ctx =
-          canvas.getContext(
-            "2d"
-          );
-
-
-        ctx.save();
-
-        ctx.lineCap="round";
-        ctx.lineJoin="round";
-
-
-        if(
-          this.tool==="eraser"
-        ){
-
-          ctx.globalCompositeOperation=
-            "destination-out";
-
-          ctx.lineWidth=
-            this.width;
-
-        }else{
-
-          ctx.globalCompositeOperation=
-            "source-over";
-
-          ctx.strokeStyle=
-            this.color;
-
-          ctx.lineWidth=
-            this.width;
-
-        }
-
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-          lastX,
-          lastY
-        );
-
-        ctx.lineTo(
-          x,
-          y
-        );
-
-        ctx.stroke();
-
-        ctx.restore();
-
-
-        lastX=x;
-        lastY=y;
-
-      }
-    );
-
-
-    const stop=async()=>{
-
-      if(!drawing) return;
-
-      drawing=false;
-
-      await this.save(
-        side,
-        page,
-        mushafId
-      );
-
-    };
-
-
-    canvas.addEventListener(
-      "pointerup",
-      stop
-    );
-
-    canvas.addEventListener(
-      "pointercancel",
-      stop
-    );
-
-  },
-
-
-  resize(side){
-
-    const canvas =
-      document.getElementById(
-        `canvas${side}`
-      );
-
-    const sheet =
-      document.getElementById(
-        `sheet${side}`
-      );
-
-    if(!canvas || !sheet) return;
-
-
-    const rect =
-      sheet.getBoundingClientRect();
-
-    const dpr =
-      window.devicePixelRatio ||
-      1;
-
-
-    /*
-     * Resize while preserving
-     * current pixels.
-     */
-
-    const old =
-      document.createElement(
-        "canvas"
-      );
-
-    old.width=canvas.width;
-    old.height=canvas.height;
-
-    if(
-      old.width &&
-      old.height
-    ){
-
-      old.getContext("2d")
-        .drawImage(
-          canvas,
-          0,
-          0
-        );
-
-    }
-
-
-    canvas.width =
-      Math.round(
-        rect.width*dpr
-      );
-
-    canvas.height =
-      Math.round(
-        rect.height*dpr
-      );
-
-
-    canvas.style.width =
-      `${rect.width}px`;
-
-    canvas.style.height =
-      `${rect.height}px`;
-
-
-    const ctx =
-      canvas.getContext(
-        "2d"
-      );
-
-    ctx.setTransform(
-      dpr,
-      0,
-      0,
-      dpr,
-      0,
-      0
-    );
-
-
-    if(
-      old.width &&
-      old.height
-    ){
-
-      ctx.drawImage(
-        old,
-        0,
-        0,
-        rect.width,
-        rect.height
-      );
-
-    }
-
-  },
-
-
-  resizeAll(){
-
-    this.resize("Right");
-
-    this.resize("Left");
-
-  },
-
-
-  async load(
-    side,
-    page,
-    mushafId
-  ){
-
-    const canvas =
-      document.getElementById(
-        `canvas${side}`
-      );
-
-    if(!canvas) return;
-
-    const ctx =
-      canvas.getContext(
-        "2d"
-      );
-
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-
-    if(!App.student) return;
-
-
-    const data =
-      await DB.getDrawing(
-        App.student.id,
-        mushafId,
-        page
-      );
-
-
-    if(!data) return;
-
-
-    const image =
-      new Image();
-
-    image.onload=()=>{
-
-      const rect =
-        canvas.getBoundingClientRect();
-
-      ctx.drawImage(
-        image,
-        0,
-        0,
-        rect.width,
-        rect.height
-      );
-
-    };
-
-    image.src=data;
-
-  },
-
-
-  async save(
-    side,
-    page,
-    mushafId
-  ){
-
-    if(!App.student) return;
-
-    const canvas =
-      document.getElementById(
-        `canvas${side}`
-      );
-
-    if(!canvas) return;
-
-
-    await DB.saveDrawing(
-      App.student.id,
-      mushafId,
-      page,
-      canvas.toDataURL(
-        "image/png"
-      )
-    );
-
-  },
-
-
-  async clear(){
-
-    const side =
-      this.activeSide ||
-      "Right";
-
-    const info =
-      this.sides[side];
-
-    if(!info) return;
-
-
-    if(
-      !confirm(
-        "Clear markings for this page?"
-      )
-    ){
-      return;
-    }
-
-
-    const canvas =
-      document.getElementById(
-        `canvas${side}`
-      );
-
-    const ctx =
-      canvas.getContext(
-        "2d"
-      );
-
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-
-    await this.save(
-      side,
-      info.page,
-      info.mushafId
-    );
-
-  }
-
-};
-
-
-/*
- * Track which canvas was most recently touched.
- */
-
-["Right","Left"].forEach(side=>{
-
-  const canvas =
-    document.getElementById(
-      `canvas${side}`
-    );
-
-  canvas.addEventListener(
-    "pointerdown",
-    ()=>{
-      CanvasTool.activeSide=side;
-    }
-  );
-
+function setStatus(t,error=false){const e=document.getElementById("status");e.textContent=t;e.style.color=error?"#ff9d9d":"#c4d0c9";clearTimeout(setStatus.t);setStatus.t=setTimeout(()=>e.textContent="",4000)}
+
+document.getElementById("prevBtn").onclick=()=>App.turn(-1);
+document.getElementById("nextBtn").onclick=()=>App.turn(1);
+document.getElementById("pageBadge").onclick=()=>App.jump();
+document.getElementById("mushafBtn").onclick=()=>App.toggle();
+document.getElementById("panelBtn").onclick=()=>document.getElementById("panel").classList.add("open");
+document.getElementById("closePanel").onclick=()=>document.getElementById("panel").classList.remove("open");
+document.getElementById("reloadData").onclick=()=>location.reload();
+document.getElementById("addStudent").onclick=()=>Students.add();
+document.getElementById("clearMarks").onclick=()=>Marks.clear();
+document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>Marks.select(b.dataset.tool));
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));
+  document.querySelectorAll(".tab-body").forEach(x=>x.classList.toggle("active",x.id==="tab-"+b.dataset.tab));
+  if(b.dataset.tab==="students")Students.render();
 });
-
-
-/* ============================================================
-   14. AUDIO
-   ============================================================ */
-
-const AudioEngine = {
-
-  player:null,
-
-  playing:false,
-
-  init(){
-
-    this.player =
-      document.createElement(
-        "audio"
-      );
-
-    this.player.preload="none";
-
-    document.body.appendChild(
-      this.player
-    );
-
-  },
-
-
-  async toggle(){
-
-    if(this.playing){
-
-      this.player.pause();
-
-      this.playing=false;
-
-      return;
-
-    }
-
-
-    /*
-     * Audio is intentionally kept separate
-     * from the physical QUL layout.
-     *
-     * A page may contain several ayahs,
-     * so a production audio implementation
-     * should derive the verse list from the
-     * imported word_key values.
-     */
-
-    Status.set(
-      "Audio engine ready; connect reciter files separately."
-    );
-
-  }
-
-};
-
-
-/* ============================================================
-   15. START
-   ============================================================ */
-
-window.addEventListener(
-  "DOMContentLoaded",
-  async ()=>{
-
-    AudioEngine.init();
-
-    await App.init();
-
-  }
-);
-
+addEventListener("resize",()=>{Marks.resizeAll();App.render()});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+App.init();
 </script>
-
 </body>
 </html>
