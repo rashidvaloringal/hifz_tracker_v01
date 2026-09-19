@@ -1,1601 +1,4798 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0d110f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.json">
-  <title>Al-Halaqah — Universal Quran Hifdh Slate</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 
-  <!-- Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0b100d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
-  <style>
-    :root {
-      --gold-primary: #c5a059;
-      --gold-light: #dfba73;
-      --gold-dark: #7a5e27;
-      --paper: #fcf9f2;
-      --border-outer: #2d2417;
-      --ink: #14120e;
-      --app-bg: #0d110f;
-      --surface-dark: #161c18;
-      --surface-card: #1f2722;
-      --surface-border: #2c3831;
-      --jalalah-red: #ba1616;
-      --highlight-active: rgba(223, 186, 115, 0.45);
-    }
+<title>Al-Halaqah — QUL Offline Mushaf</title>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+<style>
+:root{
+  --bg:#080c09;
+  --panel:#141b17;
+  --panel2:#1d2721;
+  --line:#39483e;
+  --gold:#c7a25d;
+  --gold2:#e3c87e;
+  --paper:#fbf8ee;
+  --ink:#15120d;
+  --red:#bd1717;
+}
 
-    body {
-      background: var(--app-bg);
-      color: #edeae4;
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      height: 100vh;
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
 
-    /* ═══ Max-Screen Reading Stage ═══ */
-    main {
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2px 4px 62px;
-      background: radial-gradient(circle at 50% 45%, #18221c 0%, #080b09 100%);
-    }
+html,
+body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  overflow:hidden;
+}
 
-    .book-spread {
-      display: flex;
-      direction: rtl;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      max-width: 100%;
-      height: 100%;
-    }
+body{
+  background:var(--bg);
+  color:#eee;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
 
-    /* ═══ Physical Mushaf Page Sheet ═══ */
-    .mushaf-sheet {
-      width: min(540px, 49vw);
-      height: min(calc(100vh - 70px), calc(100dvh - 70px));
-      aspect-ratio: 1 / 1.51;
-      background: var(--paper);
-      position: relative;
-      padding: 8px 16px 6px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.85);
-      border: 2px solid var(--border-outer);
-      outline: 2px solid var(--gold-primary);
-      outline-offset: 2px;
-      border-radius: 2px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+button,
+input,
+select{
+  font:inherit;
+}
 
-    .mushaf-sheet::before {
-      content: '';
-      position: absolute;
-      inset: 3px;
-      border: 1px solid #a6894c77;
-      pointer-events: none;
-    }
+button{
+  cursor:pointer;
+}
 
-    /* Corner Motifs */
-    .corner-svg {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      pointer-events: none;
-      z-index: 2;
-    }
-    .c-tr { top: 5px; right: 5px; }
-    .c-tl { top: 5px; left: 5px; transform: scaleX(-1); }
-    .c-br { bottom: 5px; right: 5px; transform: scaleY(-1); }
-    .c-bl { bottom: 5px; left: 5px; transform: scale(-1, -1); }
+/* =========================================================
+   APP / MUSHAF STAGE
+   ========================================================= */
 
-    .sheet-header {
-      height: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'Amiri', serif;
-      font-size: 13px;
-      font-weight: bold;
-      color: #594017;
-      border-bottom: 1px solid #dfd4b7;
-      padding-bottom: 1px;
-      direction: rtl;
-    }
+#app{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
 
-    .sheet-footer {
-      height: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid #dfd4b7;
-      padding-top: 1px;
-      direction: rtl;
-    }
+#stage{
+  position:relative;
+  width:100%;
+  height:100%;
+  flex:1;
+  overflow:hidden;
 
-    .mushaf-tag-indicator {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 9px;
-      font-weight: 700;
-      color: #8c734b;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    .page-number-display {
-      font-family: 'Amiri', serif;
-      font-size: 15px;
-      font-weight: bold;
-      color: #3b2c14;
-    }
+  background:
+    radial-gradient(
+      circle at center,
+      #1b261f 0%,
+      #0a0e0b 72%,
+      #050705 100%
+    );
+}
 
-    /* ═══ 15-Line Cadence ═══ */
-    .lines-grid-15 {
-      width: 100%;
-      direction: rtl;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      justify-content: space-between;
-      margin: 2px 0;
-      position: relative;
-      z-index: 5;
-    }
+.spread{
+  width:100%;
+  height:100%;
 
-    .mushaf-line {
-      height: calc(100% / 15);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      white-space: nowrap;
-      direction: rtl;
-      position: relative;
-      width: 100%;
-      padding: 0 1px;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    .mushaf-line.qul-centered-line {
-      justify-content: center !important;
-      gap: 12px;
-    }
+  gap:10px;
+  padding:0;
+}
 
-    .mushaf-word {
-      font-size: clamp(17px, 2.3vh, 29px);
-      line-height: 1;
-      color: var(--ink);
-      display: inline-block;
-      font-family: inherit;
-    }
+.sheet{
+  position:relative;
 
-    /* Red highlight for Lafdh al-Jalalah */
-    .mushaf-word.lafdh-jalalah {
-      color: var(--jalalah-red) !important;
-      font-weight: bold;
-    }
+  width:calc(50vw - 8px);
+  height:calc(100svh - 10px);
 
-    .qudratullah-mode .mushaf-word {
-      font-family: 'QudratullahIndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif !important;
-      font-size: clamp(15px, 2.05vh, 25px);
-      line-height: 1.35;
-    }
+  min-width:0;
+  min-height:0;
 
-    /* Surah Header Banner */
-    .surah-header-row {
-      width: 100%;
-      height: calc(100% / 15);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: linear-gradient(180deg, #fefbf2 0%, #f4e7c3 50%, #fefbf2 100%);
-      border: 1.5px solid var(--border-outer);
-      outline: 1.2px solid var(--gold-primary);
-      outline-offset: -3px;
-      padding: 0 10px;
-      direction: rtl;
-      border-radius: 2px;
-    }
+  background:var(--paper);
+  color:var(--ink);
 
-    .surah-meta {
-      font-family: 'Amiri', serif;
-      font-size: 11px;
-      font-weight: bold;
-      color: #5c4118;
-      min-width: 55px;
-      text-align: center;
-    }
+  border:2px solid #3d2e18;
+  outline:2px solid var(--gold);
+  outline-offset:2px;
 
-    .surah-title {
-      font-family: 'Amiri', serif;
-      font-size: 18px;
-      font-weight: bold;
-      color: #16291e;
-      flex: 1;
-      text-align: center;
-    }
+  box-shadow:0 12px 40px #000b;
 
-    .bismillah-row {
-      height: calc(100% / 15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Amiri', serif;
-      font-size: 19px;
-      color: #172d21;
-      direction: rtl;
-    }
+  display:flex;
+  flex-direction:column;
 
-    .canvas-overlay {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 25;
-      touch-action: none;
-      cursor: crosshair;
-    }
+  overflow:hidden;
+  flex-shrink:0;
+}
 
-    /* ═══ Micro-HUD Floating Dock ═══ */
-    .floating-dock {
-      position: fixed;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(18, 24, 20, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--gold-primary);
-      border-radius: 40px;
-      padding: 3px 10px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.65);
-      z-index: 100;
-      direction: ltr;
-    }
+.sheet-header,
+.sheet-footer{
+  flex:0 0 27px;
+  height:27px;
 
-    .dock-btn {
-      background: transparent;
-      border: none;
-      color: var(--gold-light);
-      font-size: 14px;
-      cursor: pointer;
-      padding: 6px 9px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 
-    .dock-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
+  padding:0 10px;
 
-    .page-badge {
-      font-family: 'Amiri', serif;
-      font-size: 14px;
-      font-weight: bold;
-      color: var(--gold-primary);
-      cursor: pointer;
-      padding: 2px 9px;
-      border-radius: 8px;
-      background: #090c0a;
-      border: 1px solid #28332d;
-      white-space: nowrap;
-    }
+  color:#59421f;
+  font-family:Georgia,"Times New Roman",serif;
 
-    .mushaf-selector-pill {
-      font-size: 11px;
-      font-weight: 700;
-      color: #f1dfbe;
-      background: #232c25;
-      border: 1px solid var(--gold-dark);
-      padding: 4px 8px;
-      border-radius: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+  border-bottom:1px solid #d5c5a0;
 
-    .student-badge-btn {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #c0ded0;
-      background: #17241e;
-      padding: 4px 9px;
-      border-radius: 12px;
-      border: 1px solid #2b4035;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      max-width: 150px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  font-size:12px;
+}
 
-    /* ═══ Universal Settings Drawer ═══ */
-    .sheet-scrim {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-      direction: ltr;
-    }
+.sheet-footer{
+  border-top:1px solid #d5c5a0;
+  border-bottom:0;
+}
 
-    .sheet-scrim.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
+.page-number{
+  font-weight:700;
+}
 
-    .sheet-panel {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%) translateY(100%);
-      width: 100%;
-      max-width: 550px;
-      background: var(--surface-dark);
-      border: 1.5px solid var(--gold-primary);
-      border-bottom: none;
-      border-radius: 20px 20px 0 0;
-      padding: 16px 20px 22px;
-      z-index: 210;
-      color: #fff;
-      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-    }
+.lines{
+  flex:1;
+  min-height:0;
 
-    .sheet-scrim.open .sheet-panel {
-      transform: translateX(-50%) translateY(0);
-    }
+  display:grid;
+  grid-template-rows:repeat(15,1fr);
 
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--surface-border);
-      padding-bottom: 10px;
-      margin-bottom: 14px;
-    }
+  padding:2px 7px;
 
-    .panel-header h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--gold-light);
-    }
+  direction:rtl;
+}
 
-    .close-sheet-btn {
-      background: none;
-      border: none;
-      color: #aaa;
-      font-size: 22px;
-      cursor: pointer;
-    }
+.qul-line{
+  min-width:0;
+  min-height:0;
 
-    .tab-bar {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
-      overflow-x: auto;
-    }
+  display:flex;
+  align-items:center;
 
-    .tab-btn {
-      flex: 1;
-      padding: 7px 4px;
-      background: #0f1311;
-      border: 1px solid #26312a;
-      color: #a5b5ab;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+  direction:rtl;
+  text-align:right;
 
-    .tab-btn.active {
-      background: var(--gold-primary);
-      color: #0d120f;
-      border-color: var(--gold-light);
-    }
+  white-space:nowrap;
+  overflow:hidden;
 
-    .tab-content {
-      display: none;
-    }
+  font-family:Georgia,"Times New Roman",serif;
 
-    .tab-content.active {
-      display: block;
-    }
+  font-size:clamp(18px,2.55vh,33px);
+  line-height:1;
+}
 
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+.qul-line.centered{
+  justify-content:center;
+  text-align:center;
+}
 
-    .tool-tile {
-      padding: 10px 4px;
-      background: #111714;
-      border: 1px solid #233129;
-      color: #ddd;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
+.qul-line.qcf{
+  font-family:var(--qcf-font),serif;
+}
 
-    .tool-tile.active {
-      background: var(--gold-primary);
-      color: #0e1411;
-    }
+.qul-line.indopak{
+  font-family:
+    "QULIndoPak",
+    "Noto Nastaliq Urdu",
+    "Noto Naskh Arabic",
+    serif;
 
-    .form-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+  font-size:clamp(18px,2.6vh,34px);
+}
 
-    .input-ctrl, .select-ctrl {
-      flex: 1;
-      padding: 9px 12px;
-      border-radius: 8px;
-      border: 1px solid #2b3930;
-      background: #0d120f;
-      color: #fff;
-      font-size: 13px;
-      outline: none;
-    }
+.qul-text{
+  display:block;
+  max-width:100%;
+  overflow:hidden;
+}
 
-    .btn-action {
-      padding: 9px 16px;
-      background: var(--gold-primary);
-      color: #0d120f;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+.word{
+  display:inline;
+}
 
-    .items-scroll {
-      max-height: 200px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
+.word.lafdh{
+  color:var(--red) !important;
+}
 
-    .list-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--surface-card);
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--surface-border);
-      cursor: pointer;
-    }
+/* Surah title */
 
-    .list-card.active {
-      border-color: var(--gold-primary);
-      background: #25332a;
-    }
+.surah-line{
+  width:100%;
+  height:100%;
 
-    /* ═══ Initial Batch Ingestion / Font Download Modal ═══ */
-    #splashOverlay {
-      position: fixed;
-      inset: 0;
-      background: #0d110f;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    .splash-card {
-      background: #161c18;
-      border: 1.5px solid var(--gold-primary);
-      border-radius: 14px;
-      padding: 24px 20px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.8);
-    }
+  border:1px solid #927440;
 
-    .progress-bar {
-      width: 100%;
-      height: 9px;
-      background: #222b26;
-      border-radius: 5px;
-      overflow: hidden;
-      margin: 16px 0 8px;
-    }
+  background:
+    linear-gradient(
+      to bottom,
+      #fffaf0,
+      #ead7a7,
+      #fffaf0
+    );
 
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--gold-primary);
-      transition: width 0.15s ease;
-    }
+  color:#1c3324;
 
-    /* ═══ Screen Optimization (Mobile & Portrait) ═══ */
-    @media (max-width: 960px), (orientation: portrait) {
-      .mushaf-sheet.left-page {
-        display: none !important;
-      }
-      main {
-        padding: 2px 2px 54px;
-      }
-      .mushaf-sheet {
-        width: 100%;
-        max-width: 500px;
-        height: calc(100vh - 58px);
-        height: calc(100dvh - 58px);
-        padding: 6px 10px 4px;
-      }
-      .mushaf-word {
-        font-size: clamp(16px, 2.35vh, 27px);
-      }
-      .floating-dock {
-        bottom: 5px;
-        padding: 2px 7px;
-        gap: 5px;
-      }
-    }
-  </style>
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:clamp(15px,2vh,20px);
+  font-weight:700;
+}
+
+/* Bismillah */
+
+.bismillah-line{
+  width:100%;
+  height:100%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#173022;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:clamp(18px,2.5vh,26px);
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+#status{
+  position:fixed;
+
+  top:7px;
+  left:50%;
+  transform:translateX(-50%);
+
+  z-index:9999;
+
+  max-width:92vw;
+
+  padding:6px 13px;
+
+  background:#101712ee;
+  border:1px solid #344239;
+
+  border-radius:18px;
+
+  color:#cfd8d1;
+
+  font-size:11px;
+
+  pointer-events:none;
+
+  opacity:0;
+  transition:opacity .2s;
+}
+
+#status.show{
+  opacity:1;
+}
+
+#status.success{
+  border-color:#477155;
+  color:#a9d9b5;
+}
+
+#status.error{
+  border-color:#733d3d;
+  color:#ffaaaa;
+}
+
+/* =========================================================
+   BOTTOM DOCK
+   ========================================================= */
+
+#dock{
+  position:fixed;
+
+  z-index:500;
+
+  left:50%;
+  bottom:max(5px,env(safe-area-inset-bottom));
+
+  transform:translateX(-50%);
+
+  display:flex;
+  align-items:center;
+
+  gap:5px;
+
+  max-width:96vw;
+
+  padding:5px 7px;
+
+  overflow-x:auto;
+
+  direction:ltr;
+
+  background:#141b17f2;
+
+  border:1px solid var(--gold);
+
+  border-radius:25px;
+
+  box-shadow:0 8px 28px #000b;
+}
+
+.dock-btn{
+  min-width:36px;
+  height:32px;
+
+  border:0;
+  border-radius:17px;
+
+  background:transparent;
+
+  color:var(--gold2);
+}
+
+.dock-btn:hover{
+  background:#ffffff12;
+}
+
+.badge{
+  border:1px solid #39483e;
+
+  background:#0d120f;
+
+  color:#dfc889;
+
+  padding:5px 9px;
+
+  border-radius:14px;
+
+  font-size:11px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+.student-badge{
+  color:#b9d6c3;
+}
+
+/* =========================================================
+   PANEL
+   ========================================================= */
+
+#panel{
+  position:fixed;
+
+  z-index:800;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  max-height:86svh;
+
+  overflow:auto;
+
+  padding:
+    15px
+    15px
+    calc(15px + env(safe-area-inset-bottom));
+
+  background:#141b17;
+
+  border-top:1px solid var(--gold);
+
+  border-radius:20px 20px 0 0;
+
+  box-shadow:0 -15px 50px #000d;
+
+  transform:translateY(110%);
+  transition:transform .25s ease;
+}
+
+#panel.open{
+  transform:translateY(0);
+}
+
+.panel-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:13px;
+}
+
+.panel-title h2{
+  color:var(--gold2);
+  font-size:15px;
+}
+
+.close{
+  border:0;
+  background:none;
+  color:#aaa;
+  font-size:25px;
+}
+
+.tabs{
+  display:flex;
+  gap:5px;
+
+  overflow-x:auto;
+
+  margin-bottom:12px;
+}
+
+.tab{
+  flex:0 0 auto;
+
+  padding:8px 11px;
+
+  border:1px solid var(--line);
+  border-radius:8px;
+
+  background:#0e1410;
+  color:#b2beb6;
+
+  font-size:11px;
+}
+
+.tab.active{
+  background:var(--gold);
+  color:#111;
+}
+
+.tab-content{
+  display:none;
+}
+
+.tab-content.active{
+  display:block;
+}
+
+.card{
+  margin-bottom:8px;
+  padding:11px;
+
+  background:var(--panel);
+
+  border:1px solid var(--line);
+  border-radius:9px;
+}
+
+.card strong{
+  color:#eee;
+}
+
+.muted{
+  color:#91a097;
+  font-size:11px;
+  line-height:1.6;
+  margin-top:5px;
+}
+
+.small{
+  color:#91a097;
+  font-size:10px;
+}
+
+.row{
+  display:flex;
+  gap:7px;
+  margin-bottom:8px;
+}
+
+input,
+select{
+  min-width:0;
+  flex:1;
+
+  padding:9px 10px;
+
+  background:#0c110e;
+  color:#fff;
+
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+
+.action{
+  border:0;
+  border-radius:8px;
+
+  padding:8px 12px;
+
+  background:var(--gold);
+  color:#111;
+
+  font-size:11px;
+  font-weight:700;
+}
+
+.wide{
+  width:100%;
+}
+
+.danger{
+  background:#351818;
+  color:#ffaaaa;
+  border:1px solid #652727;
+}
+
+.warning{
+  padding:9px;
+
+  background:#302718;
+
+  border:1px solid #715827;
+
+  border-radius:8px;
+
+  color:#e6ca8d;
+
+  font-size:11px;
+
+  line-height:1.6;
+}
+
+.success-text{
+  color:#9fd4b0;
+}
+
+.error-text{
+  color:#ff9d9d;
+}
+
+.progress{
+  height:6px;
+
+  margin-top:8px;
+
+  background:#29332d;
+
+  border-radius:5px;
+
+  overflow:hidden;
+}
+
+.progress > div{
+  width:0;
+  height:100%;
+
+  background:var(--gold);
+
+  transition:width .15s;
+}
+
+.file-label{
+  display:block;
+
+  margin-bottom:8px;
+
+  padding:10px;
+
+  text-align:center;
+
+  color:#dfc889;
+
+  border:1px dashed var(--gold);
+  border-radius:8px;
+
+  cursor:pointer;
+
+  font-size:11px;
+}
+
+.file-label input{
+  display:none;
+}
+
+.list-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:8px;
+
+  margin-bottom:6px;
+  padding:9px;
+
+  background:var(--panel);
+
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+
+/* =========================================================
+   DRAWING
+   ========================================================= */
+
+.canvas{
+  position:absolute;
+  inset:0;
+
+  z-index:100;
+
+  width:100%;
+  height:100%;
+
+  pointer-events:none;
+
+  touch-action:none;
+}
+
+.canvas.active{
+  pointer-events:auto;
+  cursor:crosshair;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:960px),(orientation:portrait){
+
+  #stage{
+    background:var(--paper);
+  }
+
+  .spread{
+    width:100%;
+    height:100%;
+  }
+
+  .sheet{
+    width:100vw;
+    height:calc(100svh - 2px);
+
+    border-left:0;
+    border-right:0;
+
+    outline:0;
+
+    box-shadow:none;
+  }
+
+  .sheet.left{
+    display:none !important;
+  }
+
+  .sheet-header,
+  .sheet-footer{
+    flex-basis:24px;
+    height:24px;
+
+    padding:0 7px;
+  }
+
+  .lines{
+    padding:2px 4px;
+  }
+
+  .qul-line{
+    font-size:clamp(17px,2.7vh,32px);
+  }
+
+  .qul-line.indopak{
+    font-size:clamp(17px,2.75vh,33px);
+  }
+
+  #dock{
+    max-width:98vw;
+  }
+}
+
+/* Very small phones */
+
+@media(max-height:600px){
+
+  .sheet-header,
+  .sheet-footer{
+    flex-basis:21px;
+    height:21px;
+  }
+
+  .qul-line{
+    font-size:clamp(15px,2.7vh,27px);
+  }
+
+  .qul-line.indopak{
+    font-size:clamp(15px,2.8vh,28px);
+  }
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Ingestion / Progress Splash -->
-  <div id="splashOverlay">
-    <div class="splash-card">
-      <h2 style="color:var(--gold-light); font-size:17px; margin-bottom:6px;">Al-Halaqah Offline Setup</h2>
-      <p style="font-size:12px; color:#8ea396;" id="splashDesc">ഖുർആൻ ഡാറ്റാബേസും ഫോണ്ടുകളും IndexedDB-യിലേക്ക് തയ്യാറാക്കുന്നു...</p>
-      <div class="progress-bar">
-        <div class="progress-fill" id="splashProgress"></div>
-      </div>
-      <div style="font-size:11px; color:#c5a059;" id="splashStatus">Initializing storage...</div>
-    </div>
-  </div>
+<div id="app">
 
-  <main id="mainStage">
-    <div class="book-spread" id="bookSpread">
-      <!-- Right Page -->
-      <article class="mushaf-sheet right-page" id="sheetRight">
-        <svg class="corner-svg c-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+  <div id="status"></div>
+
+  <main id="stage">
+
+    <div class="spread">
+
+      <!-- RIGHT PAGE -->
+
+      <article
+        class="sheet"
+        id="sheetRight"
+      >
 
         <header class="sheet-header">
-          <span id="rightJuzLabel">الجزء --</span>
-          <span id="rightSurahLabel">سورة --</span>
+
+          <span id="rightJuz">
+            الجزء --
+          </span>
+
+          <span id="rightSurah">
+            سورة --
+          </span>
+
         </header>
 
-        <section class="lines-grid-15" id="linesRight"></section>
+        <section
+          class="lines"
+          id="linesRight"
+        ></section>
 
         <footer class="sheet-footer">
-          <span class="mushaf-tag-indicator" id="rightMushafTag">MADANI 1405H</span>
-          <span class="page-number-display" id="rightPageNum">١</span>
+
+          <span id="rightMushaf">
+            Madani 1405H
+          </span>
+
+          <span
+            id="rightPage"
+            class="page-number"
+          >
+            ١
+          </span>
+
         </footer>
 
-        <canvas class="canvas-overlay" id="canvasRight"></canvas>
+        <canvas
+          class="canvas"
+          id="canvasRight"
+        ></canvas>
+
       </article>
 
-      <!-- Left Page -->
-      <article class="mushaf-sheet left-page" id="sheetLeft">
-        <svg class="corner-svg c-tr" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-tl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-br" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
-        <svg class="corner-svg c-bl" viewBox="0 0 40 40"><path d="M0,8 L32,8 L32,40" fill="none" stroke="#7a5e27" stroke-width="2"/><circle cx="24" cy="24" r="5" fill="#c5a059"/></svg>
+
+      <!-- LEFT PAGE -->
+
+      <article
+        class="sheet left"
+        id="sheetLeft"
+      >
 
         <header class="sheet-header">
-          <span id="leftJuzLabel">الجزء --</span>
-          <span id="leftSurahLabel">سورة --</span>
+
+          <span id="leftJuz">
+            الجزء --
+          </span>
+
+          <span id="leftSurah">
+            سورة --
+          </span>
+
         </header>
 
-        <section class="lines-grid-15" id="linesLeft"></section>
+        <section
+          class="lines"
+          id="linesLeft"
+        ></section>
 
         <footer class="sheet-footer">
-          <span class="mushaf-tag-indicator" id="leftMushafTag">MADANI 1405H</span>
-          <span class="page-number-display" id="leftPageNum">٢</span>
+
+          <span id="leftMushaf">
+            Madani 1405H
+          </span>
+
+          <span
+            id="leftPage"
+            class="page-number"
+          >
+            ٢
+          </span>
+
         </footer>
 
-        <canvas class="canvas-overlay" id="canvasLeft"></canvas>
+        <canvas
+          class="canvas"
+          id="canvasLeft"
+        ></canvas>
+
       </article>
+
     </div>
+
   </main>
 
-  <!-- Micro-HUD Dock -->
-  <nav class="floating-dock">
-    <button class="dock-btn" onclick="App.turnPage(-1)" title="Previous Page">◀</button>
-    <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">p. 1</span>
-    <button class="dock-btn" onclick="App.turnPage(1)" title="Next Page">▶</button>
 
-    <div class="mushaf-selector-pill" onclick="App.toggleMushafMode()" id="mushafPill">
-      📖 <span id="mushafPillText">Madani 1405H</span>
-    </div>
+  <!-- BOTTOM NAVIGATION -->
 
-    <span class="student-badge-btn" onclick="App.openSheet('students')">
-      👤 <span id="badgeStudentTitle">Student</span>
+  <nav id="dock">
+
+    <button
+      class="dock-btn"
+      onclick="App.turnPage(-1)"
+      aria-label="Previous page"
+    >
+      ◀
+    </button>
+
+    <span
+      class="badge"
+      id="pageBadge"
+      onclick="App.jump()"
+    >
+      p. 1
     </span>
 
-    <button class="dock-btn" onclick="App.openSheet('tools')" title="Settings & Tools">⚙️</button>
+    <button
+      class="dock-btn"
+      onclick="App.turnPage(1)"
+      aria-label="Next page"
+    >
+      ▶
+    </button>
+
+    <button
+      class="badge"
+      id="mushafBadge"
+      onclick="App.toggleMushaf()"
+    >
+      📖 Madani 1405H
+    </button>
+
+    <button
+      class="dock-btn"
+      onclick="CanvasTool.toggle()"
+    >
+      ✏️
+    </button>
+
+    <button
+      class="badge student-badge"
+      id="studentBadge"
+      onclick="UI.open('students')"
+    >
+      👤 Student
+    </button>
+
+    <button
+      class="dock-btn"
+      onclick="UI.open('settings')"
+    >
+      ⚙️
+    </button>
+
   </nav>
 
-  <!-- Drawer Modal -->
-  <div class="sheet-scrim" id="sheetScrim" onclick="App.closeSheet(event)">
-    <div class="sheet-panel" onclick="event.stopPropagation()">
-      <header class="panel-header">
-        <h3 id="panelTitle">Evaluation Slate</h3>
-        <button class="close-sheet-btn" onclick="App.closeSheet()">&times;</button>
-      </header>
 
-      <nav class="tab-bar">
-        <button class="tab-btn active" id="tabHeadTools" onclick="App.setTab('tools')">✏️ Slate Tools</button>
-        <button class="tab-btn" id="tabHeadStudents" onclick="App.setTab('students')">🎓 Students</button>
-        <button class="tab-btn" id="tabHeadPacks" onclick="App.setTab('packs')">💾 Offline Packs</button>
-      </nav>
+  <!-- CONTROL PANEL -->
 
-      <!-- Tab 1: Tools -->
-      <section class="tab-content active" id="tabBodyTools">
-        <div class="tools-grid">
-          <div class="tool-tile active" id="toolPencil" onclick="CanvasOverlay.selectTool('pencil', 'rgba(45,35,20,0.85)', 2)">
-            <span>✏️</span> Notice
-          </div>
-          <div class="tool-tile" id="toolRed" onclick="CanvasOverlay.selectTool('red', 'rgba(215,25,25,0.88)', 2.5)">
-            <span>🔴</span> Ghalat
-          </div>
-          <div class="tool-tile" id="toolHigh" onclick="CanvasOverlay.selectTool('high', 'rgba(235,190,40,0.4)', 14)">
-            <span>🟡</span> Tajweed
-          </div>
-          <div class="tool-tile" id="toolEraser" onclick="CanvasOverlay.selectTool('eraser', null, 24)">
-            <span>🧹</span> Eraser
-          </div>
-        </div>
-        <button class="btn-action" style="background:#331919; color:#ff9999; border:1px solid #5e2626; width:100%;" onclick="CanvasOverlay.clearActiveCanvas()">
-          Clear Markings for This Page
-        </button>
-      </section>
+  <section id="panel">
 
-      <!-- Tab 2: Students -->
-      <section class="tab-content" id="tabBodyStudents">
-        <div class="form-row">
-          <input type="text" class="input-ctrl" id="newStudentName" placeholder="Student name...">
-          <select class="select-ctrl" id="newStudentMushaf" style="max-width:180px;">
-            <option value="madani">Madani 1405H (604p)</option>
-            <option value="indopak">Indo-Pak 15L (610p)</option>
-          </select>
-          <button class="btn-action" onclick="App.addStudent()">+ Add</button>
-        </div>
-        <div class="items-scroll" id="studentsListContainer"></div>
-      </section>
+    <div class="panel-title">
 
-      <!-- Tab 3: Packs & Resumable Font Downloader -->
-      <section class="tab-content" id="tabBodyPacks">
-        <div style="font-size:12px; color:#aaa; line-height:1.6; margin-bottom:12px;">
-          CSV ഡാറ്റാബേസ് പൂർണ്ണമായും IndexedDB-ലേക്ക് ഇൻജസ്റ്റ് ചെയ്തിരിക്കുന്നു. പേജ് ഫോണ്ടുകൾ ഓഫ്‌ലൈനായി സംഭരിക്കാൻ താഴെയുള്ള ബട്ടൺ ഉപയോഗിക്കുക:
-        </div>
-        <div style="background:#111714; border:1px solid #233129; border-radius:8px; padding:12px; margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
-            <span>QPC Page Fonts (604 Files)</span>
-            <b id="fontDownloadCount">0 / 604</b>
-          </div>
-          <div class="progress-bar" style="margin:0 0 10px 0;"><div class="progress-fill" id="fontDownloadBar"></div></div>
-          <button class="btn-action" id="btnDownloadFonts" style="width:100%;" onclick="BatchIngestion.downloadAllFonts()">
-            ⬇️ Download All Fonts (Resumable)
-          </button>
-        </div>
-        <button class="btn-action" style="background:#26332b; color:#8fa397; width:100%;" onclick="DB.resetAll()">
-          🔄 Re-sync CSVs and Storage
-        </button>
-      </section>
+      <h2>
+        Al-Halaqah — QUL Offline
+      </h2>
+
+      <button
+        class="close"
+        onclick="UI.close()"
+      >
+        ×
+      </button>
+
     </div>
-  </div>
 
-  <script>
-    "use strict";
 
-    /* ═══════════════════════════════════════════════════════════
-       1. Master Configurations & Surah Names
-       ═══════════════════════════════════════════════════════════ */
-    const CONFIG = {
-      madani: {
-        id: "madani",
-        name: "Madinah 1405H",
-        shortName: "Madani 1405H",
-        pages: 604,
-        lines: 15,
-        file: "./qpcv1-35.csv"
-      },
-      indopak: {
-        id: "indopak",
-        name: "Indo-Pak Qudratullah",
-        shortName: "Qudratullah 15L",
-        pages: 610,
-        lines: 15,
-        file: "./indpak-20.csv"
+    <div class="tabs">
+
+      <button
+        class="tab active"
+        data-tab="settings"
+        onclick="UI.tab('settings')"
+      >
+        💾 Data
+      </button>
+
+      <button
+        class="tab"
+        data-tab="students"
+        onclick="UI.tab('students')"
+      >
+        🎓 Students
+      </button>
+
+      <button
+        class="tab"
+        data-tab="tools"
+        onclick="UI.tab('tools')"
+      >
+        ✏️ Tools
+      </button>
+
+    </div>
+
+
+    <!-- DATA -->
+
+    <section
+      class="tab-content active"
+      id="tab-settings"
+    >
+
+      <div class="card">
+
+        <strong>
+          IndexedDB Quran Storage
+        </strong>
+
+        <p class="muted">
+          GitHub root CSV files are downloaded once,
+          parsed in batches and stored locally in IndexedDB.
+          After installation, the reader uses IndexedDB.
+        </p>
+
+        <p
+          class="muted"
+          id="dbStatus"
+        >
+          Checking database…
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <strong>
+          Offline Installation
+        </strong>
+
+        <p class="muted">
+          These files must be beside index.html:
+        </p>
+
+        <p class="small">
+          qpcv1-35.csv · indpak-20.csv · word.csv
+        </p>
+
+        <button
+          class="action wide"
+          onclick="DataPack.installAll()"
+        >
+          ⬇️ Download Quran + Fonts to IndexedDB
+        </button>
+
+        <div class="progress">
+          <div id="progress"></div>
+        </div>
+
+        <p
+          class="muted"
+          id="installStatus"
+        ></p>
+
+      </div>
+
+
+      <div class="card">
+
+        <strong>
+          Manual CSV Import
+        </strong>
+
+        <p class="muted">
+          Use this only when opening the HTML directly
+          or when GitHub cannot fetch the CSV files.
+        </p>
+
+        <label class="file-label">
+          Load qpcv1-35.csv
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onchange="Manual.loadMap('madani1405',this.files[0])"
+          >
+        </label>
+
+        <label class="file-label">
+          Load indpak-20.csv
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onchange="Manual.loadMap('indopakQudratullah',this.files[0])"
+          >
+        </label>
+
+        <label class="file-label">
+          Load word.csv
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onchange="Manual.loadWords(this.files[0])"
+          >
+        </label>
+
+        <button
+          class="action wide"
+          onclick="Manual.finish()"
+        >
+          Build IndexedDB Package
+        </button>
+
+        <p
+          class="muted"
+          id="manualStatus"
+        ></p>
+
+      </div>
+
+
+      <div class="card warning">
+
+        <b>Important:</b>
+
+        The page maps are used exactly as supplied.
+        Missing physical lines remain blank.
+        No words are moved between lines.
+        No artificial spacing is inserted.
+
+      </div>
+
+
+      <button
+        class="action danger wide"
+        onclick="DataPack.clear()"
+      >
+        Delete Local Quran Data
+      </button>
+
+    </section>
+
+
+    <!-- STUDENTS -->
+
+    <section
+      class="tab-content"
+      id="tab-students"
+    >
+
+      <div class="row">
+
+        <input
+          id="studentName"
+          placeholder="Student name"
+        >
+
+        <button
+          class="action"
+          onclick="Students.add()"
+        >
+          Add
+        </button>
+
+      </div>
+
+      <div id="studentsList"></div>
+
+    </section>
+
+
+    <!-- TOOLS -->
+
+    <section
+      class="tab-content"
+      id="tab-tools"
+    >
+
+      <div class="row">
+
+        <button
+          class="action"
+          onclick="CanvasTool.select('pencil')"
+        >
+          ✏️ Pencil
+        </button>
+
+        <button
+          class="action"
+          onclick="CanvasTool.select('red')"
+        >
+          🔴 Error
+        </button>
+
+        <button
+          class="action"
+          onclick="CanvasTool.select('high')"
+        >
+          🟡 Highlight
+        </button>
+
+        <button
+          class="action"
+          onclick="CanvasTool.select('eraser')"
+        >
+          🧹 Eraser
+        </button>
+
+      </div>
+
+      <button
+        class="action danger wide"
+        onclick="CanvasTool.clear()"
+      >
+        Clear Current Page Markings
+      </button>
+
+    </section>
+
+  </section>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   CONFIG
+   ========================================================= */
+
+const CONFIG = {
+
+  madani1405:{
+    id:"madani1405",
+    name:"Madani 1405H / QCF V1",
+    short:"Madani 1405H",
+    pages:604,
+    mapPath:"./qpcv1-35.csv",
+    wordColumn:"qpc_v1",
+    mode:"qcf"
+  },
+
+  indopakQudratullah:{
+    id:"indopakQudratullah",
+    name:"Indo-Pak Qudratullah",
+    short:"Indo-Pak",
+    pages:610,
+    mapPath:"./indpak-20.csv",
+    wordColumn:"indopak",
+    mode:"indopak"
+  }
+
+};
+
+
+/* =========================================================
+   SURAH NAMES
+   ========================================================= */
+
+const SURAH_NAMES = {
+1:"الفاتحة",
+2:"البقرة",
+3:"آل عمران",
+4:"النساء",
+5:"المائدة",
+6:"الأنعام",
+7:"الأعراف",
+8:"الأنفال",
+9:"التوبة",
+10:"يونس",
+11:"هود",
+12:"يوسف",
+13:"الرعد",
+14:"إبراهيم",
+15:"الحجر",
+16:"النحل",
+17:"الإسراء",
+18:"الكهف",
+19:"مريم",
+20:"طه",
+21:"الأنبياء",
+22:"الحج",
+23:"المؤمنون",
+24:"النور",
+25:"الفرقان",
+26:"الشعراء",
+27:"النمل",
+28:"القصص",
+29:"العنكبوت",
+30:"الروم",
+31:"لقمان",
+32:"السجدة",
+33:"الأحزاب",
+34:"سبإ",
+35:"فاطر",
+36:"يس",
+37:"الصافات",
+38:"ص",
+39:"الزمر",
+40:"غافر",
+41:"فصلت",
+42:"الشورى",
+43:"الزخرف",
+44:"الدخان",
+45:"الجاثية",
+46:"الأحقاف",
+47:"محمد",
+48:"الفتح",
+49:"الحجرات",
+50:"ق",
+51:"الذاريات",
+52:"الطور",
+53:"النجم",
+54:"القمر",
+55:"الرحمن",
+56:"الواقعة",
+57:"الحديد",
+58:"المجادلة",
+59:"الحشر",
+60:"الممتحنة",
+61:"الصف",
+62:"الجمعة",
+63:"المنافقون",
+64:"التغابن",
+65:"الطلاق",
+66:"التحريم",
+67:"الملك",
+68:"القلم",
+69:"الحاقة",
+70:"المعارج",
+71:"نوح",
+72:"الجن",
+73:"المزمل",
+74:"المدثر",
+75:"القيامة",
+76:"الإنسان",
+77:"المرسلات",
+78:"النبأ",
+79:"النازعات",
+80:"عبس",
+81:"التكوير",
+82:"الانفطار",
+83:"المطففين",
+84:"الانشقاق",
+85:"البروج",
+86:"الطارق",
+87:"الأعلى",
+88:"الغاشية",
+89:"الفجر",
+90:"البلد",
+91:"الشمس",
+92:"الليل",
+93:"الضحى",
+94:"الشرح",
+95:"التين",
+96:"العلق",
+97:"القدر",
+98:"البينة",
+99:"الزلزلة",
+100:"العاديات",
+101:"القارعة",
+102:"التكاثر",
+103:"العصر",
+104:"الهمزة",
+105:"الفيل",
+106:"قريش",
+107:"الماعون",
+108:"الكوثر",
+109:"الكافرون",
+110:"النصر",
+111:"المسد",
+112:"الإخلاص",
+113:"الفلق",
+114:"الناس"
+};
+
+const AR_DIGITS="٠١٢٣٤٥٦٧٨٩";
+
+function arNumber(n){
+  return String(n).replace(
+    /\d/g,
+    d=>AR_DIGITS[d]
+  );
+}
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function stripQuotes(v){
+
+  const s=String(v??"");
+
+  if(
+    s.length>=2 &&
+    s.startsWith("'") &&
+    s.endsWith("'")
+  ){
+    return s.slice(1,-1);
+  }
+
+  return s;
+}
+
+
+function escapeHTML(v){
+
+  return String(v??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+/*
+ * Allah detection is based on the Uthmani field,
+ * not the selected display font.
+ */
+function isAllah(value){
+
+  const normalized=String(value??"")
+    .replace(
+      /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,
+      ""
+    )
+    .replace(/\u0640/g,"")
+    .replace(/[ٱإأآ]/g,"ا")
+    .trim();
+
+  return (
+    normalized==="الله" ||
+    normalized==="لله" ||
+    normalized==="اللهم"
+  );
+}
+
+
+function setStatus(message,type=""){
+
+  const el=document.getElementById("status");
+
+  el.textContent=message;
+
+  el.className="show "+type;
+
+  clearTimeout(setStatus.timer);
+
+  setStatus.timer=setTimeout(()=>{
+    el.className="";
+  },4500);
+}
+
+
+/* =========================================================
+   CSV PARSER
+   ========================================================= */
+
+const CSV={
+
+  parse(text){
+
+    const rows=[];
+
+    let row=[];
+    let field="";
+    let quoted=false;
+
+    for(
+      let i=0;
+      i<text.length;
+      i++
+    ){
+
+      const c=text[i];
+      const next=text[i+1];
+
+      if(quoted){
+
+        if(c==='"' && next==='"'){
+          field+='"';
+          i++;
+        }
+
+        else if(c==='"'){
+          quoted=false;
+        }
+
+        else{
+          field+=c;
+        }
+
       }
-    };
 
-    const SURAH_NAMES = [
-      "", "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة",
-      "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
-      "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
-      "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت",
-      "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات",
-      "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف",
-      "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح",
-      "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير",
-      "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس",
-      "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة",
-      "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد",
-      "الإخلاص", "الفلق", "الناس"
-    ];
+      else{
 
-    function toArabicNumeral(n) {
-      if (!n) return "--";
-      return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+        if(c==='"'){
+          quoted=true;
+        }
+
+        else if(c===','){
+          row.push(field);
+          field="";
+        }
+
+        else if(c==='\n'){
+
+          row.push(
+            field.replace(/\r$/,"")
+          );
+
+          rows.push(row);
+
+          row=[];
+          field="";
+        }
+
+        else{
+          field+=c;
+        }
+      }
     }
 
-    // Identifies Divine Name: الله, لله, اللهم
-    function isDivineName(text) {
-      if (!text) return false;
-      let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u06E5\u06E6]/g, '').trim();
-      clean = clean.replace(/[ٱإأآء]/g, 'ا');
-      clean = clean.replace(/^(و|ف|ب|ت|ك|ل|لل)?(الله|لله|اللهم)$/, '$2');
-      return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
+    if(
+      field.length ||
+      row.length
+    ){
+
+      row.push(field);
+      rows.push(row);
     }
 
-    /* ═══════════════════════════════════════════════════════════
-       2. Exact IndexedDB Schema: AlHalaqah_QUL_Offline
-       ═══════════════════════════════════════════════════════════ */
-    const DB = {
-      db: null,
-      init() {
-        return new Promise((resolve, reject) => {
-          const req = indexedDB.open("AlHalaqah_QUL_Offline", 1);
-          req.onupgradeneeded = e => {
-            const d = e.target.result;
-            // 1. page_lines
-            if (!d.objectStoreNames.contains("page_lines")) {
-              const s = d.createObjectStore("page_lines", { keyPath: ["mushaf", "page", "line"] });
-              s.createIndex("mushaf_page", ["mushaf", "page"], { unique: false });
-            }
-            // 2. words (shared once for both mushafs)
-            if (!d.objectStoreNames.contains("words")) {
-              d.createObjectStore("words", { keyPath: "id" });
-            }
-            // 3. fonts
-            if (!d.objectStoreNames.contains("fonts")) {
-              d.createObjectStore("fonts", { keyPath: "name" });
-            }
-            // 4. packs
-            if (!d.objectStoreNames.contains("packs")) {
-              d.createObjectStore("packs", { keyPath: "id" });
-            }
-            // 5. students
-            if (!d.objectStoreNames.contains("students")) {
-              d.createObjectStore("students", { keyPath: "id" });
-            }
-            // 6. drawings
-            if (!d.objectStoreNames.contains("drawings")) {
-              d.createObjectStore("drawings", { keyPath: ["studentId", "mushaf", "page"] });
-            }
-            // 7. meta
-            if (!d.objectStoreNames.contains("meta")) {
-              d.createObjectStore("meta", { keyPath: "key" });
-            }
-          };
-          req.onsuccess = () => { this.db = req.result; resolve(); };
-          req.onerror = () => reject(req.error);
-        });
-      },
+    if(!rows.length){
+      return [];
+    }
 
-      async get(store, key) {
-        return new Promise(res => {
-          const tx = this.db.transaction(store, "readonly");
-          const req = tx.objectStore(store).get(key);
-          req.onsuccess = () => res(req.result || null);
-          req.onerror = () => res(null);
-        });
-      },
+    const header=
+      rows.shift().map(
+        x=>stripQuotes(
+          x.trim()
+        )
+      );
 
-      async put(store, val) {
-        return new Promise(res => {
-          const tx = this.db.transaction(store, "readwrite");
-          tx.objectStore(store).put(val);
-          tx.oncomplete = () => res();
-        });
-      },
+    return rows
+      .filter(
+        r=>r.some(
+          x=>String(x??"").trim()!==""
+        )
+      )
+      .map(r=>{
 
-      async getWordsRange(firstId, lastId) {
-        if (!firstId || !lastId || firstId > lastId) return [];
-        return new Promise((resolve, reject) => {
-          const tx = this.db.transaction("words", "readonly");
-          const store = tx.objectStore("words");
-          const range = IDBKeyRange.bound(firstId, lastId);
-          const results = [];
-          const req = store.openCursor(range);
-          req.onsuccess = e => {
-            const cursor = e.target.result;
-            if (!cursor) {
-              results.sort((a, b) => a.id - b.id);
-              resolve(results);
-              return;
-            }
-            results.push(cursor.value);
-            cursor.continue();
-          };
-          req.onerror = () => reject(req.error);
-        });
-      },
+        const obj={};
 
-      async getLayoutLines(mushaf, page) {
-        return new Promise(res => {
-          const tx = this.db.transaction("page_lines", "readonly");
-          const req = tx.objectStore("page_lines").index("mushaf_page").getAll(IDBKeyRange.only([mushaf, page]));
-          req.onsuccess = () => {
-            const lines = req.result || [];
-            lines.sort((a, b) => a.line - b.line);
-            res(lines);
-          };
-          req.onerror = () => res([]);
-        });
-      },
+        header.forEach(
+          (key,index)=>{
+            obj[key]=stripQuotes(
+              String(r[index]??"").trim()
+            );
+          }
+        );
 
-      saveDrawing(studentId, mushaf, page, dataUrl) {
-        const tx = this.db.transaction("drawings", "readwrite");
-        tx.objectStore("drawings").put({ studentId, mushaf, page, data: dataUrl, time: Date.now() });
-      },
+        return obj;
+      });
+  }
 
-      async loadDrawing(studentId, mushaf, page) {
-        return new Promise(res => {
-          const tx = this.db.transaction("drawings", "readonly");
-          const req = tx.objectStore("drawings").get([studentId, mushaf, page]);
-          req.onsuccess = () => res(req.result ? req.result.data : null);
-          req.onerror = () => res(null);
-        });
-      },
+};
 
-      async getAll(store) {
-        return new Promise(res => {
-          const tx = this.db.transaction(store, "readonly");
-          const req = tx.objectStore(store).getAll();
-          req.onsuccess = () => res(req.result || []);
-          req.onerror = () => res([]);
-        });
-      },
 
-      async resetAll() {
-        if (!confirm("Reset all offline databases and re-sync files?")) return;
-        indexedDB.deleteDatabase("AlHalaqah_QUL_Offline");
-        location.reload();
+/* =========================================================
+   INDEXED DB
+   ========================================================= */
+
+const DB={
+
+  db:null,
+
+  async init(){
+
+    this.db=await new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          indexedDB.open(
+            "AlHalaqah_QUL_Offline_v4",
+            1
+          );
+
+        request.onupgradeneeded=e=>{
+
+          const db=e.target.result;
+
+          if(
+            !db.objectStoreNames.contains(
+              "page_lines"
+            )
+          ){
+
+            db.createObjectStore(
+              "page_lines",
+              {
+                keyPath:[
+                  "mushafId",
+                  "page",
+                  "line"
+                ]
+              }
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "words"
+            )
+          ){
+
+            db.createObjectStore(
+              "words",
+              {
+                keyPath:"wordId"
+              }
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "fonts"
+            )
+          ){
+
+            db.createObjectStore(
+              "fonts",
+              {
+                keyPath:"key"
+              }
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "packs"
+            )
+          ){
+
+            db.createObjectStore(
+              "packs",
+              {
+                keyPath:"mushafId"
+              }
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "students"
+            )
+          ){
+
+            db.createObjectStore(
+              "students",
+              {
+                keyPath:"id",
+                autoIncrement:true
+              }
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "drawings"
+            )
+          ){
+
+            const store=
+              db.createObjectStore(
+                "drawings",
+                {
+                  keyPath:"id",
+                  autoIncrement:true
+                }
+              );
+
+            store.createIndex(
+              "student_page",
+              [
+                "studentId",
+                "mushafId",
+                "page"
+              ],
+              {unique:true}
+            );
+          }
+
+          if(
+            !db.objectStoreNames.contains(
+              "meta"
+            )
+          ){
+
+            db.createObjectStore(
+              "meta",
+              {
+                keyPath:"key"
+              }
+            );
+          }
+        };
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result
+          );
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
       }
-    };
+    );
+  },
 
-    /* ═══════════════════════════════════════════════════════════
-       3. Batch CSV Ingestion & Resumable Font Downloader
-       ═══════════════════════════════════════════════════════════ */
-    const BatchIngestion = {
-      async run() {
-        const meta = await DB.get("meta", "csv_ready");
-        if (meta && meta.val) {
-          document.getElementById("splashOverlay").style.display = "none";
-          this.updateFontProgressUI();
+
+  store(name,mode="readonly"){
+
+    return this.db
+      .transaction(
+        name,
+        mode
+      )
+      .objectStore(name);
+  },
+
+
+  get(name,key){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          this.store(name).get(key);
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result??null
+          );
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  getAll(name){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          this.store(name).getAll();
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result||[]
+          );
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  put(name,value){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          this.store(
+            name,
+            "readwrite"
+          ).put(value);
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result
+          );
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  add(name,value){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          this.store(
+            name,
+            "readwrite"
+          ).add(value);
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result
+          );
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  async putBatch(
+    name,
+    values,
+    batchSize=2000,
+    progress=null
+  ){
+
+    for(
+      let start=0;
+      start<values.length;
+      start+=batchSize
+    ){
+
+      const batch=
+        values.slice(
+          start,
+          start+batchSize
+        );
+
+      await new Promise(
+        (resolve,reject)=>{
+
+          const tx=
+            this.db.transaction(
+              name,
+              "readwrite"
+            );
+
+          const store=
+            tx.objectStore(name);
+
+          for(
+            const item of batch
+          ){
+            store.put(item);
+          }
+
+          tx.oncomplete=resolve;
+
+          tx.onerror=()=>{
+            reject(
+              tx.error
+            );
+          };
+
+          tx.onabort=()=>{
+            reject(
+              tx.error ||
+              new Error(
+                "IndexedDB transaction aborted"
+              )
+            );
+          };
+        }
+      );
+
+      if(progress){
+        progress(
+          Math.min(
+            start+batch.length,
+            values.length
+          ),
+          values.length
+        );
+      }
+
+      /*
+       * Give the browser a chance to paint
+       * between large transactions.
+       */
+      await new Promise(
+        r=>setTimeout(r,0)
+      );
+    }
+  },
+
+
+  async pageLines(
+    mushafId,
+    page
+  ){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const result=[];
+
+        const range=
+          IDBKeyRange.bound(
+            [
+              mushafId,
+              page,
+              0
+            ],
+            [
+              mushafId,
+              page,
+              999
+            ]
+          );
+
+        const request=
+          this.store(
+            "page_lines"
+          ).openCursor(range);
+
+        request.onsuccess=e=>{
+
+          const cursor=
+            e.target.result;
+
+          if(!cursor){
+
+            result.sort(
+              (a,b)=>
+                a.line-b.line
+            );
+
+            resolve(result);
+
+            return;
+          }
+
+          result.push(
+            cursor.value
+          );
+
+          cursor.continue();
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  async wordsRange(
+    start,
+    end
+  ){
+
+    if(
+      start==null ||
+      end==null ||
+      start>end
+    ){
+      return [];
+    }
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const words=[];
+
+        const request=
+          this.store(
+            "words"
+          ).openCursor(
+            IDBKeyRange.bound(
+              start,
+              end
+            )
+          );
+
+        request.onsuccess=e=>{
+
+          const cursor=
+            e.target.result;
+
+          if(!cursor){
+
+            resolve(words);
+            return;
+          }
+
+          words.push(
+            cursor.value
+          );
+
+          cursor.continue();
+        };
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  async clear(name){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const request=
+          this.store(
+            name,
+            "readwrite"
+          ).clear();
+
+        request.onsuccess=resolve;
+
+        request.onerror=()=>{
+          reject(
+            request.error
+          );
+        };
+      }
+    );
+  },
+
+
+  async drawing(
+    studentId,
+    mushafId,
+    page
+  ){
+
+    return new Promise(
+      resolve=>{
+
+        const request=
+          this.store(
+            "drawings"
+          )
+          .index("student_page")
+          .get([
+            studentId,
+            mushafId,
+            page
+          ]);
+
+        request.onsuccess=()=>{
+          resolve(
+            request.result?.data ||
+            null
+          );
+        };
+
+        request.onerror=()=>{
+          resolve(null);
+        };
+      }
+    );
+  },
+
+
+  async saveDrawing(
+    studentId,
+    mushafId,
+    page,
+    data
+  ){
+
+    return new Promise(
+      (resolve,reject)=>{
+
+        const tx=
+          this.db.transaction(
+            "drawings",
+            "readwrite"
+          );
+
+        const store=
+          tx.objectStore(
+            "drawings"
+          );
+
+        const index=
+          store.index(
+            "student_page"
+          );
+
+        const request=
+          index.get([
+            studentId,
+            mushafId,
+            page
+          ]);
+
+        request.onsuccess=()=>{
+
+          const old=
+            request.result;
+
+          const value={
+            studentId,
+            mushafId,
+            page,
+            data,
+            updatedAt:Date.now()
+          };
+
+          if(old){
+            value.id=old.id;
+          }
+
+          store.put(value);
+        };
+
+        tx.oncomplete=resolve;
+
+        tx.onerror=()=>{
+          reject(
+            tx.error
+          );
+        };
+      }
+    );
+  }
+
+};
+
+
+/* =========================================================
+   FONT STORE
+   ========================================================= */
+
+const FontStore={
+
+  loaded:new Set(),
+
+
+  async get(key){
+    return DB.get(
+      "fonts",
+      key
+    );
+  },
+
+
+  async save(
+    key,
+    buffer,
+    mime="font/woff2"
+  ){
+
+    await DB.put(
+      "fonts",
+      {
+        key,
+        data:buffer,
+        mime,
+        savedAt:Date.now()
+      }
+    );
+  },
+
+
+  async loadCachedFont(
+    key,
+    family
+  ){
+
+    if(
+      this.loaded.has(key)
+    ){
+      return family;
+    }
+
+    const cached=
+      await this.get(key);
+
+    if(!cached?.data){
+      throw new Error(
+        "Cached font not found: "+key
+      );
+    }
+
+    const blob=
+      new Blob(
+        [cached.data],
+        {
+          type:
+            cached.mime ||
+            "font/woff2"
+        }
+      );
+
+    const url=
+      URL.createObjectURL(
+        blob
+      );
+
+    const font=
+      new FontFace(
+        family,
+        `url("${url}")`
+      );
+
+    await font.load();
+
+    document.fonts.add(
+      font
+    );
+
+    URL.revokeObjectURL(url);
+
+    this.loaded.add(key);
+
+    return family;
+  },
+
+
+  async loadQCF(page){
+
+    return this.loadCachedFont(
+      "qcf-v1-"+page,
+      "QCFV1_"+page
+    );
+  },
+
+
+  async loadIndoPak(){
+
+    return this.loadCachedFont(
+      "indopak-font",
+      "QULIndoPak"
+    );
+  },
+
+
+  async downloadOne(
+    url,
+    key
+  ){
+
+    /*
+     * Already downloaded:
+     * do not download again.
+     */
+    if(
+      await this.get(key)
+    ){
+      return false;
+    }
+
+    const response=
+      await fetch(
+        url,
+        {
+          cache:"no-store"
+        }
+      );
+
+    if(!response.ok){
+      throw new Error(
+        "Font download failed: "+
+        response.status
+      );
+    }
+
+    const buffer=
+      await response.arrayBuffer();
+
+    await this.save(
+      key,
+      buffer
+    );
+
+    return true;
+  },
+
+
+  async downloadQCF(
+    total,
+    progress
+  ){
+
+    /*
+     * Parallel workers.
+     * This is much faster than
+     * downloading 604 fonts sequentially.
+     */
+    const concurrency=8;
+
+    let next=1;
+    let completed=0;
+
+    const worker=async()=>{
+
+      while(true){
+
+        const page=next++;
+
+        if(page>total){
           return;
         }
 
-        const splash = document.getElementById("splashOverlay");
-        const status = document.getElementById("splashStatus");
-        const bar = document.getElementById("splashProgress");
-        splash.style.display = "flex";
+        await this.downloadOne(
 
-        // 1. Ingest Madani Layout
-        status.textContent = "Ingesting Madani 1405H Layout (qpcv1-35.csv)...";
-        bar.style.width = "15%";
-        await this.ingestLayoutCSV("madani", CONFIG.madani.file);
+          "https://verses.quran.foundation/fonts/quran/hafs/v1/woff2/p"+
+          page+
+          ".woff2",
 
-        // 2. Ingest Indo-Pak Layout
-        status.textContent = "Ingesting Indo-Pak Layout (indpak-20.csv)...";
-        bar.style.width = "35%";
-        await this.ingestLayoutCSV("indopak", CONFIG.indopak.file);
+          "qcf-v1-"+page
 
-        // 3. Ingest Master Word Registry (shared once)
-        status.textContent = "Ingesting Master Word Registry (word.csv)...";
-        bar.style.width = "55%";
-        await this.ingestWordCSV(p => {
-          bar.style.width = `${55 + (p * 0.40)}%`;
-          status.textContent = `Batch writing words: ${Math.round(p)}%...`;
-        });
+        );
 
-        // 4. Ingest Indo-Pak Master Font
-        status.textContent = "Downloading Indo-Pak Master Nastaleeq Font...";
-        await this.downloadFont("indopak", "https://static.qurancdn.com/fonts/quran/indopak/woff2/indopak.woff2");
+        completed++;
 
-        await DB.put("meta", { key: "csv_ready", val: true });
-        bar.style.width = "100%";
-        status.textContent = "✅ Database Ready! Running 100% Offline.";
-        setTimeout(() => { splash.style.display = "none"; }, 400);
-        this.updateFontProgressUI();
-      },
-
-      async ingestLayoutCSV(mushafKey, fileUrl) {
-        const res = await fetch(fileUrl);
-        const text = await res.text();
-        const lines = text.split(/\r?\n/);
-        const records = [];
-
-        for (let i = 0; i < lines.length; i++) {
-          const l = lines[i].trim();
-          if (!l || l.startsWith("page,") || l.startsWith("!") || l.includes("drive.google")) continue;
-          const p = l.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-          if (p.length >= 5) {
-            const pageNum = Number(p[0]);
-            const lineNum = Number(p[1]);
-            if (!pageNum || !lineNum) continue;
-
-            records.push({
-              mushaf: mushafKey,
-              page: pageNum,
-              line: lineNum,
-              type: p[2],
-              is_centered: p[3] === "1",
-              start: p[4] ? Number(p[4]) : null,
-              end: p[5] ? Number(p[5]) : null
-            });
-          }
-        }
-        await this.batchWrite("page_lines", records, 2500);
-      },
-
-      async ingestWordCSV(onProgress) {
-        const res = await fetch("./word.csv");
-        const text = await res.text();
-        const lines = text.split(/\r?\n/);
-        const total = lines.length;
-        let batch = [];
-        let processed = 0;
-
-        for (let i = 0; i < total; i++) {
-          const l = lines[i].trim();
-          if (!l || !l.match(/^\d+,/)) continue;
-          const p = l.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-
-          if (p.length >= 7) {
-            const wId = Number(p[3]);
-            if (wId) {
-              batch.push({
-                id: wId,
-                surah: Number(p[0]),
-                ayah: Number(p[1]),
-                uthmani: p[4] || "",
-                indopak: p[6] || p[5] || p[4] || "",
-                qpc_v1: p[8] || p[4] || ""
-              });
-            }
-          }
-
-          if (batch.length >= 3500) {
-            await this.batchWrite("words", batch, 3500);
-            processed += batch.length;
-            batch = [];
-            if (onProgress) onProgress((processed / total) * 100);
-          }
-        }
-
-        if (batch.length > 0) {
-          await this.batchWrite("words", batch, batch.length);
-        }
-      },
-
-      batchWrite(storeName, items, chunkSize) {
-        return new Promise((resolve, reject) => {
-          if (items.length === 0) return resolve();
-          const tx = DB.db.transaction(storeName, "readwrite");
-          const store = tx.objectStore(storeName);
-          for (let i = 0; i < items.length; i++) {
-            store.put(items[i]);
-          }
-          tx.oncomplete = () => resolve();
-          tx.onerror = () => reject(tx.error);
-        });
-      },
-
-      async downloadFont(name, url) {
-        const exists = await DB.get("fonts", name);
-        if (exists && exists.data) return;
-        try {
-          const res = await fetch(url);
-          if (res.ok) {
-            const buffer = await res.arrayBuffer();
-            await DB.put("fonts", { name, data: buffer });
-          }
-        } catch (e) {
-          console.warn(`Font download failed: ${name}`, e);
-        }
-      },
-
-      // Resumable batch downloader for all 604 Madani page fonts
-      async downloadAllFonts() {
-        const btn = document.getElementById("btnDownloadFonts");
-        btn.disabled = true;
-        btn.textContent = "Downloading Fonts (Resumable)...";
-
-        const total = 604;
-        let downloaded = 0;
-
-        // Count existing
-        const existing = await DB.getAll("fonts");
-        const existingSet = new Set(existing.map(f => f.name));
-
-        const queue = [];
-        for (let p = 1; p <= total; p++) {
-          if (!existingSet.has(`p${p}`)) {
-            queue.push(p);
-          }
-        }
-
-        downloaded = total - queue.length;
-        this.updateFontProgressUI(downloaded, total);
-
-        // Run with concurrency = 6
-        const concurrency = 6;
-        let index = 0;
-
-        const worker = async () => {
-          while (index < queue.length) {
-            const p = queue[index++];
-            const url = `https://static.qurancdn.com/fonts/quran/hafs/v1/woff2/p${p}.woff2`;
-            try {
-              const res = await fetch(url);
-              if (res.ok) {
-                const buffer = await res.arrayBuffer();
-                await DB.put("fonts", { name: `p${p}`, data: buffer });
-                downloaded++;
-                this.updateFontProgressUI(downloaded, total);
-              }
-            } catch (e) {
-              console.warn(`Retry font p${p}`);
-            }
-          }
-        };
-
-        const workers = [];
-        for (let i = 0; i < concurrency; i++) workers.push(worker());
-        await Promise.all(workers);
-
-        btn.disabled = false;
-        btn.textContent = "✅ All Fonts Downloaded";
-      },
-
-      async updateFontProgressUI(current, total = 604) {
-        if (current === undefined) {
-          const all = await DB.getAll("fonts");
-          current = all.filter(f => f.name.startsWith("p")).length;
-        }
-        const pct = Math.round((current / total) * 100);
-        const countEl = document.getElementById("fontDownloadCount");
-        const barEl = document.getElementById("fontDownloadBar");
-        if (countEl) countEl.textContent = `${current} / ${total} (${pct}%)`;
-        if (barEl) barEl.style.width = `${pct}%`;
-      }
-    };
-
-    /* ═══════════════════════════════════════════════════════════
-       4. Font Loading System (100% Offline via FontFace)
-       ═══════════════════════════════════════════════════════════ */
-    const FontManager = {
-      loadedFonts: new Set(),
-
-      async ensurePageFont(pageNum, isIndoPak) {
-        if (isIndoPak) {
-          if (this.loadedFonts.has("QudratullahIndoPak")) return "QudratullahIndoPak";
-          const record = await DB.get("fonts", "indopak");
-          if (record && record.data) {
-            try {
-              const font = new FontFace("QudratullahIndoPak", record.data);
-              await font.load();
-              document.fonts.add(font);
-              this.loadedFonts.add("QudratullahIndoPak");
-              return "QudratullahIndoPak";
-            } catch (e) {}
-          }
-          return "'Noto Nastaliq Urdu', 'Amiri', serif";
-        } else {
-          const fontName = `QCF_P${pageNum}`;
-          if (this.loadedFonts.has(fontName)) return fontName;
-
-          // 1. Try local IndexedDB
-          const record = await DB.get("fonts", `p${pageNum}`);
-          if (record && record.data) {
-            try {
-              const font = new FontFace(fontName, record.data);
-              await font.load();
-              document.fonts.add(font);
-              this.loadedFonts.add(fontName);
-              return fontName;
-            } catch (e) {}
-          }
-
-          // 2. Online fallback if not yet downloaded
-          try {
-            const url = `https://static.qurancdn.com/fonts/quran/hafs/v1/woff2/p${pageNum}.woff2`;
-            const font = new FontFace(fontName, `url('${url}')`);
-            await font.load();
-            document.fonts.add(font);
-            this.loadedFonts.add(fontName);
-            return fontName;
-          } catch (e) {
-            return "'Amiri', serif";
-          }
+        if(progress){
+          progress(
+            completed,
+            total
+          );
         }
       }
     };
 
-    /* ═══════════════════════════════════════════════════════════
-       5. App Coordinator & Sheet Renderer
-       ═══════════════════════════════════════════════════════════ */
-    const App = {
-      currentPage: 1,
-      currentMushaf: "madani",
-      students: [],
-      activeStudent: null,
+    await Promise.all(
+      Array.from(
+        {
+          length:concurrency
+        },
+        worker
+      )
+    );
+  },
 
-      get config() {
-        return CONFIG[this.currentMushaf];
-      },
 
-      async init() {
-        await DB.init();
-        await BatchIngestion.run();
-        await this.syncStudents();
+  async downloadIndoPak(){
 
-        this.updateBadgeUI();
-        await this.render();
+    await this.downloadOne(
 
-        window.addEventListener("resize", () => {
-          CanvasOverlay.resizeCanvas('Right');
-          CanvasOverlay.resizeCanvas('Left');
-          this.render();
-        });
+      "https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2",
 
-        document.addEventListener("keydown", e => {
-          if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
-          if (e.key === "ArrowLeft") this.turnPage(-1);
-          if (e.key === "ArrowRight") this.turnPage(1);
-        });
-      },
+      "indopak-font"
 
-      async syncStudents() {
-        this.students = await DB.getAll("students");
-        if (this.students.length === 0) {
-          const s = {
-            id: "std_default",
-            name: "Hafidh Student",
-            mushaf: "madani",
-            lastPages: { madani: 1, indopak: 1 }
-          };
-          await DB.put("students", s);
-          this.students = [s];
-          this.activeStudent = s;
-        } else {
-          this.activeStudent = this.students[0];
+    );
+  }
+
+};
+
+
+/* =========================================================
+   DATA PACK
+   ========================================================= */
+
+const DataPack={
+
+
+  async fetchText(path){
+
+    const response=
+      await fetch(
+        path,
+        {
+          cache:"no-store"
         }
+      );
 
-        this.currentMushaf = this.activeStudent.mushaf || "madani";
-        this.currentPage = this.activeStudent.lastPages?.[this.currentMushaf] || 1;
-      },
+    if(!response.ok){
 
-      isSpreadView() {
-        return window.innerWidth > 960 && window.innerWidth > window.innerHeight;
-      },
-
-      async toggleMushafMode() {
-        this.currentMushaf = this.currentMushaf === "madani" ? "indopak" : "madani";
-        if (this.activeStudent) {
-          this.activeStudent.mushaf = this.currentMushaf;
-          if (!this.activeStudent.lastPages) this.activeStudent.lastPages = {};
-          this.currentPage = this.activeStudent.lastPages[this.currentMushaf] || 1;
-          await DB.put("students", this.activeStudent);
-        }
-        this.updateBadgeUI();
-        await this.render();
-      },
-
-      async render() {
-        const conf = this.config;
-        const isDouble = this.isSpreadView();
-        let rightP = this.currentPage;
-        let leftP = null;
-
-        document.getElementById("mainStage").classList.toggle("qudratullah-mode", this.currentMushaf === "indopak");
-
-        if (isDouble) {
-          rightP = (this.currentPage % 2 === 1) ? this.currentPage : this.currentPage - 1;
-          leftP = rightP + 1;
-          const leftValid = leftP <= conf.pages;
-
-          document.getElementById("pageBadge").textContent = `p. ${rightP} - ${leftValid ? leftP : rightP} / ${conf.pages}`;
-          document.getElementById("sheetLeft").style.display = leftValid ? "flex" : "none";
-        } else {
-          document.getElementById("pageBadge").textContent = `p. ${rightP} / ${conf.pages}`;
-          document.getElementById("sheetLeft").style.display = "none";
-        }
-
-        if (this.activeStudent) {
-          if (!this.activeStudent.lastPages) this.activeStudent.lastPages = {};
-          this.activeStudent.lastPages[this.currentMushaf] = rightP;
-          await DB.put("students", this.activeStudent);
-        }
-
-        document.getElementById("rightMushafTag").textContent = conf.shortName;
-        document.getElementById("leftMushafTag").textContent = conf.shortName;
-
-        await Promise.all([
-          this.renderSheet(rightP, 'Right'),
-          (isDouble && leftP <= conf.pages) ? this.renderSheet(leftP, 'Left') : Promise.resolve()
-        ]);
-      },
-
-      async renderSheet(pageNum, side) {
-        const container = document.getElementById(`lines${side}`);
-        container.innerHTML = "";
-
-        const isIndoPak = this.currentMushaf === "indopak";
-        const fontName = await FontManager.ensurePageFont(pageNum, isIndoPak);
-
-        const lines = await DB.getLayoutLines(this.currentMushaf, pageNum);
-        if (!lines || lines.length === 0) return;
-
-        let detectedSurah = null;
-
-        for (const l of lines) {
-          if (l.type === "surah_name") {
-            const sNum = l.start || 1;
-            detectedSurah = sNum;
-            const banner = document.createElement("div");
-            banner.className = "surah-header-row";
-            banner.innerHTML = `
-              <span class="surah-meta">ترتيبها ${toArabicNumeral(sNum)}</span>
-              <span class="surah-title">سُورَةُ ${SURAH_NAMES[sNum] || ""}</span>
-              <span class="surah-meta">١٥ سطر</span>
-            `;
-            container.appendChild(banner);
-          } 
-          else if (l.type === "basmallah") {
-            const bism = document.createElement("div");
-            bism.className = "bismillah-row";
-            bism.innerHTML = `بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ`;
-            container.appendChild(bism);
-          } 
-          else {
-            // Ayah line
-            const row = document.createElement("div");
-            row.className = "mushaf-line";
-            if (l.is_centered) row.classList.add("qul-centered-line");
-
-            if (l.start && l.end) {
-              const words = await DB.getWordsRange(l.start, l.end);
-              words.forEach(w => {
-                if (!detectedSurah && w.surah) detectedSurah = w.surah;
-                const span = document.createElement("span");
-                span.className = "mushaf-word";
-
-                // Text Selection
-                const text = isIndoPak ? (w.indopak || w.uthmani) : w.uthmani;
-                span.textContent = text + " ";
-
-                if (!isIndoPak) {
-                  span.style.fontFamily = `'${fontName}', 'Amiri', serif`;
-                }
-
-                // Lafdh al-Jalalah in Red
-                if (isDivineName(text)) {
-                  span.classList.add("lafdh-jalalah");
-                }
-
-                row.appendChild(span);
-              });
-            } else {
-              row.innerHTML = "&nbsp;";
-            }
-            container.appendChild(row);
-          }
-        }
-
-        // Header Metadata
-        if (detectedSurah) {
-          document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = `سورة ${SURAH_NAMES[detectedSurah] || ""}`;
-        }
-        const approxJuz = Math.min(30, Math.max(1, Math.ceil((pageNum / this.config.pages) * 30)));
-        document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabicNumeral(approxJuz)}`;
-        document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabicNumeral(pageNum);
-
-        CanvasOverlay.init(side, pageNum, this.currentMushaf);
-      },
-
-      turnPage(delta) {
-        const step = this.isSpreadView() ? 2 : 1;
-        const target = Math.max(1, Math.min(this.config.pages, this.currentPage + (delta * step)));
-        if (target !== this.currentPage) {
-          this.currentPage = target;
-          this.render();
-        }
-      },
-
-      jumpPrompt() {
-        const val = prompt(`Jump to ${this.config.shortName} Page (1 - ${this.config.pages}):`, this.currentPage);
-        const n = parseInt(val);
-        if (n >= 1 && n <= this.config.pages) {
-          this.currentPage = n;
-          this.render();
-        }
-      },
-
-      openSheet(tab) {
-        document.getElementById("sheetScrim").classList.add("open");
-        this.setTab(tab);
-        if (tab === "students") this.renderStudentsList();
-      },
-
-      closeSheet() {
-        document.getElementById("sheetScrim").classList.remove("open");
-      },
-
-      setTab(tab) {
-        ["tools", "students", "packs"].forEach(t => {
-          const h = document.getElementById(`tabHead${t.charAt(0).toUpperCase() + t.slice(1)}`);
-          const b = document.getElementById(`tabBody${t.charAt(0).toUpperCase() + t.slice(1)}`);
-          if (h) h.classList.toggle("active", t === tab);
-          if (b) b.classList.toggle("active", t === tab);
-        });
-      },
-
-      renderStudentsList() {
-        const box = document.getElementById("studentsListContainer");
-        box.innerHTML = "";
-        this.students.forEach(s => {
-          const div = document.createElement("div");
-          div.className = "list-card" + (this.activeStudent?.id === s.id ? " active" : "");
-          div.innerHTML = `
-            <div>
-              <b>${s.name}</b>
-              <small style="opacity:0.75; margin-left:8px;">(${s.mushaf === 'indopak' ? 'Indo-Pak' : 'Madani'})</small>
-            </div>
-            <span style="font-size:11px; color:#c5a059;">p. ${s.lastPages?.[s.mushaf || 'madani'] || 1}</span>
-          `;
-          div.onclick = async () => {
-            this.activeStudent = s;
-            this.currentMushaf = s.mushaf || 'madani';
-            this.currentPage = s.lastPages?.[this.currentMushaf] || 1;
-            this.updateBadgeUI();
-            this.closeSheet();
-            await this.render();
-          };
-          box.appendChild(div);
-        });
-      },
-
-      async addStudent() {
-        const nameInput = document.getElementById("newStudentName");
-        const select = document.getElementById("newStudentMushaf");
-        const name = nameInput.value.trim();
-        if (!name) return;
-
-        const newS = {
-          id: "std_" + Date.now(),
-          name,
-          mushaf: select.value,
-          lastPages: { madani: 1, indopak: 1 }
-        };
-        await DB.put("students", newS);
-        this.students.push(newS);
-        this.activeStudent = newS;
-        this.currentMushaf = newS.mushaf;
-        this.currentPage = 1;
-        nameInput.value = "";
-        this.updateBadgeUI();
-        this.renderStudentsList();
-        await this.render();
-      },
-
-      updateBadgeUI() {
-        document.getElementById("mushafPillText").textContent = this.config.shortName;
-        if (this.activeStudent) {
-          document.getElementById("badgeStudentTitle").textContent = `${this.activeStudent.name}`;
-        }
-      }
-    };
-
-    /* ═══════════════════════════════════════════════════════════
-       6. Teacher Slate Canvas (Independent Per Student/Mushaf/Page)
-       ═══════════════════════════════════════════════════════════ */
-    const CanvasOverlay = {
-      currentTool: 'pencil',
-      strokeColor: 'rgba(45,35,20,0.85)',
-      strokeWidth: 2,
-      activeSide: 'Right',
-      isDrawing: false,
-      lastX: 0,
-      lastY: 0,
-      pageMap: { Right: 1, Left: 2 },
-      activeMushafId: 'madani',
-
-      selectTool(tool, color, size) {
-        this.currentTool = tool;
-        if (color) this.strokeColor = color;
-        this.strokeWidth = size;
-        document.querySelectorAll(".tool-tile").forEach(b => b.classList.remove("active"));
-        const idMap = { pencil: 'toolPencil', red: 'toolRed', high: 'toolHigh', eraser: 'toolEraser' };
-        if (idMap[tool]) document.getElementById(idMap[tool]).classList.add("active");
-      },
-
-      init(side, pageNum, mushafId) {
-        this.pageMap[side] = pageNum;
-        this.activeMushafId = mushafId;
-        this.resizeCanvas(side);
-        this.loadDrawing(side, pageNum, mushafId);
-        this.attachEvents(side);
-      },
-
-      resizeCanvas(side) {
-        const c = document.getElementById(`canvas${side}`);
-        const sheet = document.getElementById(`sheet${side}`);
-        if (!c || !sheet) return;
-        const r = sheet.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-
-        if (c.width !== Math.round(r.width * dpr) || c.height !== Math.round(r.height * dpr)) {
-          const temp = document.createElement("canvas");
-          temp.width = c.width;
-          temp.height = c.height;
-          if (c.width && c.height) temp.getContext("2d").drawImage(c, 0, 0);
-
-          c.width = Math.round(r.width * dpr);
-          c.height = Math.round(r.height * dpr);
-          const ctx = c.getContext("2d");
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          if (temp.width && temp.height) ctx.drawImage(temp, 0, 0, r.width, r.height);
-        }
-      },
-
-      async loadDrawing(side, pageNum, mushafId) {
-        const c = document.getElementById(`canvas${side}`);
-        const ctx = c.getContext("2d");
-        ctx.clearRect(0, 0, c.width, c.height);
-
-        if (App.activeStudent) {
-          const data = await DB.loadDrawing(App.activeStudent.id, mushafId, pageNum);
-          if (data) {
-            const img = new Image();
-            img.onload = () => {
-              const r = document.getElementById(`sheet${side}`).getBoundingClientRect();
-              ctx.drawImage(img, 0, 0, r.width, r.height);
-            };
-            img.src = data;
-          }
-        }
-      },
-
-      attachEvents(side) {
-        const c = document.getElementById(`canvas${side}`);
-        const ctx = c.getContext("2d");
-
-        c.onpointerdown = e => {
-          this.isDrawing = true;
-          this.activeSide = side;
-          c.setPointerCapture(e.pointerId);
-          const r = c.getBoundingClientRect();
-          this.lastX = e.clientX - r.left;
-          this.lastY = e.clientY - r.top;
-        };
-
-        c.onpointermove = e => {
-          if (!this.isDrawing || this.activeSide !== side) return;
-          const r = c.getBoundingClientRect();
-          const x = e.clientX - r.left;
-          const y = e.clientY - r.top;
-
-          ctx.save();
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-
-          if (this.currentTool === "eraser") {
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.lineWidth = this.strokeWidth;
-          } else if (this.currentTool === "high") {
-            ctx.globalCompositeOperation = "multiply";
-            ctx.strokeStyle = this.strokeColor;
-            ctx.lineWidth = this.strokeWidth;
-            ctx.lineCap = "square";
-          } else {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.strokeStyle = this.strokeColor;
-            ctx.lineWidth = this.strokeWidth;
-          }
-
-          ctx.beginPath();
-          ctx.moveTo(this.lastX, this.lastY);
-          ctx.lineTo(x, y);
-          ctx.stroke();
-          ctx.restore();
-
-          this.lastX = x;
-          this.lastY = y;
-        };
-
-        const stop = () => {
-          if (this.isDrawing && this.activeSide === side) {
-            this.isDrawing = false;
-            if (App.activeStudent) {
-              DB.saveDrawing(App.activeStudent.id, this.activeMushafId, this.pageMap[side], c.toDataURL());
-            }
-          }
-        };
-
-        c.onpointerup = stop;
-        c.onpointercancel = stop;
-      },
-
-      clearActiveCanvas() {
-        if (!confirm("Clear evaluation markings for this page?")) return;
-        const c = document.getElementById(`canvas${this.activeSide}`);
-        const ctx = c.getContext("2d");
-        ctx.clearRect(0, 0, c.width, c.height);
-        if (App.activeStudent) {
-          DB.saveDrawing(App.activeStudent.id, this.activeMushafId, this.pageMap[this.activeSide], c.toDataURL());
-        }
-      }
-    };
-
-    // Service Worker Registration for PWA Offline Caching
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
+      throw new Error(
+        path+
+        " failed: "+
+        response.status
+      );
     }
 
-    window.addEventListener("DOMContentLoaded", () => App.init());
-  </script>
+    return response.text();
+  },
+
+
+  normalizeMap(rows){
+
+    return rows
+      .map(row=>({
+
+        page:Number(
+          row.page
+        ),
+
+        line:Number(
+          row.line
+        ),
+
+        type:stripQuotes(
+          row.type
+        ),
+
+        centered:
+          String(
+            row.is_centered
+          ).toLowerCase()==="1" ||
+          String(
+            row.is_centered
+          ).toLowerCase()==="true",
+
+        start:
+          row.range_start===""
+            ? null
+            : Number(
+                row.range_start
+              ),
+
+        end:
+          row.range_end===""
+            ? null
+            : Number(
+                row.range_end
+              )
+
+      }))
+      .filter(
+        row=>
+          row.page>0 &&
+          row.line>0
+      );
+  },
+
+
+  normalizeWords(rows){
+
+    return rows
+      .map(row=>({
+
+        wordId:Number(
+          row.word_number_all
+        ),
+
+        surah:Number(
+          row.surah_number
+        ),
+
+        ayah:Number(
+          row.ayah_number
+        ),
+
+        word:Number(
+          row.word_number
+        ),
+
+        uthmani:stripQuotes(
+          row.uthmani || ""
+        ),
+
+        indopak:stripQuotes(
+          row.indopak || ""
+        ),
+
+        qpc_v1:stripQuotes(
+          row.qpc_v1 || ""
+        ),
+
+        isAyahMarker:
+          String(
+            row.is_ayah_marker
+          )==="1"
+
+      }))
+      .filter(
+        row=>row.wordId>0
+      );
+  },
+
+
+  async installAll(){
+
+    const status=
+      document.getElementById(
+        "installStatus"
+      );
+
+    const progress=
+      document.getElementById(
+        "progress"
+      );
+
+    try{
+
+      progress.style.width="1%";
+
+      status.textContent=
+        "Downloading CSV files…";
+
+
+      /*
+       * Three CSV files are fetched
+       * simultaneously.
+       */
+      const [
+        madaniText,
+        indoText,
+        wordText
+      ]=await Promise.all([
+
+        this.fetchText(
+          "./qpcv1-35.csv"
+        ),
+
+        this.fetchText(
+          "./indpak-20.csv"
+        ),
+
+        this.fetchText(
+          "./word.csv"
+        )
+
+      ]);
+
+
+      status.textContent=
+        "Parsing CSV files…";
+
+
+      const madani=
+        this.normalizeMap(
+          CSV.parse(
+            madaniText
+          )
+        );
+
+      const indo=
+        this.normalizeMap(
+          CSV.parse(
+            indoText
+          )
+        );
+
+      const words=
+        this.normalizeWords(
+          CSV.parse(
+            wordText
+          )
+        );
+
+
+      if(
+        madani.length<1000 ||
+        indo.length<1000 ||
+        words.length<80000
+      ){
+
+        throw new Error(
+          "CSV validation failed: "+
+          "Madani="+madani.length+
+          ", IndoPak="+indo.length+
+          ", words="+words.length
+        );
+      }
+
+
+      /*
+       * Page map records.
+       */
+      status.textContent=
+        "Saving page layouts to IndexedDB…";
+
+
+      const mapRecords=[
+        ...madani.map(
+          row=>({
+            mushafId:"madani1405",
+            ...row
+          })
+        ),
+
+        ...indo.map(
+          row=>({
+            mushafId:
+              "indopakQudratullah",
+            ...row
+          })
+        )
+      ];
+
+
+      await DB.putBatch(
+        "page_lines",
+        mapRecords,
+        2000,
+        (done,total)=>{
+
+          progress.style.width=
+            (
+              5+
+              Math.round(
+                done/total*25
+              )
+            )+
+            "%";
+
+        }
+      );
+
+
+      /*
+       * IMPORTANT:
+       * word.csv is saved only once.
+       * Both Mushafs use the same word store.
+       */
+      status.textContent=
+        "Saving "+
+
+        words.length.toLocaleString()+
+
+        " words to IndexedDB…";
+
+
+      await DB.putBatch(
+        "words",
+        words,
+        2500,
+        (done,total)=>{
+
+          progress.style.width=
+            (
+              30+
+              Math.round(
+                done/total*30
+              )
+            )+
+            "%";
+
+        }
+      );
+
+
+      await DB.put(
+        "packs",
+        {
+          mushafId:"madani1405",
+          pages:604,
+          lineRecords:madani.length,
+          wordRecords:words.length,
+          installedAt:Date.now()
+        }
+      );
+
+
+      await DB.put(
+        "packs",
+        {
+          mushafId:
+            "indopakQudratullah",
+          pages:610,
+          lineRecords:indo.length,
+          wordRecords:words.length,
+          installedAt:Date.now()
+        }
+      );
+
+
+      /*
+       * QCF V1 page fonts:
+       * 604 files, downloaded by 8 workers.
+       */
+      status.textContent=
+        "Downloading 604 Madani page fonts…";
+
+
+      await FontStore.downloadQCF(
+        604,
+        (done,total)=>{
+
+          progress.style.width=
+            (
+              60+
+              Math.round(
+                done/total*35
+              )
+            )+
+            "%";
+
+          status.textContent=
+            "Madani fonts "+
+            done+
+            " / "+
+            total;
+        }
+      );
+
+
+      status.textContent=
+        "Downloading Indo-Pak font…";
+
+
+      await FontStore.downloadIndoPak();
+
+
+      progress.style.width="100%";
+
+      status.textContent=
+        "✓ Quran data and fonts are offline-ready.";
+
+
+      await this.status();
+
+      await App.render();
+
+      setStatus(
+        "Offline package ready",
+        "success"
+      );
+
+    }
+
+    catch(error){
+
+      console.error(
+        error
+      );
+
+      status.textContent=
+        "Install failed: "+
+        error.message;
+
+      setStatus(
+        "Installation failed",
+        "error"
+      );
+    }
+  },
+
+
+  async status(){
+
+    const packs=
+      await DB.getAll(
+        "packs"
+      );
+
+    const words=
+      await DB.getAll(
+        "words"
+      );
+
+    const fonts=
+      await DB.getAll(
+        "fonts"
+      );
+
+
+    const complete=
+      packs.length>=2 &&
+      words.length>=80000 &&
+      fonts.length>=605;
+
+
+    document.getElementById(
+      "dbStatus"
+    ).textContent=
+
+      complete
+
+        ?
+
+        "✓ IndexedDB ready · "+
+        words.length.toLocaleString()+
+        " words · "+
+        fonts.length.toLocaleString()+
+        " fonts · Offline ready"
+
+        :
+
+        "IndexedDB package incomplete · first installation required";
+  },
+
+
+  async clear(){
+
+    if(
+      !confirm(
+        "Delete all downloaded Quran data and fonts from this device?"
+      )
+    ){
+      return;
+    }
+
+
+    for(
+      const store of [
+        "page_lines",
+        "words",
+        "fonts",
+        "packs",
+        "meta"
+      ]
+    ){
+
+      await DB.clear(
+        store
+      );
+    }
+
+
+    FontStore.loaded.clear();
+
+
+    document.getElementById(
+      "installStatus"
+    ).textContent=
+      "Local Quran data deleted.";
+
+
+    await this.status();
+
+    setStatus(
+      "Local Quran data deleted"
+    );
+  }
+
+};
+
+
+/* =========================================================
+   MANUAL IMPORT
+   ========================================================= */
+
+const Manual={
+
+  maps:{
+    madani1405:null,
+    indopakQudratullah:null
+  },
+
+  words:null,
+
+
+  async loadMap(
+    mushafId,
+    file
+  ){
+
+    if(!file){
+      return;
+    }
+
+    try{
+
+      const rows=
+        DataPack.normalizeMap(
+          CSV.parse(
+            await file.text()
+          )
+        );
+
+      if(!rows.length){
+        throw new Error(
+          "No valid records."
+        );
+      }
+
+      this.maps[mushafId]=rows;
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        file.name+
+        " loaded: "+
+        rows.length.toLocaleString()+
+        " records.";
+
+    }
+
+    catch(error){
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        "Map error: "+
+        error.message;
+    }
+  },
+
+
+  async loadWords(file){
+
+    if(!file){
+      return;
+    }
+
+    try{
+
+      const rows=
+        CSV.parse(
+          await file.text()
+        );
+
+      if(
+        !rows.length ||
+        !("word_number_all" in rows[0])
+      ){
+
+        throw new Error(
+          "word_number_all column not found."
+        );
+      }
+
+      this.words=rows;
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        file.name+
+        " loaded: "+
+        rows.length.toLocaleString()+
+        " words.";
+
+    }
+
+    catch(error){
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        "Word error: "+
+        error.message;
+    }
+  },
+
+
+  async finish(){
+
+    if(!this.words){
+
+      alert(
+        "Load word.csv first."
+      );
+
+      return;
+    }
+
+
+    if(
+      !this.maps.madani1405 &&
+      !this.maps.indopakQudratullah
+    ){
+
+      alert(
+        "Load at least one page-map CSV."
+      );
+
+      return;
+    }
+
+
+    try{
+
+      const words=
+        DataPack.normalizeWords(
+          this.words
+        );
+
+
+      await DB.putBatch(
+        "words",
+        words,
+        2500
+      );
+
+
+      for(
+        const mushafId
+        of Object.keys(this.maps)
+      ){
+
+        const map=
+          this.maps[mushafId];
+
+        if(!map){
+          continue;
+        }
+
+
+        await DB.putBatch(
+
+          "page_lines",
+
+          map.map(
+            row=>({
+              mushafId,
+              ...row
+            })
+          ),
+
+          2000
+        );
+
+
+        await DB.put(
+          "packs",
+          {
+            mushafId,
+            pages:
+              CONFIG[mushafId].pages,
+            lineRecords:map.length,
+            wordRecords:words.length,
+            installedAt:Date.now()
+          }
+        );
+      }
+
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        "✓ IndexedDB package built.";
+
+
+      await DataPack.status();
+
+      await App.render();
+
+    }
+
+    catch(error){
+
+      document.getElementById(
+        "manualStatus"
+      ).textContent=
+        "Build failed: "+
+        error.message;
+    }
+  }
+
+};
+
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+const App={
+
+  currentMushaf:"madani1405",
+
+  currentPage:1,
+
+  student:null,
+
+  students:[],
+
+
+  async init(){
+
+    try{
+
+      await DB.init();
+
+
+      /*
+       * Check local installation.
+       *
+       * If incomplete and online,
+       * resume installation automatically.
+       */
+      const packs=
+        await DB.getAll(
+          "packs"
+        );
+
+      const words=
+        await DB.getAll(
+          "words"
+        );
+
+      const fonts=
+        await DB.getAll(
+          "fonts"
+        );
+
+
+      if(
+        packs.length<2 ||
+        words.length<80000 ||
+        fonts.length<605
+      ){
+
+        await DataPack.status();
+
+
+        if(
+          navigator.onLine
+        ){
+
+          setTimeout(
+            ()=>{
+              DataPack.installAll();
+            },
+            400
+          );
+
+        }
+
+        else{
+
+          setStatus(
+            "Offline: connect once to install Quran data"
+          );
+        }
+      }
+
+
+      /*
+       * Students.
+       */
+      this.students=
+        await DB.getAll(
+          "students"
+        );
+
+
+      if(!this.students.length){
+
+        const student={
+
+          name:"Hifdh Student",
+
+          mushafId:"madani1405",
+
+          lastPages:{
+            madani1405:1,
+            indopakQudratullah:1
+          }
+        };
+
+
+        student.id=
+          await DB.add(
+            "students",
+            student
+          );
+
+
+        this.students=[
+          student
+        ];
+
+        this.student=
+          student;
+
+      }
+
+      else{
+
+        this.student=
+          this.students[0];
+      }
+
+
+      this.currentMushaf=
+        this.student.mushafId ||
+        "madani1405";
+
+
+      this.currentPage=
+        this.student
+          .lastPages?.[
+            this.currentMushaf
+          ] ||
+        1;
+
+
+      this.updateUI();
+
+
+      await DataPack.status();
+
+      await this.render();
+
+
+      window.addEventListener(
+        "resize",
+        ()=>{
+          CanvasTool.resizeAll();
+        }
+      );
+
+
+      window.addEventListener(
+        "keydown",
+        event=>{
+
+          if(
+            [
+              "INPUT",
+              "TEXTAREA",
+              "SELECT"
+            ].includes(
+              event.target.tagName
+            )
+          ){
+            return;
+          }
+
+
+          if(
+            event.key==="ArrowLeft"
+          ){
+            this.turnPage(-1);
+          }
+
+
+          if(
+            event.key==="ArrowRight"
+          ){
+            this.turnPage(1);
+          }
+        }
+      );
+
+
+      setStatus(
+        "QUL Offline engine ready",
+        "success"
+      );
+
+    }
+
+    catch(error){
+
+      console.error(
+        error
+      );
+
+      setStatus(
+        "Startup error: "+
+        error.message,
+        "error"
+      );
+    }
+  },
+
+
+  isSpread(){
+
+    return (
+      innerWidth>960 &&
+      innerWidth>innerHeight
+    );
+  },
+
+
+  async saveStudent(){
+
+    if(
+      !this.student
+    ){
+      return;
+    }
+
+    await DB.put(
+      "students",
+      this.student
+    );
+  },
+
+
+  async setMushaf(id){
+
+    if(!CONFIG[id]){
+      return;
+    }
+
+
+    this.currentMushaf=id;
+
+    this.student.mushafId=id;
+
+
+    if(
+      !this.student.lastPages
+    ){
+
+      this.student.lastPages={};
+    }
+
+
+    this.currentPage=
+      this.student.lastPages[id] ||
+      1;
+
+
+    await this.saveStudent();
+
+    this.updateUI();
+
+    await this.render();
+  },
+
+
+  async toggleMushaf(){
+
+    await this.setMushaf(
+
+      this.currentMushaf===
+      "madani1405"
+
+        ?
+
+        "indopakQudratullah"
+
+        :
+
+        "madani1405"
+    );
+  },
+
+
+  async render(){
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    let rightPage=
+      this.currentPage;
+
+    let leftPage=null;
+
+
+    if(
+      this.isSpread()
+    ){
+
+      /*
+       * Madani / IndoPak spread:
+       * right page is odd,
+       * left page is next page.
+       */
+      rightPage=
+        rightPage%2===1
+          ? rightPage
+          : rightPage-1;
+
+
+      if(rightPage<1){
+        rightPage=1;
+      }
+
+
+      leftPage=
+        rightPage+1<=config.pages
+          ? rightPage+1
+          : null;
+    }
+
+
+    this.currentPage=
+      rightPage;
+
+
+    if(
+      !this.student.lastPages
+    ){
+
+      this.student.lastPages={};
+    }
+
+
+    this.student.lastPages[
+      this.currentMushaf
+    ]=rightPage;
+
+
+    await this.saveStudent();
+
+
+    document.getElementById(
+      "sheetLeft"
+    ).style.display=
+      leftPage
+        ? "flex"
+        : "none";
+
+
+    document.getElementById(
+      "pageBadge"
+    ).textContent=
+      leftPage
+
+        ?
+
+        `p. ${rightPage}–${leftPage} / ${config.pages}`
+
+        :
+
+        `p. ${rightPage} / ${config.pages}`;
+
+
+    await this.renderSheet(
+      rightPage,
+      "Right"
+    );
+
+
+    if(leftPage){
+
+      await this.renderSheet(
+        leftPage,
+        "Left"
+      );
+    }
+
+
+    CanvasTool.resizeAll();
+  },
+
+
+  async renderSheet(
+    page,
+    side
+  ){
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    const container=
+      document.getElementById(
+        "lines"+side
+      );
+
+
+    container.innerHTML="";
+
+
+    const lines=
+      await DB.pageLines(
+        this.currentMushaf,
+        page
+      );
+
+
+    if(!lines.length){
+
+      const box=
+        document.createElement(
+          "div"
+        );
+
+      box.style.gridRow="1/16";
+      box.style.display="flex";
+      box.style.alignItems="center";
+      box.style.justifyContent="center";
+      box.style.textAlign="center";
+      box.className="warning";
+
+
+      box.innerHTML=
+        "<div>"+
+        "<b>Quran data not installed</b>"+
+        "<br><br>"+
+        escapeHTML(
+          config.short
+        )+
+        "<br>"+
+        "Page "+
+        page+
+        "<br><br>"+
+        "Open ⚙️ → Data"+
+        "</div>";
+
+
+      container.appendChild(
+        box
+      );
+
+
+      this.setMeta(
+        side,
+        page,
+        null
+      );
+
+
+      CanvasTool.init(
+        side,
+        page,
+        this.currentMushaf
+      );
+
+      return;
+    }
+
+
+    const byLine=
+      new Map(
+        lines.map(
+          line=>[
+            line.line,
+            line
+          ]
+        )
+      );
+
+
+    let firstSurah=null;
+
+    let qcfFamily=null;
+
+
+    /*
+     * Load only the visible page font.
+     * Font is already stored in IndexedDB.
+     */
+    if(
+      config.mode==="qcf"
+    ){
+
+      try{
+
+        qcfFamily=
+          await FontStore.loadQCF(
+            page
+          );
+
+      }
+
+      catch(error){
+
+        console.warn(
+          error
+        );
+      }
+    }
+
+    else{
+
+      try{
+
+        await FontStore.loadIndoPak();
+
+      }
+
+      catch(error){
+
+        console.warn(
+          error
+        );
+      }
+    }
+
+
+    /*
+     * ALWAYS render 15 physical
+     * line slots.
+     *
+     * Missing CSV records remain blank.
+     */
+    for(
+      let lineNo=1;
+      lineNo<=15;
+      lineNo++
+    ){
+
+      const info=
+        byLine.get(
+          lineNo
+        );
+
+
+      const row=
+        document.createElement(
+          "div"
+        );
+
+
+      row.className=
+        "qul-line";
+
+
+      if(
+        config.mode==="qcf"
+      ){
+
+        row.classList.add(
+          "qcf"
+        );
+
+
+        if(qcfFamily){
+
+          row.style.setProperty(
+            "--qcf-font",
+            `"${qcfFamily}"`
+          );
+        }
+      }
+
+      else{
+
+        row.classList.add(
+          "indopak"
+        );
+      }
+
+
+      if(
+        info?.centered
+      ){
+
+        row.classList.add(
+          "centered"
+        );
+      }
+
+
+      /*
+       * Missing line:
+       * keep it completely blank.
+       */
+      if(!info){
+
+        container.appendChild(
+          row
+        );
+
+        continue;
+      }
+
+
+      /*
+       * Surah header.
+       */
+      if(
+        info.type==="surah_name"
+      ){
+
+        firstSurah=
+          Number(
+            info.start
+          );
+
+
+        const header=
+          document.createElement(
+            "div"
+          );
+
+        header.className=
+          "surah-line";
+
+
+        header.textContent=
+          "سُورَةُ "+
+          (
+            SURAH_NAMES[
+              firstSurah
+            ] ||
+            ""
+          );
+
+
+        row.appendChild(
+          header
+        );
+      }
+
+
+      /*
+       * Bismillah.
+       */
+      else if(
+        info.type==="basmallah"
+      ){
+
+        const bismillah=
+          document.createElement(
+            "div"
+          );
+
+        bismillah.className=
+          "bismillah-line";
+
+        bismillah.textContent=
+          "﷽";
+
+
+        row.appendChild(
+          bismillah
+        );
+      }
+
+
+      /*
+       * Ayah / Quran text.
+       */
+      else if(
+        info.type==="ayah"
+      ){
+
+        const words=
+          await DB.wordsRange(
+            info.start,
+            info.end
+          );
+
+
+        const text=
+          document.createElement(
+            "div"
+          );
+
+        text.className=
+          "qul-text";
+
+
+        /*
+         * QCF V1 is glyph based.
+         *
+         * NO spaces are inserted.
+         */
+        for(
+          let i=0;
+          i<words.length;
+          i++
+        ){
+
+          const word=
+            words[i];
+
+
+          const span=
+            document.createElement(
+              "span"
+            );
+
+
+          span.className=
+            "word";
+
+
+          /*
+           * الله is detected using
+           * Uthmani regardless of
+           * current Mushaf.
+           */
+          if(
+            isAllah(
+              word.uthmani
+            )
+          ){
+
+            span.classList.add(
+              "lafdh"
+            );
+          }
+
+
+          span.textContent=
+            word[
+              config.wordColumn
+            ] ||
+            "";
+
+
+          text.appendChild(
+            span
+          );
+
+
+          /*
+           * Indo-Pak Unicode text
+           * needs ordinary word spacing.
+           */
+          if(
+            config.mode==="indopak" &&
+            i<words.length-1
+          ){
+
+            text.appendChild(
+              document.createTextNode(
+                " "
+              )
+            );
+          }
+        }
+
+
+        row.appendChild(
+          text
+        );
+      }
+
+
+      container.appendChild(
+        row
+      );
+    }
+
+
+    this.setMeta(
+      side,
+      page,
+      firstSurah
+    );
+
+
+    CanvasTool.init(
+      side,
+      page,
+      this.currentMushaf
+    );
+  },
+
+
+  setMeta(
+    side,
+    page,
+    surah
+  ){
+
+    const prefix=
+      side.toLowerCase();
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    document.getElementById(
+      prefix+"Mushaf"
+    ).textContent=
+      config.short;
+
+
+    document.getElementById(
+      prefix+"Page"
+    ).textContent=
+      arNumber(page);
+
+
+    document.getElementById(
+      prefix+"Surah"
+    ).textContent=
+
+      surah
+
+        ?
+
+        "سورة "+
+        (
+          SURAH_NAMES[
+            surah
+          ] ||
+          ""
+        )
+
+        :
+
+        "سورة --";
+
+
+    /*
+     * Juz data is not contained
+     * in the supplied CSV files,
+     * therefore do not fabricate it.
+     */
+    document.getElementById(
+      prefix+"Juz"
+    ).textContent=
+      "الجزء --";
+  },
+
+
+  updateUI(){
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    document.getElementById(
+      "mushafBadge"
+    ).textContent=
+      "📖 "+
+      config.short;
+
+
+    document.getElementById(
+      "studentBadge"
+    ).textContent=
+      "👤 "+
+      (
+        this.student?.name ||
+        "Student"
+      );
+  },
+
+
+  async turnPage(delta){
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    const step=
+      this.isSpread()
+        ? 2
+        : 1;
+
+
+    this.currentPage=
+      Math.max(
+        1,
+        Math.min(
+          config.pages,
+          this.currentPage+
+          delta*step
+        )
+      );
+
+
+    await this.render();
+  },
+
+
+  async jump(){
+
+    const config=
+      CONFIG[
+        this.currentMushaf
+      ];
+
+
+    const value=
+      prompt(
+        `Page 1-${config.pages}`,
+        this.currentPage
+      );
+
+
+    if(value===null){
+      return;
+    }
+
+
+    const page=
+      Number.parseInt(
+        value,
+        10
+      );
+
+
+    if(
+      !Number.isInteger(page) ||
+      page<1 ||
+      page>config.pages
+    ){
+
+      alert(
+        `Enter a page from 1 to ${config.pages}.`
+      );
+
+      return;
+    }
+
+
+    this.currentPage=
+      page;
+
+
+    await this.render();
+  }
+
+};
+
+
+/* =========================================================
+   STUDENTS
+   ========================================================= */
+
+const Students={
+
+  async add(){
+
+    const input=
+      document.getElementById(
+        "studentName"
+      );
+
+
+    const name=
+      input.value.trim();
+
+
+    if(!name){
+      return;
+    }
+
+
+    const student={
+
+      name,
+
+      mushafId:
+        App.currentMushaf,
+
+      lastPages:{
+        madani1405:1,
+        indopakQudratullah:1
+      }
+    };
+
+
+    student.id=
+      await DB.add(
+        "students",
+        student
+      );
+
+
+    App.students.push(
+      student
+    );
+
+
+    input.value="";
+
+    this.render();
+  },
+
+
+  async select(student){
+
+    App.student=
+      student;
+
+
+    App.currentMushaf=
+      student.mushafId ||
+      "madani1405";
+
+
+    App.currentPage=
+      student.lastPages?.[
+        App.currentMushaf
+      ] ||
+      1;
+
+
+    await App.saveStudent();
+
+    App.updateUI();
+
+    await App.render();
+
+    this.render();
+  },
+
+
+  render(){
+
+    const box=
+      document.getElementById(
+        "studentsList"
+      );
+
+
+    box.innerHTML="";
+
+
+    for(
+      const student
+      of App.students
+    ){
+
+      const config=
+        CONFIG[
+          student.mushafId ||
+          "madani1405"
+        ];
+
+
+      const item=
+        document.createElement(
+          "div"
+        );
+
+      item.className=
+        "list-item";
+
+
+      const info=
+        document.createElement(
+          "div"
+        );
+
+
+      const name=
+        document.createElement(
+          "strong"
+        );
+
+      name.textContent=
+        student.name;
+
+
+      const small=
+        document.createElement(
+          "span"
+        );
+
+      small.className=
+        "small";
+
+      small.textContent=
+        config.short;
+
+
+      info.appendChild(
+        name
+      );
+
+      info.appendChild(
+        document.createElement(
+          "br"
+        )
+      );
+
+      info.appendChild(
+        small
+      );
+
+
+      const button=
+        document.createElement(
+          "button"
+        );
+
+      button.className=
+        "action";
+
+      button.textContent=
+        "Select";
+
+
+      button.onclick=
+        ()=>{
+          this.select(
+            student
+          );
+        };
+
+
+      item.appendChild(
+        info
+      );
+
+      item.appendChild(
+        button
+      );
+
+
+      box.appendChild(
+        item
+      );
+    }
+  }
+
+};
+
+
+/* =========================================================
+   UI
+   ========================================================= */
+
+const UI={
+
+  open(tab="settings"){
+
+    document
+      .getElementById("panel")
+      .classList.add("open");
+
+    this.tab(tab);
+  },
+
+
+  close(){
+
+    document
+      .getElementById("panel")
+      .classList.remove("open");
+  },
+
+
+  tab(name){
+
+    document
+      .querySelectorAll(
+        ".tab"
+      )
+      .forEach(button=>{
+
+        button.classList.toggle(
+          "active",
+          button.dataset.tab===
+          name
+        );
+      });
+
+
+    document
+      .querySelectorAll(
+        ".tab-content"
+      )
+      .forEach(section=>{
+
+        section.classList.toggle(
+          "active",
+          section.id===
+          "tab-"+name
+        );
+      });
+
+
+    if(
+      name==="students"
+    ){
+
+      Students.render();
+    }
+  }
+
+};
+
+
+/* =========================================================
+   DRAWING / HIFDH MARKING
+   ========================================================= */
+
+const CanvasTool={
+
+  active:false,
+
+  tool:"pencil",
+
+  color:"rgba(50,35,20,.85)",
+
+  width:2,
+
+  sideInfo:{},
+
+  bound:{},
+
+
+  toggle(){
+
+    this.active=
+      !this.active;
+
+
+    for(
+      const side
+      of ["Right","Left"]
+    ){
+
+      document
+        .getElementById(
+          "canvas"+side
+        )
+        .classList.toggle(
+          "active",
+          this.active
+        );
+    }
+  },
+
+
+  select(tool){
+
+    this.tool=
+      tool;
+
+
+    if(
+      tool==="pencil"
+    ){
+
+      this.color=
+        "rgba(50,35,20,.85)";
+
+      this.width=2;
+    }
+
+
+    if(
+      tool==="red"
+    ){
+
+      this.color=
+        "rgba(210,25,25,.9)";
+
+      this.width=2.5;
+    }
+
+
+    if(
+      tool==="high"
+    ){
+
+      this.color=
+        "rgba(230,180,20,.35)";
+
+      this.width=15;
+    }
+
+
+    if(
+      tool==="eraser"
+    ){
+
+      this.width=25;
+    }
+
+
+    this.active=true;
+
+
+    for(
+      const side
+      of ["Right","Left"]
+    ){
+
+      document
+        .getElementById(
+          "canvas"+side
+        )
+        .classList.add(
+          "active"
+        );
+    }
+  },
+
+
+  init(
+    side,
+    page,
+    mushafId
+  ){
+
+    const canvas=
+      document.getElementById(
+        "canvas"+side
+      );
+
+
+    if(!canvas){
+      return;
+    }
+
+
+    this.sideInfo[side]={
+      page,
+      mushafId
+    };
+
+
+    this.resize(
+      side
+    );
+
+
+    this.load(
+      side,
+      page,
+      mushafId
+    );
+
+
+    if(
+      this.bound[side]
+    ){
+      return;
+    }
+
+
+    this.bound[side]=true;
+
+
+    let drawing=false;
+
+    let lastX=0;
+
+    let lastY=0;
+
+
+    canvas.addEventListener(
+      "pointerdown",
+      event=>{
+
+        if(
+          !this.active
+        ){
+          return;
+        }
+
+
+        drawing=true;
+
+
+        canvas.setPointerCapture(
+          event.pointerId
+        );
+
+
+        const rect=
+          canvas.getBoundingClientRect();
+
+
+        lastX=
+          event.clientX-
+          rect.left;
+
+
+        lastY=
+          event.clientY-
+          rect.top;
+      }
+    );
+
+
+    canvas.addEventListener(
+      "pointermove",
+      event=>{
+
+        if(!drawing){
+          return;
+        }
+
+
+        const rect=
+          canvas.getBoundingClientRect();
+
+
+        const x=
+          event.clientX-
+          rect.left;
+
+
+        const y=
+          event.clientY-
+          rect.top;
+
+
+        const ctx=
+          canvas.getContext(
+            "2d"
+          );
+
+
+        ctx.save();
+
+
+        ctx.lineCap=
+          "round";
+
+        ctx.lineJoin=
+          "round";
+
+
+        if(
+          this.tool==="eraser"
+        ){
+
+          ctx.globalCompositeOperation=
+            "destination-out";
+
+          ctx.lineWidth=
+            this.width;
+        }
+
+        else{
+
+          ctx.globalCompositeOperation=
+            "source-over";
+
+          ctx.strokeStyle=
+            this.color;
+
+          ctx.lineWidth=
+            this.width;
+        }
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          lastX,
+          lastY
+        );
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+        ctx.stroke();
+
+        ctx.restore();
+
+
+        lastX=x;
+
+        lastY=y;
+      }
+    );
+
+
+    const stop=
+      async()=>{
+        if(!drawing){
+          return;
+        }
+
+        drawing=false;
+
+        await this.save(
+          side,
+          page,
+          mushafId
+        );
+      };
+
+
+    canvas.addEventListener(
+      "pointerup",
+      stop
+    );
+
+    canvas.addEventListener(
+      "pointercancel",
+      stop
+    );
+  },
+
+
+  resize(side){
+
+    const canvas=
+      document.getElementById(
+        "canvas"+side
+      );
+
+
+    const sheet=
+      document.getElementById(
+        "sheet"+side
+      );
+
+
+    if(
+      !canvas ||
+      !sheet
+    ){
+      return;
+    }
+
+
+    const rect=
+      sheet.getBoundingClientRect();
+
+
+    const dpr=
+      window.devicePixelRatio ||
+      1;
+
+
+    canvas.width=
+      Math.round(
+        rect.width*dpr
+      );
+
+
+    canvas.height=
+      Math.round(
+        rect.height*dpr
+      );
+
+
+    canvas.style.width=
+      rect.width+"px";
+
+    canvas.style.height=
+      rect.height+"px";
+
+
+    const ctx=
+      canvas.getContext(
+        "2d"
+      );
+
+
+    ctx.setTransform(
+      dpr,
+      0,
+      0,
+      dpr,
+      0,
+      0
+    );
+  },
+
+
+  resizeAll(){
+
+    this.resize("Right");
+    this.resize("Left");
+  },
+
+
+  async load(
+    side,
+    page,
+    mushafId
+  ){
+
+    if(
+      !App.student
+    ){
+      return;
+    }
+
+
+    const data=
+      await DB.drawing(
+        App.student.id,
+        mushafId,
+        page
+      );
+
+
+    if(!data){
+      return;
+    }
+
+
+    const canvas=
+      document.getElementById(
+        "canvas"+side
+      );
+
+
+    const image=
+      new Image();
+
+
+    image.onload=()=>{
+
+      const rect=
+        canvas.getBoundingClientRect();
+
+
+      canvas
+        .getContext("2d")
+        .drawImage(
+          image,
+          0,
+          0,
+          rect.width,
+          rect.height
+        );
+    };
+
+
+    image.src=
+      data;
+  },
+
+
+  async save(
+    side,
+    page,
+    mushafId
+  ){
+
+    if(
+      !App.student
+    ){
+      return;
+    }
+
+
+    const canvas=
+      document.getElementById(
+        "canvas"+side
+      );
+
+
+    await DB.saveDrawing(
+      App.student.id,
+      mushafId,
+      page,
+      canvas.toDataURL(
+        "image/png"
+      )
+    );
+  },
+
+
+  async clear(){
+
+    const side=
+      this.sideInfo.Right
+        ? "Right"
+        : "Left";
+
+
+    const info=
+      this.sideInfo[side];
+
+
+    if(!info){
+      return;
+    }
+
+
+    if(
+      !confirm(
+        "Clear markings for this page?"
+      )
+    ){
+      return;
+    }
+
+
+    const canvas=
+      document.getElementById(
+        "canvas"+side
+      );
+
+
+    const ctx=
+      canvas.getContext(
+        "2d"
+      );
+
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+
+    await this.save(
+      side,
+      info.page,
+      info.mushafId
+    );
+  }
+
+};
+
+
+/* =========================================================
+   SERVICE WORKER REGISTRATION
+   ========================================================= */
+
+if(
+  "serviceWorker" in navigator
+){
+
+  window.addEventListener(
+    "load",
+    ()=>{
+      navigator.serviceWorker
+        .register(
+          "./sw.js",
+          {
+            scope:"./"
+          }
+        )
+        .catch(
+          error=>{
+            console.warn(
+              "Service worker registration failed:",
+              error
+            );
+          }
+        );
+    }
+  );
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+window.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
+    App.init();
+  }
+);
+
+</script>
+
 </body>
 </html>
