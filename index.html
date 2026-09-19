@@ -9,12 +9,25 @@
   <link rel="manifest" href="manifest.json">
   <title>Al-Halaqah — Universal Quran Hifdh Slate</title>
 
-  <!-- Base UI Typography -->
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* ═══ Local Authentic Fonts ═══ */
+    @font-face {
+      font-family: 'DigitalKhatt IndoPak';
+      src: url('./DigitalKhattIndoPak.otf') format('opentype');
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'DigitalKhatt Old Madina';
+      src: url('./DigitalKhattQuranic.otf') format('opentype');
+      font-display: swap;
+    }
+
     :root {
       --gold-primary: #c5a059;
       --gold-light: #dfba73;
@@ -49,36 +62,39 @@
       overflow: hidden;
     }
 
-    /* ═══ Max-Screen Reading Stage ═══ */
+    /* ═══ Reading Stage (Screen Space Optimized) ═══ */
     main {
       flex: 1;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 2px 4px 58px;
+      padding: 0 4px 44px;
       background: radial-gradient(circle at 50% 45%, #18221c 0%, #080b09 100%);
     }
 
     .book-spread {
       display: flex;
       direction: rtl;
-      gap: 8px;
+      gap: 12px;
       align-items: center;
       justify-content: center;
       max-width: 100%;
-      height: 100%;
+      height: calc(100vh - 46px);
+      height: calc(100dvh - 46px);
     }
 
     /* ═══ Physical Mushaf Page Layout ═══ */
     .mushaf-sheet {
-      width: min(540px, 49vw);
-      height: min(calc(100vh - 66px), calc(100dvh - 66px));
-      aspect-ratio: 1 / 1.51;
+      height: 100%;
+      max-height: calc(100vh - 48px);
+      max-height: calc(100dvh - 48px);
+      aspect-ratio: 1 / 1.52;
+      max-width: 49.5vw;
       background: var(--paper);
       position: relative;
-      padding: 8px 14px 6px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.85);
+      padding: 6px 14px 4px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.85);
       border: 2px solid var(--border-outer);
       outline: 2px solid var(--gold-primary);
       outline-offset: 2px;
@@ -158,7 +174,7 @@
       flex-direction: column;
       flex: 1;
       justify-content: space-between;
-      margin: 2px 0;
+      margin: 1px 0;
       position: relative;
       z-index: 5;
     }
@@ -203,16 +219,17 @@
       font-family: inherit;
     }
 
-    /* Red highlight for Lafdh al-Jalalah */
+    /* Lafdh al-Jalalah in Red */
     .mushaf-word.lafdh-jalalah {
       color: var(--jalalah-red) !important;
       font-weight: bold;
     }
 
+    /* Indo-Pak Quran Font Styling */
     .qudratullah-mode .mushaf-word {
-      font-family: 'QudratullahIndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif !important;
-      font-size: clamp(15px, 2.05vh, 25px);
-      line-height: 1.35;
+      font-family: 'DigitalKhatt IndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif !important;
+      font-size: clamp(16px, 2.2vh, 26px);
+      line-height: 1.8;
     }
 
     /* Surah Header Cartouche */
@@ -355,7 +372,7 @@
       text-overflow: ellipsis;
     }
 
-    /* ═══ Settings & Tools Drawer ═══ */
+    /* ═══ Universal Settings Drawer ═══ */
     .sheet-scrim {
       position: fixed;
       inset: 0;
@@ -532,7 +549,7 @@
       background: #25332a;
     }
 
-    /* ═══ Initial Batch / Resumable Font Progress Modal ═══ */
+    /* ═══ Initial Batch Modal ═══ */
     #splashOverlay {
       position: fixed;
       inset: 0;
@@ -572,28 +589,33 @@
       transition: width 0.15s ease;
     }
 
-    /* ═══ Screen Optimization (Mobile & Portrait) ═══ */
+    /* ═══ Mobile Portrait Edge-to-Edge ═══ */
     @media (max-width: 960px), (orientation: portrait) {
       .mushaf-sheet.left-page {
         display: none !important;
       }
       main {
-        padding: 2px 2px 50px;
+        padding: 0 2px 42px;
+      }
+      .book-spread {
+        height: calc(100vh - 44px);
+        height: calc(100dvh - 44px);
       }
       .mushaf-sheet {
-        width: 100%;
-        max-width: 500px;
-        height: calc(100vh - 54px);
-        height: calc(100dvh - 54px);
-        padding: 6px 10px 4px;
+        width: 100vw;
+        max-width: 99vw;
+        height: 100%;
+        aspect-ratio: auto;
+        padding: 6px 8px 4px;
+        outline-offset: 1px;
       }
       .mushaf-word {
-        font-size: clamp(16px, 2.35vh, 27px);
+        font-size: clamp(16px, 2.5vh, 28px);
       }
       .floating-dock {
-        bottom: 5px;
-        padding: 2px 7px;
-        gap: 5px;
+        bottom: 4px;
+        padding: 2px 6px;
+        gap: 4px;
       }
     }
   </style>
@@ -792,7 +814,7 @@
       return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
     }
 
-    // Identifies Divine Name: الله, لله, اللهم
+    // Accurate detection of Lafdh al-Jalalah (الله / لله / اللهم)
     function isDivineName(text) {
       if (!text) return false;
       let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u06E5\u06E6]/g, '').trim();
@@ -956,7 +978,7 @@
         bar.style.width = "35%";
         await this.ingestLayoutCSV("indopak", CONFIG.indopak.file);
 
-        // 3. Ingest Master Word Registry
+        // 3. Ingest Master Word Registry (shared once)
         status.textContent = "Ingesting Master Word Registry (word.csv)...";
         bar.style.width = "55%";
         await this.ingestWordCSV(p => {
@@ -964,7 +986,7 @@
           status.textContent = `Batch writing words: ${Math.round(p)}%...`;
         });
 
-        // 4. Ingest Indo-Pak Master Font
+        // 4. Ingest Indo-Pak Master Font if remote
         status.textContent = "Downloading Indo-Pak Master Nastaleeq Font...";
         await this.downloadFont("indopak", "https://static.qurancdn.com/fonts/quran/indopak/woff2/indopak.woff2");
 
@@ -1019,7 +1041,7 @@
           if (!l || !l.match(/^\d+,/)) continue;
           const p = l.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
 
-          if (p.length >= 7) {
+          if (p.length >= 8) {
             const wId = Number(p[3]);
             if (wId) {
               batch.push({
@@ -1028,6 +1050,7 @@
                 ayah: Number(p[1]),
                 uthmani: p[4] || "",
                 indopak: p[6] || p[5] || p[4] || "",
+                dk_indopak: p[7] || p[6] || p[4] || "",
                 qpc_v1: p[8] || p[4] || ""
               });
             }
@@ -1073,7 +1096,7 @@
         }
       },
 
-      // Auto-resumes in background if online
+      // Auto-resumes font download in background when online
       async autoResumeFonts() {
         if (!navigator.onLine) return;
         const all = await DB.getAll("fonts");
@@ -1158,18 +1181,8 @@
 
       async ensurePageFont(pageNum, isIndoPak) {
         if (isIndoPak) {
-          if (this.loadedFonts.has("QudratullahIndoPak")) return "QudratullahIndoPak";
-          const record = await DB.get("fonts", "indopak");
-          if (record && record.data) {
-            try {
-              const font = new FontFace("QudratullahIndoPak", record.data);
-              await font.load();
-              document.fonts.add(font);
-              this.loadedFonts.add("QudratullahIndoPak");
-              return "QudratullahIndoPak";
-            } catch (e) {}
-          }
-          return "'Noto Nastaliq Urdu', 'Amiri', serif";
+          // Indo-Pak Quran Font
+          return "'DigitalKhatt IndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif";
         } else {
           const fontName = `QCF_P${pageNum}`;
           if (this.loadedFonts.has(fontName)) return fontName;
@@ -1203,7 +1216,7 @@
             } catch (e) {}
           }
 
-          return "'Amiri', serif";
+          return "'DigitalKhatt Old Madina', 'Amiri', serif";
         }
       }
     };
@@ -1331,7 +1344,7 @@
 
         let detectedSurah = null;
 
-        // Strict 15 Physical Lines Rendering (preserving blanks & physical slots)
+        // Strict 15 Physical Lines Rendering
         for (let lineNo = 1; lineNo <= 15; lineNo++) {
           const row = document.createElement("div");
           row.className = "mushaf-line";
@@ -1339,7 +1352,7 @@
           const l = lineMap.get(lineNo);
 
           if (!l) {
-            // Blank physical slot
+            // Preserves exact 15-line grid height & Indo-Pak separator line
             row.innerHTML = "&nbsp;";
           } else if (l.type === "surah_name") {
             const sNum = l.start || 1;
@@ -1361,28 +1374,32 @@
 
             if (l.start && l.end) {
               const words = await DB.getWordsRange(l.start, l.end);
+
+              // Center short lines naturally without unnatural wide spacing
+              if (!l.is_centered && words.length <= 5) {
+                row.classList.add("qul-centered-line");
+              }
+
               words.forEach(w => {
                 if (!detectedSurah && w.surah) detectedSurah = w.surah;
                 const span = document.createElement("span");
                 span.className = "mushaf-word";
 
                 // Lafdh al-Jalalah check on clean uthmani
-                if (isDivineName(w.uthmani)) {
+                if (isDivineName(w.uthmani || w.indopak)) {
                   span.classList.add("lafdh-jalalah");
                 }
 
-                if (isQcfV1) {
-                  // QCF V1 Font glyph rendering: DO NOT add manual space node
+                if (isIndoPak) {
+                  span.textContent = (w.dk_indopak || w.indopak || w.uthmani);
+                } else if (isQcfV1) {
                   span.style.fontFamily = `'${fontName}', 'Amiri', serif`;
                   span.innerHTML = w.qpc_v1 || w.uthmani;
-                  row.appendChild(span);
-                } else if (isIndoPak) {
-                  span.textContent = (w.indopak || w.uthmani) + " ";
-                  row.appendChild(span);
                 } else {
-                  span.textContent = w.uthmani + " ";
-                  row.appendChild(span);
+                  span.textContent = w.uthmani;
                 }
+
+                row.appendChild(span);
               });
             } else {
               row.innerHTML = "&nbsp;";
@@ -1496,7 +1513,7 @@
     };
 
     /* ═══════════════════════════════════════════════════════════
-       6. Normalized Vector Slate Canvas (Zero Distortion)
+       6. Teacher Slate Canvas (Normalized Vector Coordinates)
        ═══════════════════════════════════════════════════════════ */
     const CanvasOverlay = {
       currentTool: 'pencil',
@@ -1649,7 +1666,7 @@
       }
     };
 
-    // Service Worker Registration for PWA Offline Caching
+    // Service Worker Registration for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
