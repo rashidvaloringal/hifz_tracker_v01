@@ -40,7 +40,7 @@
       --surface-card: #1f2722;
       --surface-border: #2c3831;
       --jalalah-red: #ba1616;
-      --highlight-active: rgba(223, 186, 115, 0.45);
+      --highlight-active: rgba(223, 186, 115, 0.48);
     }
 
     * {
@@ -62,7 +62,7 @@
       overflow: hidden;
     }
 
-    /* ═══ Reading Stage (Screen Space Optimized) ═══ */
+    /* ═══ Reading Stage ═══ */
     main {
       flex: 1;
       overflow: hidden;
@@ -193,12 +193,10 @@
       box-sizing: border-box;
     }
 
-    /* Madani: No separator lines */
     .madani-mode .mushaf-line {
       border-bottom: none;
     }
 
-    /* Indo-Pak: Physical horizontal line separator */
     .qudratullah-mode .mushaf-line {
       border-bottom: 1px solid rgba(70, 55, 35, 0.42);
     }
@@ -217,6 +215,13 @@
       color: var(--ink);
       display: inline-block;
       font-family: inherit;
+      transition: background-color 0.2s, border-radius 0.2s;
+    }
+
+    /* Active Recited Ayah Highlighting */
+    .mushaf-word.currently-recited {
+      background-color: var(--highlight-active);
+      border-radius: 4px;
     }
 
     /* Lafdh al-Jalalah in Red */
@@ -327,6 +332,17 @@
       color: #fff;
     }
 
+    .dock-btn.active-audio {
+      color: #ff5252;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
     .page-badge {
       font-family: 'Amiri', serif;
       font-size: 14px;
@@ -366,7 +382,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      max-width: 150px;
+      max-width: 175px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -496,6 +512,19 @@
       color: #0e1411;
     }
 
+    .timestamp-log-card {
+      font-size: 11.5px;
+      color: #9ab3a4;
+      background: #111714;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #233129;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .form-row {
       display: flex;
       gap: 8px;
@@ -549,7 +578,7 @@
       background: #25332a;
     }
 
-    /* ═══ Initial Batch Modal ═══ */
+    /* ═══ Initial Batch Ingestion Modal ═══ */
     #splashOverlay {
       position: fixed;
       inset: 0;
@@ -625,8 +654,8 @@
   <!-- Ingestion / Progress Modal -->
   <div id="splashOverlay">
     <div class="splash-card">
-      <h2 style="color:var(--gold-light); font-size:17px; margin-bottom:6px;">Al-Halaqah Offline Setup</h2>
-      <p style="font-size:12px; color:#8ea396;" id="splashDesc">ഖുർആൻ ഡാറ്റാബേസും ഫോണ്ടുകളും IndexedDB-യിലേക്ക് സംഭരിക്കുന്നു...</p>
+      <h2 style="color:var(--gold-light); font-size:17px; margin-bottom:6px;">Al-Halaqah Offline Ingestion</h2>
+      <p style="font-size:12px; color:#8ea396;" id="splashDesc">ഖുർആൻ ഡാറ്റാബേസും ലേഔട്ടുകളും IndexedDB-യിലേക്ക് സംഭരിക്കുന്നു...</p>
       <div class="progress-bar">
         <div class="progress-fill" id="splashProgress"></div>
       </div>
@@ -688,10 +717,17 @@
     <span class="page-badge" id="pageBadge" onclick="App.jumpPrompt()">p. 1</span>
     <button class="dock-btn" onclick="App.turnPage(1)" title="Next Page">▶</button>
 
+    <!-- Mushaf Script Selector Pill -->
     <div class="mushaf-selector-pill" onclick="App.toggleMushafMode()" id="mushafPill">
       📖 <span id="mushafPillText">Madani 1405H</span>
     </div>
 
+    <!-- Audio Player Toggle -->
+    <button class="dock-btn" id="audioToggleBtn" onclick="AudioEngine.togglePlay()" title="Listen to Verse Recitation">
+      🔊
+    </button>
+
+    <!-- Student & Institution Badge -->
     <span class="student-badge-btn" onclick="App.openSheet('students')">
       👤 <span id="badgeStudentTitle">Student</span>
     </span>
@@ -703,18 +739,23 @@
   <div class="sheet-scrim" id="sheetScrim" onclick="App.closeSheet(event)">
     <div class="sheet-panel" onclick="event.stopPropagation()">
       <header class="panel-header">
-        <h3 id="panelTitle">Evaluation Slate</h3>
+        <h3 id="panelTitle">Evaluation Slate & Settings</h3>
         <button class="close-sheet-btn" onclick="App.closeSheet()">&times;</button>
       </header>
 
       <nav class="tab-bar">
         <button class="tab-btn active" id="tabHeadTools" onclick="App.setTab('tools')">✏️ Slate Tools</button>
         <button class="tab-btn" id="tabHeadStudents" onclick="App.setTab('students')">🎓 Students</button>
+        <button class="tab-btn" id="tabHeadInstitutions" onclick="App.setTab('institutions')">🏛️ Circles</button>
+        <button class="tab-btn" id="tabHeadAudio" onclick="App.setTab('audio')">🎙️ Audio</button>
         <button class="tab-btn" id="tabHeadPacks" onclick="App.setTab('packs')">💾 Offline Fonts</button>
       </nav>
 
-      <!-- Tab 1: Tools -->
+      <!-- Tab 1: Slate Tools & Timestamp -->
       <section class="tab-content active" id="tabBodyTools">
+        <div class="timestamp-log-card">
+          <span>🕒 Last Marked: <b id="lastMarkedTime">No markings on this page</b></span>
+        </div>
         <div class="tools-grid">
           <div class="tool-tile active" id="toolPencil" onclick="CanvasOverlay.selectTool('pencil', 'rgba(45,35,20,0.85)', 2)">
             <span>✏️</span> Notice
@@ -734,8 +775,13 @@
         </button>
       </section>
 
-      <!-- Tab 2: Students -->
+      <!-- Tab 2: Students & Script Config -->
       <section class="tab-content" id="tabBodyStudents">
+        <div class="form-row">
+          <select class="select-ctrl" id="studentInstitutionFilter" onchange="App.onInstitutionFilterChange(this.value)">
+            <!-- Institutions dynamically populated -->
+          </select>
+        </div>
         <div class="form-row">
           <input type="text" class="input-ctrl" id="newStudentName" placeholder="Student name...">
           <select class="select-ctrl" id="newStudentMushaf" style="max-width:180px;">
@@ -747,10 +793,37 @@
         <div class="items-scroll" id="studentsListContainer"></div>
       </section>
 
-      <!-- Tab 3: Resumable Font Downloader -->
+      <!-- Tab 3: Institutions / Circles -->
+      <section class="tab-content" id="tabBodyInstitutions">
+        <div class="form-row">
+          <input type="text" class="input-ctrl" id="newInstitutionName" placeholder="New institution / Madrasah / Halaqah...">
+          <button class="btn-action" onclick="App.addInstitution()">+ Create</button>
+        </div>
+        <div class="items-scroll" id="institutionsListContainer"></div>
+      </section>
+
+      <!-- Tab 4: Quran Audio Settings -->
+      <section class="tab-content" id="tabBodyAudio">
+        <div style="font-size:12.5px; color:#aaa; margin-bottom:10px;">Select your preferred reciter for verse playback:</div>
+        <div class="form-row">
+          <select class="select-ctrl" id="reciterSelector" onchange="AudioEngine.setReciter(this.value)">
+            <option value="7">Mishary Rashid Alafasy</option>
+            <option value="6">Mahmoud Khalil Al-Husary</option>
+            <option value="12">Muhammad Siddiq Al-Minshawi</option>
+            <option value="2">Abdul Basit Abdul Samad</option>
+            <option value="3">Abdur-Rahman As-Sudais</option>
+          </select>
+        </div>
+        <div style="font-size:11.5px; line-height:1.6; color:#788f83;">
+          • Tap the 🔊 icon on the bottom dock to begin reciting the current page.<br>
+          • Verses are highlighted in real-time as they are recited.
+        </div>
+      </section>
+
+      <!-- Tab 5: Resumable Font Downloader -->
       <section class="tab-content" id="tabBodyPacks">
         <div style="font-size:12px; color:#aaa; line-height:1.6; margin-bottom:12px;">
-          CSV ഡാറ്റാബേസ് IndexedDB-ലേക്ക് ഇൻജസ്റ്റ് ചെയ്തിരിക്കുന്നു. 604 QPC പേജ് ഫോണ്ടുകൾ പൂർണ്ണമായി സേവ് ചെയ്യാൻ താഴെയുള്ള ബട്ടൺ ഉപയോഗിക്കുക:
+          CSV ഡാറ്റാബേസ് നിലവിൽ സുരക്ഷിതമായി ഇൻജസ്റ്റ് ചെയ്തിരിക്കുന്നു. 604 QPC പേജ് ഫോണ്ടുകൾ പൂർണ്ണമായി സേവ് ചെയ്യാൻ താഴെയുള്ള ബട്ടൺ ഉപയോഗിക്കുക:
         </div>
         <div style="background:#111714; border:1px solid #233129; border-radius:8px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
@@ -769,11 +842,13 @@
     </div>
   </div>
 
+  <audio id="quranAudioPlayer" preload="none"></audio>
+
   <script>
     "use strict";
 
     /* ═══════════════════════════════════════════════════════════
-       1. Master Configurations & Surah Metadata
+       1. Configurations & Metadata
        ═══════════════════════════════════════════════════════════ */
     const CONFIG = {
       madani: {
@@ -814,7 +889,6 @@
       return String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
     }
 
-    // Accurate detection of Lafdh al-Jalalah (الله / لله / اللهم)
     function isDivineName(text) {
       if (!text) return false;
       let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u06E5\u06E6]/g, '').trim();
@@ -824,13 +898,13 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       2. Exact IndexedDB Schema: AlHalaqah_QUL_Offline
+       2. Full IndexedDB Architecture
        ═══════════════════════════════════════════════════════════ */
     const DB = {
       db: null,
       init() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open("AlHalaqah_QUL_Offline", 1);
+          const req = indexedDB.open("AlHalaqah_QUL_Offline_v2", 1);
           req.onupgradeneeded = e => {
             const d = e.target.result;
             // 1. page_lines
@@ -838,7 +912,7 @@
               const s = d.createObjectStore("page_lines", { keyPath: ["mushaf", "page", "line"] });
               s.createIndex("mushaf_page", ["mushaf", "page"], { unique: false });
             }
-            // 2. words (shared once for both mushafs)
+            // 2. words
             if (!d.objectStoreNames.contains("words")) {
               d.createObjectStore("words", { keyPath: "id" });
             }
@@ -846,15 +920,15 @@
             if (!d.objectStoreNames.contains("fonts")) {
               d.createObjectStore("fonts", { keyPath: "name" });
             }
-            // 4. packs
-            if (!d.objectStoreNames.contains("packs")) {
-              d.createObjectStore("packs", { keyPath: "id" });
+            // 4. institutions
+            if (!d.objectStoreNames.contains("institutions")) {
+              d.createObjectStore("institutions", { keyPath: "id", autoIncrement: true });
             }
             // 5. students
             if (!d.objectStoreNames.contains("students")) {
               d.createObjectStore("students", { keyPath: "id" });
             }
-            // 6. drawings
+            // 6. drawings with timestamp
             if (!d.objectStoreNames.contains("drawings")) {
               d.createObjectStore("drawings", { keyPath: ["studentId", "mushaf", "page"] });
             }
@@ -881,6 +955,14 @@
         return new Promise(res => {
           const tx = this.db.transaction(store, "readwrite");
           tx.objectStore(store).put(val);
+          tx.oncomplete = () => res();
+        });
+      },
+
+      async delete(store, key) {
+        return new Promise(res => {
+          const tx = this.db.transaction(store, "readwrite");
+          tx.objectStore(store).delete(key);
           tx.oncomplete = () => res();
         });
       },
@@ -922,14 +1004,34 @@
 
       saveDrawing(studentId, mushaf, page, strokes) {
         const tx = this.db.transaction("drawings", "readwrite");
-        tx.objectStore("drawings").put({ studentId, mushaf, page, strokes, time: Date.now() });
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        tx.objectStore("drawings").put({
+          studentId,
+          mushaf,
+          page,
+          strokes,
+          timestamp: now.getTime(),
+          formattedDate: dateStr,
+          formattedTime: timeStr
+        });
+        document.getElementById("lastMarkedTime").textContent = `${dateStr} at ${timeStr}`;
       },
 
       async loadDrawing(studentId, mushaf, page) {
         return new Promise(res => {
           const tx = this.db.transaction("drawings", "readonly");
           const req = tx.objectStore("drawings").get([studentId, mushaf, page]);
-          req.onsuccess = () => res(req.result ? req.result.strokes : null);
+          req.onsuccess = () => {
+            if (req.result) {
+              document.getElementById("lastMarkedTime").textContent = `${req.result.formattedDate} at ${req.result.formattedTime}`;
+              res(req.result.strokes);
+            } else {
+              document.getElementById("lastMarkedTime").textContent = "No markings on this page";
+              res(null);
+            }
+          };
           req.onerror = () => res(null);
         });
       },
@@ -945,13 +1047,13 @@
 
       async resetAll() {
         if (!confirm("Reset all offline databases and re-sync files?")) return;
-        indexedDB.deleteDatabase("AlHalaqah_QUL_Offline");
+        indexedDB.deleteDatabase("AlHalaqah_QUL_Offline_v2");
         location.reload();
       }
     };
 
     /* ═══════════════════════════════════════════════════════════
-       3. Batch CSV Ingestion & Resumable Font Downloader
+       3. Batch Ingestion & Resumable Font Downloader
        ═══════════════════════════════════════════════════════════ */
     const BatchIngestion = {
       async run() {
@@ -968,17 +1070,17 @@
         const bar = document.getElementById("splashProgress");
         splash.style.display = "flex";
 
-        // 1. Ingest Madani Layout
-        status.textContent = "Ingesting Madani 1405H Layout (qpcv1-35.csv)...";
+        // 1. Madani Layout
+        status.textContent = "Ingesting Madani Layout (qpcv1-35.csv)...";
         bar.style.width = "15%";
         await this.ingestLayoutCSV("madani", CONFIG.madani.file);
 
-        // 2. Ingest Indo-Pak Layout
+        // 2. Indo-Pak Layout
         status.textContent = "Ingesting Indo-Pak Layout (indpak-20.csv)...";
         bar.style.width = "35%";
         await this.ingestLayoutCSV("indopak", CONFIG.indopak.file);
 
-        // 3. Ingest Master Word Registry (shared once)
+        // 3. Master Word Registry
         status.textContent = "Ingesting Master Word Registry (word.csv)...";
         bar.style.width = "55%";
         await this.ingestWordCSV(p => {
@@ -986,8 +1088,8 @@
           status.textContent = `Batch writing words: ${Math.round(p)}%...`;
         });
 
-        // 4. Ingest Indo-Pak Master Font if remote
-        status.textContent = "Downloading Indo-Pak Master Nastaleeq Font...";
+        // 4. Indo-Pak Master Font
+        status.textContent = "Downloading Indo-Pak Master Font...";
         await this.downloadFont("indopak", "https://static.qurancdn.com/fonts/quran/indopak/woff2/indopak.woff2");
 
         await DB.put("meta", { key: "csv_ready", val: true });
@@ -1025,7 +1127,7 @@
             });
           }
         }
-        await this.batchWrite("page_lines", records, 2500);
+        await this.batchWrite("page_lines", records);
       },
 
       async ingestWordCSV(onProgress) {
@@ -1057,7 +1159,7 @@
           }
 
           if (batch.length >= 3500) {
-            await this.batchWrite("words", batch, 3500);
+            await this.batchWrite("words", batch);
             processed += batch.length;
             batch = [];
             if (onProgress) onProgress((processed / total) * 100);
@@ -1065,11 +1167,11 @@
         }
 
         if (batch.length > 0) {
-          await this.batchWrite("words", batch, batch.length);
+          await this.batchWrite("words", batch);
         }
       },
 
-      batchWrite(storeName, items, chunkSize) {
+      batchWrite(storeName, items) {
         return new Promise((resolve, reject) => {
           if (items.length === 0) return resolve();
           const tx = DB.db.transaction(storeName, "readwrite");
@@ -1096,7 +1198,6 @@
         }
       },
 
-      // Auto-resumes font download in background when online
       async autoResumeFonts() {
         if (!navigator.onLine) return;
         const all = await DB.getAll("fonts");
@@ -1106,7 +1207,6 @@
         }
       },
 
-      // Resumable batch downloader for all 604 Madani page fonts
       async downloadAllFonts() {
         const btn = document.getElementById("btnDownloadFonts");
         if (btn) {
@@ -1174,20 +1274,18 @@
     };
 
     /* ═══════════════════════════════════════════════════════════
-       4. Font Loading System (100% Offline via FontFace)
+       4. Font Loading System (FontFace API)
        ═══════════════════════════════════════════════════════════ */
     const FontManager = {
       loadedFonts: new Set(),
 
       async ensurePageFont(pageNum, isIndoPak) {
         if (isIndoPak) {
-          // Indo-Pak Quran Font
           return "'DigitalKhatt IndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif";
         } else {
           const fontName = `QCF_P${pageNum}`;
           if (this.loadedFonts.has(fontName)) return fontName;
 
-          // 1. Try local IndexedDB
           const record = await DB.get("fonts", `p${pageNum}`);
           if (record && record.data) {
             try {
@@ -1199,7 +1297,6 @@
             } catch (e) {}
           }
 
-          // 2. Fetch and store in IndexedDB if online
           if (navigator.onLine) {
             try {
               const url = `https://verses.quran.foundation/fonts/quran/hafs/v1/woff2/p${pageNum}.woff2`;
@@ -1222,11 +1319,103 @@
     };
 
     /* ═══════════════════════════════════════════════════════════
-       5. App Coordinator & Sheet Renderer
+       5. Quran Audio Recitation Engine
+       ═══════════════════════════════════════════════════════════ */
+    const AudioEngine = {
+      player: null,
+      activeReciter: "7",
+      playlist: [],
+      currentIndex: -1,
+      isPlaying: false,
+
+      init() {
+        this.player = document.getElementById("quranAudioPlayer");
+        this.player.onended = () => this.playNext();
+        this.player.onerror = () => this.playNext();
+      },
+
+      setReciter(id) {
+        this.activeReciter = id;
+        if (this.isPlaying) this.startPageAudio(App.currentPage);
+      },
+
+      async togglePlay() {
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          await this.startPageAudio(App.currentPage);
+        }
+      },
+
+      async startPageAudio(pageNum) {
+        const btn = document.getElementById("audioToggleBtn");
+        btn.textContent = "⏳";
+        try {
+          const res = await fetch(`https://api.quran.com/api/v4/recitations/${this.activeReciter}/by_page/${pageNum}`);
+          const data = await res.json();
+          this.playlist = data.audio_files || [];
+          this.currentIndex = 0;
+
+          if (this.playlist.length > 0) {
+            this.isPlaying = true;
+            btn.classList.add("active-audio");
+            btn.textContent = "⏸️";
+            this.playCurrent();
+          } else {
+            this.pause();
+          }
+        } catch (e) {
+          console.warn("Audio loading failed", e);
+          this.pause();
+        }
+      },
+
+      playCurrent() {
+        if (this.currentIndex < 0 || this.currentIndex >= this.playlist.length) return this.pause();
+        const item = this.playlist[this.currentIndex];
+        let audioUrl = item.url.startsWith("http") ? item.url : `https://verses.quran.com/${item.url}`;
+
+        this.highlightVerse(item.verse_key);
+        this.player.src = audioUrl;
+        this.player.play().catch(() => this.playNext());
+      },
+
+      playNext() {
+        this.currentIndex++;
+        if (this.currentIndex < this.playlist.length) {
+          this.playCurrent();
+        } else {
+          this.pause();
+        }
+      },
+
+      pause() {
+        this.isPlaying = false;
+        this.player.pause();
+        const btn = document.getElementById("audioToggleBtn");
+        btn.classList.remove("active-audio");
+        btn.textContent = "🔊";
+        this.clearHighlight();
+      },
+
+      highlightVerse(verseKey) {
+        this.clearHighlight();
+        document.querySelectorAll(`[data-verse="${verseKey}"]`).forEach(el => el.classList.add("currently-recited"));
+      },
+
+      clearHighlight() {
+        document.querySelectorAll(".currently-recited").forEach(el => el.classList.remove("currently-recited"));
+      }
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       6. App Coordinator & Multi-Institution Management
        ═══════════════════════════════════════════════════════════ */
     const App = {
       currentPage: 1,
       currentMushaf: "madani",
+      institutions: [],
+      activeInstitution: null,
       students: [],
       activeStudent: null,
 
@@ -1236,8 +1425,9 @@
 
       async init() {
         await DB.init();
+        AudioEngine.init();
         await BatchIngestion.run();
-        await this.syncStudents();
+        await this.syncInstitutionsAndStudents();
 
         this.updateBadgeUI();
         await this.render();
@@ -1252,21 +1442,32 @@
           if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
           if (e.key === "ArrowLeft") this.turnPage(-1);
           if (e.key === "ArrowRight") this.turnPage(1);
+          if (e.key === " ") { e.preventDefault(); AudioEngine.togglePlay(); }
         });
       },
 
-      async syncStudents() {
-        this.students = await DB.getAll("students");
+      async syncInstitutionsAndStudents() {
+        this.institutions = await DB.getAll("institutions");
+        if (this.institutions.length === 0) {
+          const instId = await DB.put("institutions", { name: "General Circle", created: Date.now() });
+          this.institutions = [{ id: instId, name: "General Circle" }];
+        }
+        this.activeInstitution = this.institutions[0];
+
+        const allStudents = await DB.getAll("students");
+        this.students = allStudents.filter(s => s.institutionId === this.activeInstitution.id);
+
         if (this.students.length === 0) {
-          const s = {
-            id: "std_default",
+          const defaultStudent = {
+            id: "std_" + Date.now(),
+            institutionId: this.activeInstitution.id,
             name: "Hafidh Student",
             mushaf: "madani",
             lastPages: { madani: 1, indopak: 1 }
           };
-          await DB.put("students", s);
-          this.students = [s];
-          this.activeStudent = s;
+          await DB.put("students", defaultStudent);
+          this.students = [defaultStudent];
+          this.activeStudent = defaultStudent;
         } else {
           this.activeStudent = this.students[0];
         }
@@ -1319,6 +1520,8 @@
           await DB.put("students", this.activeStudent);
         }
 
+        if (AudioEngine.isPlaying) AudioEngine.pause();
+
         document.getElementById("rightMushafTag").textContent = conf.shortName;
         document.getElementById("leftMushafTag").textContent = conf.shortName;
 
@@ -1338,9 +1541,7 @@
 
         const lines = await DB.getLayoutLines(this.currentMushaf, pageNum);
         const lineMap = new Map();
-        if (lines) {
-          lines.forEach(l => lineMap.set(l.line, l));
-        }
+        if (lines) lines.forEach(l => lineMap.set(l.line, l));
 
         let detectedSurah = null;
 
@@ -1348,11 +1549,9 @@
         for (let lineNo = 1; lineNo <= 15; lineNo++) {
           const row = document.createElement("div");
           row.className = "mushaf-line";
-
           const l = lineMap.get(lineNo);
 
           if (!l) {
-            // Preserves exact 15-line grid height & Indo-Pak separator line
             row.innerHTML = "&nbsp;";
           } else if (l.type === "surah_name") {
             const sNum = l.start || 1;
@@ -1369,13 +1568,11 @@
             row.classList.add("qul-centered-line");
             row.innerHTML = `<div class="bismillah-row">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
           } else {
-            // Ayah Line
             if (l.is_centered) row.classList.add("qul-centered-line");
 
             if (l.start && l.end) {
               const words = await DB.getWordsRange(l.start, l.end);
 
-              // Center short lines naturally without unnatural wide spacing
               if (!l.is_centered && words.length <= 5) {
                 row.classList.add("qul-centered-line");
               }
@@ -1384,8 +1581,8 @@
                 if (!detectedSurah && w.surah) detectedSurah = w.surah;
                 const span = document.createElement("span");
                 span.className = "mushaf-word";
+                span.setAttribute("data-verse", `${w.surah}:${w.ayah}`);
 
-                // Lafdh al-Jalalah check on clean uthmani
                 if (isDivineName(w.uthmani || w.indopak)) {
                   span.classList.add("lafdh-jalalah");
                 }
@@ -1413,7 +1610,7 @@
         if (detectedSurah) {
           document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = `سورة ${SURAH_NAMES[detectedSurah] || ""}`;
         }
-        document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = "الجزء --";
+        document.getElementById(`${side.toLowerCase()}JuzLabel`).textContent = `الجزء ${toArabicNumeral(Math.ceil(pageNum / 20))}`;
         document.getElementById(`${side.toLowerCase()}PageNum`).textContent = toArabicNumeral(pageNum);
 
         CanvasOverlay.init(side, pageNum, this.currentMushaf);
@@ -1440,7 +1637,8 @@
       openSheet(tab) {
         document.getElementById("sheetScrim").classList.add("open");
         this.setTab(tab);
-        if (tab === "students") this.renderStudentsList();
+        if (tab === "students") this.renderStudentsTab();
+        if (tab === "institutions") this.renderInstitutionsTab();
       },
 
       closeSheet() {
@@ -1448,7 +1646,7 @@
       },
 
       setTab(tab) {
-        ["tools", "students", "packs"].forEach(t => {
+        ["tools", "students", "institutions", "audio", "packs"].forEach(t => {
           const h = document.getElementById(`tabHead${t.charAt(0).toUpperCase() + t.slice(1)}`);
           const b = document.getElementById(`tabBody${t.charAt(0).toUpperCase() + t.slice(1)}`);
           if (h) h.classList.toggle("active", t === tab);
@@ -1456,7 +1654,92 @@
         });
       },
 
-      renderStudentsList() {
+      /* Institution Operations */
+      async addInstitution() {
+        const input = document.getElementById("newInstitutionName");
+        const name = input.value.trim();
+        if (!name) return;
+        const id = await DB.put("institutions", { name, created: Date.now() });
+        this.institutions = await DB.getAll("institutions");
+        this.activeInstitution = this.institutions.find(i => i.id === id) || this.institutions[0];
+        input.value = "";
+        await this.syncStudentsList();
+        this.renderInstitutionsTab();
+        this.updateBadgeUI();
+        this.render();
+      },
+
+      renderInstitutionsTab() {
+        const box = document.getElementById("institutionsListContainer");
+        box.innerHTML = "";
+        this.institutions.forEach(inst => {
+          const div = document.createElement("div");
+          div.className = "list-card" + (this.activeInstitution?.id === inst.id ? " active" : "");
+          div.innerHTML = `
+            <span><b>🏛️ ${inst.name}</b></span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="App.selectInstitution(${inst.id})">Select</button>
+              ${this.institutions.length > 1 ? `<button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteInstitution(${inst.id}, event)">&times;</button>` : ''}
+            </div>
+          `;
+          box.appendChild(div);
+        });
+      },
+
+      async selectInstitution(id) {
+        this.activeInstitution = this.institutions.find(i => i.id === id);
+        await this.syncStudentsList();
+        this.renderInstitutionsTab();
+        this.updateBadgeUI();
+        this.render();
+      },
+
+      async deleteInstitution(id, e) {
+        e.stopPropagation();
+        if (this.institutions.length <= 1) return alert("At least one institution is required.");
+        if (!confirm("Delete this institution and all its students?")) return;
+        await DB.delete("institutions", id);
+        this.institutions = await DB.getAll("institutions");
+        this.activeInstitution = this.institutions[0];
+        await this.syncStudentsList();
+        this.renderInstitutionsTab();
+        this.updateBadgeUI();
+        this.render();
+      },
+
+      /* Student Operations */
+      async syncStudentsList() {
+        const all = await DB.getAll("students");
+        this.students = all.filter(s => s.institutionId === this.activeInstitution.id);
+        if (this.students.length === 0) {
+          const newS = {
+            id: "std_" + Date.now(),
+            institutionId: this.activeInstitution.id,
+            name: "Hafidh Student",
+            mushaf: "madani",
+            lastPages: { madani: 1, indopak: 1 }
+          };
+          await DB.put("students", newS);
+          this.students = [newS];
+          this.activeStudent = newS;
+        } else {
+          this.activeStudent = this.students[0];
+        }
+        this.currentMushaf = this.activeStudent.mushaf || "madani";
+        this.currentPage = this.activeStudent.lastPages?.[this.currentMushaf] || 1;
+      },
+
+      renderStudentsTab() {
+        const sel = document.getElementById("studentInstitutionFilter");
+        sel.innerHTML = "";
+        this.institutions.forEach(inst => {
+          const opt = document.createElement("option");
+          opt.value = inst.id;
+          opt.textContent = `Circle: ${inst.name}`;
+          opt.selected = (inst.id === this.activeInstitution.id);
+          sel.appendChild(opt);
+        });
+
         const box = document.getElementById("studentsListContainer");
         box.innerHTML = "";
         this.students.forEach(s => {
@@ -1467,7 +1750,10 @@
               <b>${s.name}</b>
               <small style="opacity:0.75; margin-left:8px;">(${s.mushaf === 'indopak' ? 'Indo-Pak' : 'Madani'})</small>
             </div>
-            <span style="font-size:11px; color:#c5a059;">p. ${s.lastPages?.[s.mushaf || 'madani'] || 1}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; color:#c5a059;">p. ${s.lastPages?.[s.mushaf || 'madani'] || 1}</span>
+              <button style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;" onclick="App.deleteStudent('${s.id}', event)">&times;</button>
+            </div>
           `;
           div.onclick = async () => {
             this.activeStudent = s;
@@ -1481,6 +1767,11 @@
         });
       },
 
+      async onInstitutionFilterChange(instId) {
+        await this.selectInstitution(Number(instId));
+        this.renderStudentsTab();
+      },
+
       async addStudent() {
         const nameInput = document.getElementById("newStudentName");
         const select = document.getElementById("newStudentMushaf");
@@ -1489,6 +1780,7 @@
 
         const newS = {
           id: "std_" + Date.now(),
+          institutionId: this.activeInstitution.id,
           name,
           mushaf: select.value,
           lastPages: { madani: 1, indopak: 1 }
@@ -1500,20 +1792,31 @@
         this.currentPage = 1;
         nameInput.value = "";
         this.updateBadgeUI();
-        this.renderStudentsList();
+        this.renderStudentsTab();
+        await this.render();
+      },
+
+      async deleteStudent(id, e) {
+        e.stopPropagation();
+        if (this.students.length <= 1) return alert("At least one student is required.");
+        if (!confirm("Delete this student profile and records?")) return;
+        await DB.delete("students", id);
+        await this.syncStudentsList();
+        this.updateBadgeUI();
+        this.renderStudentsTab();
         await this.render();
       },
 
       updateBadgeUI() {
         document.getElementById("mushafPillText").textContent = this.config.shortName;
-        if (this.activeStudent) {
-          document.getElementById("badgeStudentTitle").textContent = `${this.activeStudent.name}`;
+        if (this.activeStudent && this.activeInstitution) {
+          document.getElementById("badgeStudentTitle").textContent = `${this.activeStudent.name} (${this.activeInstitution.name})`;
         }
       }
     };
 
     /* ═══════════════════════════════════════════════════════════
-       6. Teacher Slate Canvas (Normalized Vector Coordinates)
+       7. Teacher Slate Canvas (Normalized Vector Coordinates)
        ═══════════════════════════════════════════════════════════ */
     const CanvasOverlay = {
       currentTool: 'pencil',
@@ -1569,7 +1872,6 @@
         this.redrawStrokes(side);
       },
 
-      // Normalized coordinates (1000x1500) prevent distortion on resize
       redrawStrokes(side) {
         const c = document.getElementById(`canvas${side}`);
         if (!c) return;
@@ -1662,11 +1964,12 @@
         this.redrawStrokes(this.activeSide);
         if (App.activeStudent) {
           DB.saveDrawing(App.activeStudent.id, this.activeMushafId, this.pageMap[this.activeSide], []);
+          document.getElementById("lastMarkedTime").textContent = "No markings on this page";
         }
       }
     };
 
-    // Service Worker Registration for PWA
+    // Service Worker for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
