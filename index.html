@@ -1,2757 +1,1414 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#126b4f">
-<title>Al-Halaqah — Hifz Quran</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b100d">
 <link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Al-Halaqah — QUL Dual Mushaf Offline</title>
 
 <style>
 :root{
-    --green:#126b4f;
-    --green-dark:#0d543e;
-    --green-light:#e9f6f0;
-    --red:#b32121;
-    --bg:#f3f5f4;
-    --border:#dfe5e2;
-    --text:#17221e;
-    --muted:#73807a;
-    --shadow:0 8px 30px rgba(20,50,40,.08);
-    --page-width:min(760px,94vw);
+  --bg:#0b100d;
+  --surface:#151d18;
+  --surface2:#202a23;
+  --border:#3b4a40;
+  --gold:#c8a35d;
+  --gold2:#e5c982;
+  --paper:#fbf8ef;
+  --ink:#16130e;
+  --red:#b51e1e;
+  --green:#315c43;
+}
+@font-face{font-family:"DigitalKhattIndoPakLocal";src:url("./DigitalKhattIndoPak.otf") format("opentype");font-display:swap}
+@font-face{font-family:"DigitalKhattQuranicLocal";src:url("./DigitalKhattQuranic.otf") format("opentype");font-display:swap}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--bg);color:#eee;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+#app{width:100%;height:100%;display:flex;flex-direction:column}
+#stage{
+  flex:1;overflow:auto;display:flex;justify-content:center;align-items:center;
+  padding:16px 12px 92px;
+  background:radial-gradient(circle at center,#1b261f 0%,#080b09 76%);
+}
+.spread{display:flex;direction:rtl;gap:18px;justify-content:center;align-items:center;max-width:100%}
+.sheet{
+  position:relative;width:min(520px,47vw);height:min(calc(100vh - 115px),860px);
+  min-height:560px;background:var(--paper);color:var(--ink);
+  border:2px solid #332817;outline:2px solid var(--gold);outline-offset:3px;
+  box-shadow:0 18px 50px #000c;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden
+}
+.sheet-header,.sheet-footer{
+  height:32px;flex:0 0 32px;display:flex;justify-content:space-between;align-items:center;
+  padding:0 18px;font-family:serif;color:#57401d;border-bottom:1px solid #d8c9a6
+}
+.sheet-footer{border-bottom:0;border-top:1px solid #d8c9a6}
+.page-number{font-size:16px;font-weight:700}
+.lines{flex:1;min-height:0;display:grid;grid-template-rows:repeat(15,1fr);padding:6px 15px}
+.qul-line{
+  min-width:0;min-height:0;display:flex;align-items:center;
+  white-space:nowrap;overflow:hidden;direction:rtl;text-align:right;
+  font-size:clamp(18px,2.12vh,31px);line-height:1;word-spacing:0;letter-spacing:0;
+  font-family:serif;
+}
+.qul-line.centered{justify-content:center;text-align:center}
+.qul-line.indopak{font-family:"DigitalKhattIndoPakLocal","QULIndoPak",serif;word-spacing:0;letter-spacing:0;border-bottom:1px solid rgba(70,55,35,.42)}
+.qul-line.indopak:last-child{border-bottom:0}
+.qul-line.qcf{font-family:var(--qcf-font),serif}
+.qul-line.qcf .word + .word{margin-inline-start:.15em}
+.word{position:relative;padding:0 .02em;border-radius:.18em}
+.word.mark-ghalat{background:rgba(190,30,30,.22);outline:1.5px solid #b51e1e;color:#8e1111}
+.word.mark-tajweed{background:rgba(225,185,30,.28);outline:1.5px solid #9d8610}
+.word.ayah-marked{background:rgba(53,145,83,.28);box-shadow:inset 0 -2px 0 rgba(38,115,62,.65)}
+#reportView{display:none;position:fixed;inset:0;z-index:1200;background:#fff;color:#111;overflow:auto;padding:24px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.report-paper{max-width:850px;margin:0 auto;padding:28px;background:#fff}
+.report-head{text-align:center;border-bottom:2px solid #222;padding-bottom:14px;margin-bottom:18px}
+.report-head h1{font-size:24px;margin-bottom:4px}.report-head p{font-size:12px;color:#555}
+.report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.report-kpi{border:1px solid #bbb;padding:10px;text-align:center}.report-kpi b{display:block;font-size:20px}.report-kpi span{font-size:10px;color:#555}
+.report-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}.report-table th,.report-table td{border:1px solid #aaa;padding:7px;text-align:right}.report-table th{background:#eee}
+.report-actions{display:flex;gap:8px;justify-content:center;margin:18px auto;max-width:850px}.report-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c8a35d;font-weight:700}
+@media print{body>*{display:none!important}#reportView{display:block!important;position:static;overflow:visible;padding:0}.report-paper{max-width:none;padding:0}.report-actions{display:none!important}@page{size:A4;margin:12mm}}
+.qul-text{display:block;max-width:100%;overflow:hidden}
+.surah-line{
+  display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+  border:1px solid #927440;background:linear-gradient(#fffaf0,#ead8aa,#fffaf0);
+  color:#1c3224;font-family:serif;font-size:18px;font-weight:700
+}
+.bismillah-line{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-family:serif;font-size:23px;color:#183021}
+.word{display:inline}
+.word.lafdh{color:var(--red)}
+#status{
+  position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:900;
+  padding:7px 14px;background:#111813ee;border:1px solid var(--border);
+  border-radius:20px;color:#c7d2ca;font-size:12px;pointer-events:none;max-width:92vw;text-align:center
+}
+#dock{
+  position:fixed;z-index:400;left:50%;bottom:14px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:7px;padding:6px 9px;background:#141b17f5;
+  border:1px solid var(--gold);border-radius:30px;box-shadow:0 10px 35px #000b;direction:ltr;
+  max-width:96vw;overflow-x:auto
+}
+.dock-btn{min-width:38px;height:34px;border:0;border-radius:18px;background:transparent;color:var(--gold2)}
+.dock-btn:hover{background:#ffffff12}
+.badge{border:1px solid #3b493f;background:#0d120f;color:#dfc889;padding:6px 11px;border-radius:14px;font-size:12px;font-weight:700;white-space:nowrap}
+.student-badge{color:#bcd5c5}
+#panel{
+  position:fixed;z-index:800;inset:auto 0 0 0;max-height:84vh;overflow:auto;
+  background:#151d18;border-top:1px solid var(--gold);border-radius:22px 22px 0 0;
+  padding:18px;transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -15px 50px #000c
+}
+#panel.open{transform:translateY(0)}
+.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.panel-title h2{font-size:16px;color:var(--gold2)}
+.close{border:0;background:none;color:#aaa;font-size:25px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:15px}
+.tab{flex:0 0 auto;border:1px solid var(--border);background:#0e1410;color:#aebbb2;padding:8px 12px;border-radius:9px;font-size:12px}
+.tab.active{background:var(--gold);color:#111}
+.tab-content{display:none}.tab-content.active{display:block}
+.row{display:flex;gap:8px;margin-bottom:10px}
+input,select{
+  flex:1;min-width:0;padding:10px 12px;border:1px solid var(--border);
+  border-radius:8px;background:#0d120f;color:#fff
+}
+.action{border:0;border-radius:8px;padding:9px 14px;background:var(--gold);color:#111;font-weight:700}
+.wide{width:100%}
+.card{padding:12px;margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.card strong{color:#eee}.muted{color:#91a097;font-size:12px;line-height:1.65}
+.warning{padding:10px;background:#302718;border:1px solid #715827;border-radius:8px;color:#e6ca8d;font-size:12px;line-height:1.65}
+.success{color:#9fd4b0}.error{color:#ff9d9d}
+.danger{background:#351818;color:#ffaaaa;border:1px solid #652727}
+.progress{height:7px;margin-top:9px;border-radius:4px;background:#29332d;overflow:hidden}
+.progress>div{width:0;height:100%;background:var(--gold);transition:width .15s}
+.file-label{
+  display:block;padding:11px;margin-bottom:10px;border:1px dashed var(--gold);
+  border-radius:9px;color:#dfc889;text-align:center;cursor:pointer
+}
+.file-label input{display:none}
+.list-item{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);margin-bottom:7px
+}
+.canvas{
+  position:absolute;inset:0;z-index:50;width:100%;height:100%;touch-action:none;pointer-events:none
+}
+.canvas.active{pointer-events:auto;cursor:crosshair}
+.small{font-size:11px;color:#91a097}
+@media(max-width:960px),(orientation:portrait){
+  .sheet{width:min(520px,94vw);height:min(calc(100vh - 120px),850px)}
+  .left{display:none!important}
+  .lines{padding-left:9px;padding-right:9px}
 }
 
-*{box-sizing:border-box;}
-
-html,body{
-    margin:0;padding:0;width:100%;min-height:100%;
+/* ===== Full-page Mushaf fit ===== */
+html,body,#app{width:100%;height:100%;min-height:100%;}
+#stage{padding:0 0 58px;overflow:hidden;align-items:stretch;}
+.spread{width:100%;height:100%;gap:10px;padding:0;}
+.sheet{width:calc(50vw - 8px);height:calc(100svh - 12px);min-height:0;}
+.sheet-header,.sheet-footer{height:27px;flex-basis:27px;padding:0 10px}
+.lines{padding:2px 7px;}
+.qul-line{font-size:clamp(18px,2.55vh,33px)}
+.qul-line.indopak{font-size:clamp(18px,2.6vh,34px)}
+#dock{bottom:max(6px,env(safe-area-inset-bottom));}
+@media(max-width:960px),(orientation:portrait){
+  #stage{padding:0 0 50px;}
+  .spread{width:100%;height:100%;}
+  .sheet{width:100vw;height:calc(100svh - 4px);border-left:0;border-right:0;outline:0;box-shadow:none;}
+  .left{display:none!important}
+  .lines{padding:2px 5px;}
+  .sheet-header,.sheet-footer{height:25px;flex-basis:25px;padding:0 8px}
+  .qul-line{font-size:clamp(18px,2.65vh,32px)}
+  .qul-line.indopak{font-size:clamp(18px,2.7vh,33px)}
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-button,input,select,textarea{font:inherit;}
-button{cursor:pointer;}
-.hidden{display:none!important;}
-
-/* TOP BAR */
-.topbar{
-    position:sticky;top:0;z-index:100;
-    min-height:58px;
-    display:flex;align-items:center;justify-content:space-between;
-    gap:10px;padding:7px 12px;
-    background:#fff;border-bottom:1px solid var(--border);
-    box-shadow:0 2px 12px rgba(0,0,0,.04);
-}
-.top-left{display:flex;align-items:center;gap:9px;min-width:0;}
-.menu-button{
-    width:38px;height:38px;
-    border:1px solid var(--border);border-radius:9px;background:#fff;
-    color:var(--green);font-size:21px;
-}
-.brand{display:flex;flex-direction:column;line-height:1.05;white-space:nowrap;}
-.brand strong{color:var(--green);font-size:15px;}
-.brand span{margin-top:3px;color:var(--muted);font-size:9px;}
-
-.top-right{display:flex;align-items:center;gap:6px;}
-
-.top-select{
-    height:36px;max-width:130px;padding:0 7px;
-    border:1px solid var(--border);border-radius:8px;background:#fff;
-    color:var(--text);font-size:12px;
-}
-
-/* PROFESSIONAL PAGE NAVIGATION */
-.page-nav{
-    display:flex;align-items:center;gap:2px;
-    padding:3px;
-    background:#f2f6f4;
-    border:1px solid var(--border);
-    border-radius:10px;
-}
-.page-nav button{
-    width:34px;height:34px;
-    display:flex;align-items:center;justify-content:center;
-    border:0;border-radius:8px;
-    background:#fff;color:var(--green);
-    font-size:20px;font-weight:900;line-height:1;
-    transition:.15s;
-    box-shadow:0 1px 2px rgba(0,0,0,.05);
-}
-.page-nav button:hover:not(:disabled){
-    background:var(--green);color:#fff;
-    transform:translateY(-1px);
-    box-shadow:0 3px 8px rgba(18,107,79,.25);
-}
-.page-nav button:active:not(:disabled){transform:translateY(0);}
-.page-nav button:disabled{opacity:.35;cursor:not-allowed;}
-
-.page-input{
-    width:56px;height:32px;
-    border:0;border-radius:8px;
-    background:transparent;color:var(--green);
-    text-align:center;font-size:13px;font-weight:900;
-    outline:none;
-}
-.page-input:focus{background:#fff;box-shadow:0 0 0 2px rgba(18,107,79,.20);}
-.page-input::-webkit-outer-spin-button,
-.page-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.page-input[type=number]{-moz-appearance:textfield;}
-
-.page-total{color:var(--muted);font-size:10px;min-width:48px;}
-
-/* APP */
-#app{min-height:calc(100vh - 58px);}
-
-.reader-stage{
-    width:100%;padding:12px 0 10px;
-    display:flex;justify-content:center;align-items:flex-start;
-}
-
-.mushaf-page{
-    width:var(--page-width);
-    background:#fff;
-    border:1px solid #e3e7e5;border-radius:4px;
-    box-shadow:0 7px 30px rgba(0,0,0,.07);
-    overflow:hidden;
-    padding:10px 12px 14px;
-}
-
-/* PAGE HEADER */
-.page-header{
-    height:28px;
-    display:flex;align-items:center;justify-content:space-between;
-    border-bottom:1px solid #e5e8e6;
-    color:#777;font-size:11px;direction:rtl;
-}
-.page-header .arabic{font-family:"Times New Roman",serif;font-size:16px;}
-
-/* QURAN LINES — 15 SLOTS */
-.quran-lines{width:100%;padding-top:6px;}
-
-.quran-line{
-    width:100%;min-height:38px;
-    display:flex;align-items:center;justify-content:center;
-    text-align:center;direction:rtl;overflow:hidden;
-}
-.quran-line.empty{min-height:38px;}
-.quran-line.surah{min-height:54px;}
-.quran-line.basmallah{min-height:44px;}
-
-.quran-text{
-    direction:rtl;unicode-bidi:plaintext;
-    width:100%;line-height:1.8;
-    white-space:nowrap;text-align:center;
-}
-
-.quran-word{
-    display:inline;position:relative;
-    padding:1px 0;cursor:pointer;border-radius:3px;
-    transition:background .12s,color .12s;
-}
-
-/* Madani QCF */
-.quran-text.qcf{font-size:34px;line-height:1.72;}
-.quran-text.qcf .quran-word + .quran-word{margin-inline-start:.12em;}
-
-/* Indo-Pak */
-.quran-text.indopak{font-size:32px;line-height:1.78;}
-.quran-text.indopak .quran-word + .quran-word{margin-inline-start:.14em;}
-
-/* Allah red */
-.quran-word.divine{color:var(--red)!important;}
-
-/* Marks */
-.quran-word.mark-ghalat{
-    color:#c62828!important;background:#ffe2e2;
-    box-shadow:inset 0 -2px 0 #c62828;
-}
-.quran-word.mark-tajweed{
-    background:#fff0ad;box-shadow:inset 0 -2px 0 #d49b00;
-}
-.quran-word.mark-ayah{background:#e6f5ee;}
-
-.surah-name{
-    display:inline-flex;align-items:center;justify-content:center;
-    min-width:180px;padding:7px 18px;
-    color:var(--green);
-    border:1px solid #bcd9cc;border-radius:20px;
-    background:var(--green-light);
-    font-family:"Times New Roman",serif;font-size:21px;
-}
-
-.basmallah-text{
-    font-family:"Times New Roman",serif;
-    color:#111;font-size:22px;
-}
-
-/* Ayah marker (from word.csv is_ayah_marker) */
-.ayah-marker{
-    display:inline;margin-inline:3px;
-    color:#222;
-    font-family:"Times New Roman",serif;
-    font-size:.72em;
-}
-
-/* READER TOOLBAR */
-.reader-toolbar{
-    position:sticky;bottom:0;z-index:50;
-    width:100%;
-    display:flex;justify-content:center;gap:5px;
-    padding:7px 8px;
-    background:rgba(255,255,255,.96);
-    backdrop-filter:blur(12px);
-    border-top:1px solid var(--border);
-    box-shadow:0 -4px 15px rgba(0,0,0,.05);
-    overflow-x:auto;
-}
-
-.tool{
-    flex:0 0 auto;min-height:34px;
-    border:1px solid var(--border);border-radius:8px;
-    background:#fff;padding:0 11px;
-    color:#48534e;font-size:11px;
-}
-.tool.active{color:#fff;background:var(--green);border-color:var(--green);}
-.tool:hover{border-color:var(--green);}
-
-.reader-status{
-    width:100%;display:flex;justify-content:center;
-    padding:3px 8px 6px;color:var(--muted);font-size:10px;background:#fff;
-}
-
-/* DRAWER */
-.drawer-backdrop{
-    position:fixed;inset:0;z-index:200;
-    background:rgba(0,0,0,.35);display:none;
-}
-.drawer-backdrop.open{display:block;}
-
-.drawer{
-    position:fixed;top:0;left:0;bottom:0;z-index:201;
-    width:min(330px,88vw);background:#fff;
-    transform:translateX(-102%);transition:transform .2s ease;
-    box-shadow:10px 0 30px rgba(0,0,0,.15);overflow-y:auto;
-}
-.drawer.open{transform:translateX(0);}
-
-.drawer-head{
-    padding:22px 18px 17px;
-    background:linear-gradient(135deg,var(--green),#17805e);
-    color:#fff;
-}
-.drawer-head strong{display:block;font-size:19px;}
-.drawer-head small{display:block;margin-top:4px;opacity:.8;font-size:10px;}
-
-.drawer-section{padding:14px 12px 4px;}
-.drawer-label{
-    padding:0 7px 7px;color:#8a9691;font-size:10px;font-weight:800;
-    text-transform:uppercase;letter-spacing:.06em;
-}
-.drawer-current{
-    padding:9px 10px;border-radius:8px;
-    background:var(--green-light);color:var(--green);
-    font-weight:700;font-size:12px;
-}
-.drawer-item{
-    width:100%;display:block;padding:10px;
-    border:0;border-radius:8px;background:transparent;
-    text-align:left;color:var(--text);font-size:12px;
-}
-.drawer-item:hover{background:var(--green-light);color:var(--green);}
-
-/* MODAL */
-.modal{
-    position:fixed;inset:0;z-index:500;display:none;
-    align-items:center;justify-content:center;padding:15px;
-    background:rgba(0,0,0,.42);
-}
-.modal.open{display:flex;}
-
-.modal-card{
-    width:min(720px,96vw);max-height:92vh;overflow:auto;
-    padding:18px;background:#fff;border-radius:14px;
-    box-shadow:0 20px 60px rgba(0,0,0,.2);
-}
-.modal-head{
-    display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:15px;
-}
-.modal-head h3{margin:0;color:var(--green);}
-.close-button{
-    width:34px;height:34px;border:0;border-radius:8px;
-    background:#f1f3f2;color:#555;font-size:20px;
-}
-
-/* PANELS */
-.panel{
-    position:fixed;inset:0;z-index:400;display:none;
-    background:var(--bg);overflow:auto;
-}
-.panel.open{display:block;}
-
-.panel-header{
-    position:sticky;top:0;z-index:10;
-    min-height:58px;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:8px 14px;background:#fff;
-    border-bottom:1px solid var(--border);
-}
-.panel-header h2{margin:0;color:var(--green);font-size:17px;}
-.panel-body{max-width:1000px;margin:auto;padding:14px;}
-
-/* CARDS / FORMS */
-.card{
-    margin-bottom:14px;padding:15px;background:#fff;
-    border:1px solid var(--border);border-radius:12px;
-    box-shadow:0 3px 15px rgba(0,0,0,.03);
-}
-.card h3{margin:0 0 12px;color:var(--green);font-size:15px;}
-
-.form-grid{
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;
-}
-.field{min-width:0;}
-.field.full{grid-column:1/-1;}
-.field label{
-    display:block;margin-bottom:5px;
-    color:#5e6964;font-size:10px;font-weight:700;
-}
-.field input,.field select,.field textarea{
-    width:100%;min-height:37px;padding:7px 9px;
-    border:1px solid var(--border);border-radius:8px;
-    background:#fff;color:var(--text);outline:none;font-size:12px;
-}
-.field textarea{min-height:80px;resize:vertical;}
-.field input:focus,.field select:focus,.field textarea:focus{
-    border-color:var(--green);
-    box-shadow:0 0 0 3px rgba(18,107,79,.08);
-}
-
-.action-row{
-    display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:13px;
-}
-.btn{
-    min-height:35px;padding:0 12px;
-    border:1px solid var(--border);border-radius:8px;
-    background:#fff;color:#39443f;font-size:11px;
-}
-.btn.green{color:#fff;background:var(--green);border-color:var(--green);}
-.btn.blue{color:#fff;background:#2563eb;border-color:#2563eb;}
-.btn.red{color:#fff;background:var(--red);border-color:var(--red);}
-
-/* SETTINGS TABS */
-.settings-tabs{
-    display:flex;gap:5px;margin-bottom:14px;padding:5px;
-    background:#e9eeec;border-radius:10px;overflow-x:auto;
-}
-.settings-tab{
-    flex:0 0 auto;border:0;border-radius:7px;
-    background:transparent;padding:8px 11px;
-    color:#65706b;font-size:10px;
-}
-.settings-tab.active{
-    background:#fff;color:var(--green);font-weight:800;
-    box-shadow:0 2px 8px rgba(0,0,0,.05);
-}
-.settings-section{display:none;}
-.settings-section.active{display:block;}
-
-/* STUDENT GRID */
-.student-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-    gap:10px;
-}
-.student-card{
-    padding:13px;background:#fff;
-    border:1px solid var(--border);border-radius:11px;
-}
-.student-card h4{margin:0 0 4px;color:var(--green);font-size:14px;}
-.student-card p{margin:3px 0;color:#68736e;font-size:10px;}
-
-/* DOWNLOAD */
-.download-screen{
-    position:fixed;inset:0;z-index:1000;display:none;
-    align-items:center;justify-content:center;padding:15px;
-    background:#f5f8f6;
-}
-.download-screen.open{display:flex;}
-
-.download-card{
-    width:min(500px,94vw);padding:25px 20px;
-    text-align:center;background:#fff;
-    border:1px solid var(--border);border-radius:15px;
-    box-shadow:var(--shadow);
-}
-.download-logo{
-    width:54px;height:54px;margin:0 auto 12px;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:14px;background:var(--green);color:#fff;font-weight:900;
-}
-.download-card h2{margin:0;color:var(--green);}
-.download-card p{color:#737d78;font-size:11px;line-height:1.7;}
-
-.progress{
-    width:100%;height:8px;overflow:hidden;
-    border-radius:20px;background:#e6ece9;
-}
-.progress-bar{
-    width:0;height:100%;background:var(--green);
-    transition:width .2s;
-}
-.download-status{
-    margin-top:9px;color:#65716c;font-size:10px;
-}
-
-/* LESSON TABLE */
-.lesson-table-wrap{overflow-x:auto;}
-.lesson-table{width:100%;border-collapse:collapse;font-size:10px;}
-.lesson-table th,.lesson-table td{
-    padding:8px 7px;border-bottom:1px solid var(--border);text-align:left;
-}
-.lesson-table th{color:var(--green);background:var(--green-soft,#f4fbf8);}
-
-/* REPORT */
-.report-toolbar{
-    position:sticky;top:0;z-index:10;
-    display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-    padding:8px 12px;background:#fff;
-    border-bottom:1px solid var(--border);
-}
-.report-toolbar select,.report-toolbar input{
-    height:35px;border:1px solid var(--border);border-radius:8px;
-    padding:0 8px;font-size:10px;
-}
-.report-wrap{padding:15px;}
-.report-paper{
-    width:min(850px,100%);min-height:800px;
-    margin:auto;padding:30px;background:#fff;
-    border:1px solid var(--border);box-shadow:var(--shadow);
-}
-.report-title{text-align:center;color:var(--green);}
-.report-title h1{margin:0;font-size:21px;}
-.report-title p{margin:4px 0;color:#65716c;font-size:11px;}
-
-.report-summary{
-    display:grid;grid-template-columns:repeat(5,1fr);
-    gap:7px;margin:20px 0;
-}
-.report-stat{
-    padding:12px 7px;border:1px solid var(--border);
-    border-radius:8px;text-align:center;
-}
-.report-stat strong{display:block;color:var(--green);font-size:18px;}
-.report-stat span{color:#747e79;font-size:9px;}
-
-.report-table{width:100%;border-collapse:collapse;font-size:10px;}
-.report-table th,.report-table td{
-    padding:7px;border:1px solid var(--border);text-align:left;
-}
-.report-table th{background:var(--green-light);color:var(--green);}
-
-.report-signature{display:flex;justify-content:flex-end;margin-top:60px;}
-.signature-box{
-    width:180px;padding-top:25px;border-top:1px solid #555;
-    text-align:center;font-size:10px;
-}
-
-/* TOAST */
-.toast{
-    position:fixed;left:50%;bottom:65px;z-index:2000;
-    transform:translate(-50%,20px);opacity:0;pointer-events:none;
-    max-width:90vw;padding:9px 13px;border-radius:9px;
-    background:#202824;color:#fff;font-size:11px;transition:.2s;
-}
-.toast.show{opacity:1;transform:translate(-50%,0);}
-
-/* MOBILE */
-@media(max-width:760px){
-    .topbar{padding:6px 7px;}
-    .brand span{display:none;}
-    .top-right{flex:1;justify-content:flex-end;}
-    .top-select{max-width:90px;font-size:10px;}
-    .page-total{display:none;}
-
-    .page-nav{padding:2px;gap:1px;}
-    .page-nav button{width:30px;height:30px;font-size:17px;}
-    .page-input{width:42px;font-size:12px;height:28px;}
-
-    .reader-stage{padding:5px 0 4px;}
-    .mushaf-page{
-        width:98vw;border-left:0;border-right:0;
-        border-radius:0;padding:7px 5px 9px;box-shadow:none;
-    }
-    .quran-line{min-height:34px;}
-    .quran-line.empty{min-height:34px;}
-    .quran-text.qcf,.quran-text.indopak{font-size:26px;line-height:1.78;}
-    .surah-name{font-size:18px;}
-    .form-grid{grid-template-columns:1fr;}
-    .field.full{grid-column:auto;}
-    .report-summary{grid-template-columns:repeat(2,1fr);}
-    .report-paper{padding:18px;}
-}
-
-@media(max-width:430px){
-    .brand{display:none;}
-    .top-select{max-width:82px;font-size:10px;}
-    .page-input{width:38px;font-size:11px;}
-    .page-nav button{width:28px;height:28px;font-size:15px;}
-    .quran-text.qcf,.quran-text.indopak{font-size:23px;}
-    .tool{padding:0 9px;font-size:10px;}
-}
-
-@media print{
-    body{background:#fff;}
-    .topbar,.reader-toolbar,.reader-status,.drawer,.drawer-backdrop,
-    .panel:not(.print-panel),.modal,.toast{display:none!important;}
-    .report-toolbar{display:none!important;}
-    .report-wrap{padding:0;}
-    .report-paper{width:100%;border:0;box-shadow:none;min-height:0;}
-}
 </style>
 </head>
 
 <body>
+<div id="app">
+  <div id="status">Al-Halaqah starting…</div>
 
-<!-- ==================== TOP BAR ==================== -->
-<header class="topbar">
-    <div class="top-left">
-        <button class="menu-button" onclick="UI.openDrawer()">☰</button>
-        <div class="brand">
-            <strong id="brandName">Al-Halaqah</strong>
-            <span>Hifz Quran</span>
-        </div>
+  <main id="stage">
+    <div class="spread">
+
+      <article class="sheet" id="sheetRight">
+        <header class="sheet-header">
+          <span id="rightJuz">الجزء --</span>
+          <span id="rightSurah">سورة --</span>
+        </header>
+        <section class="lines" id="linesRight"></section>
+        <footer class="sheet-footer">
+          <span id="rightMushaf">Madani 1405H</span>
+          <span id="rightPage">١</span>
+        </footer>
+        <canvas class="canvas" id="canvasRight"></canvas>
+      </article>
+
+      <article class="sheet left" id="sheetLeft">
+        <header class="sheet-header">
+          <span id="leftJuz">الجزء --</span>
+          <span id="leftSurah">سورة --</span>
+        </header>
+        <section class="lines" id="linesLeft"></section>
+        <footer class="sheet-footer">
+          <span id="leftMushaf">Madani 1405H</span>
+          <span id="leftPage">٢</span>
+        </footer>
+        <canvas class="canvas" id="canvasLeft"></canvas>
+      </article>
+
+    </div>
+  </main>
+
+  <nav id="dock">
+    <button class="dock-btn" onclick="App.turnPage(-1)">◀</button>
+    <span class="badge" id="pageBadge" onclick="App.jump()">p. 1</span>
+    <button class="dock-btn" onclick="App.turnPage(1)">▶</button>
+    <button class="badge" id="mushafBadge" onclick="App.toggleMushaf()">📖 Madani 1405H</button>
+    <button class="dock-btn" onclick="CanvasTool.toggle()">✏️</button>
+    <button class="badge student-badge" id="studentBadge" onclick="UI.open('students')">👤 Student</button>
+    <button class="dock-btn" onclick="UI.open('settings')">⚙️</button>
+  </nav>
+
+  <section id="panel">
+    <div class="panel-title">
+      <h2>Al-Halaqah — QUL Offline</h2>
+      <button class="close" onclick="UI.close()">×</button>
     </div>
 
-    <div class="top-right">
-        <select id="studentSelect" class="top-select"
-                onchange="Students.select(this.value)">
-            <option value="">Student</option>
-        </select>
-
-        <select id="mushafSelect" class="top-select"
-                onchange="Reader.changeMushaf(this.value)">
-            <option value="madani">Madani</option>
-            <option value="indopak">Indo-Pak</option>
-        </select>
-
-        <div class="page-nav">
-            <button id="prevPageButton" type="button"
-                    title="Previous page" onclick="Reader.prev()">‹</button>
-
-            <input id="pageInput" class="page-input" type="number"
-                   min="1" value="1"
-                   onchange="Reader.go(this.value)"
-                   onkeydown="if(event.key==='Enter'){Reader.go(this.value);}">
-
-            <button id="nextPageButton" type="button"
-                    title="Next page" onclick="Reader.next()">›</button>
-        </div>
-
-        <span id="pageTotal" class="page-total">/ 604</span>
-    </div>
-</header>
-
-<!-- ==================== APP ==================== -->
-<main id="app">
-    <div class="reader-stage">
-        <div id="mushafPage" class="mushaf-page">
-            <div class="page-header">
-                <span id="juzLabel">الجزء —</span>
-                <span id="pageArabic" class="arabic">١</span>
-            </div>
-            <div id="quranLines" class="quran-lines"></div>
-        </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="settings" onclick="UI.tab('settings')">💾 Data</button>
+      <button class="tab" data-tab="students" onclick="UI.tab('students')">🎓 Students</button>
+      <button class="tab" data-tab="tools" onclick="UI.tab('tools')">✏️ Tools</button>
+      <button class="tab" data-tab="report" onclick="UI.tab('report')">📄 Progress Report</button>
     </div>
 
-    <div id="readerStatus" class="reader-status">Loading Quran...</div>
+    <section class="tab-content active" id="tab-settings">
 
-    <div class="reader-toolbar">
-        <button class="tool active" data-tool="none"
-                onclick="Reader.tool('none',this)">Select</button>
-        <button class="tool" data-tool="ghalat"
-                onclick="Reader.tool('ghalat',this)">Ghalat</button>
-        <button class="tool" data-tool="tajweed"
-                onclick="Reader.tool('tajweed',this)">Tajweed</button>
-        <button class="tool" data-tool="ayah"
-                onclick="Reader.tool('ayah',this)">Ayah</button>
-        <button class="tool" onclick="Reader.playAyah()">🔊</button>
-        <button class="tool" onclick="Lesson.endDialog()">Lesson End</button>
-    </div>
-</main>
-
-<!-- ==================== DRAWER ==================== -->
-<div id="drawerBackdrop" class="drawer-backdrop" onclick="UI.closeDrawer()"></div>
-
-<aside id="drawer" class="drawer">
-    <div class="drawer-head">
-        <strong>Al-Halaqah</strong>
-        <small>Hifz Quran Management</small>
-    </div>
-
-    <div class="drawer-section">
-        <div class="drawer-label">Current Student</div>
-        <div id="drawerStudent" class="drawer-current">No student</div>
-    </div>
-
-    <div class="drawer-section">
-        <div class="drawer-label">Quran</div>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Reader.go(1)">📖 First Page</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Reader.pageDialog()">🔢 Go to Page</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Reader.prev()">‹ Previous Page</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Reader.next()">› Next Page</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Lesson.endDialog()">✓ End Lesson</button>
-    </div>
-
-    <div class="drawer-section">
-        <div class="drawer-label">Management</div>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Settings.open()">⚙️ Settings</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Lessons.open()">📚 Lesson History</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Report.open()">📊 Progress Report</button>
-    </div>
-
-    <div class="drawer-section">
-        <div class="drawer-label">Quran Data</div>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Sync.open()">⬇ Batch Download / Sync</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Sync.backup()">💾 Backup</button>
-        <button class="drawer-item"
-                onclick="UI.closeDrawer();Sync.restore()">📥 Restore</button>
-    </div>
-</aside>
-
-<!-- ==================== DOWNLOAD SCREEN ==================== -->
-<div id="downloadScreen" class="download-screen">
-    <div class="download-card">
-        <div class="download-logo">AH</div>
-        <h2>Al-Halaqah</h2>
-        <p>
-            Quran data ആദ്യമായി മാത്രം IndexedDB-ലേക്ക്
-            തയ്യാറാക്കുന്നു.<br>
-            Batch download ആയതിനാൽ ഓരോ record-വും പ്രത്യേകം
-            database-ലേക്ക് എഴുതുന്നില്ല.
+      <div class="card">
+        <strong>IndexedDB Quran storage</strong>
+        <p class="muted">
+          Page layouts are read from the supplied CSV files. Word text is read from
+          <code>word.csv</code>. Nothing is redistributed or generated by the renderer.
         </p>
-        <div class="progress">
-            <div id="downloadBar" class="progress-bar"></div>
+        <p class="muted" id="dbStatus">Checking database…</p>
+      </div>
+
+      <div class="card">
+        <strong>Install from GitHub / data folder</strong>
+        <p class="muted">For GitHub Pages, keep these files beside this HTML:</p>
+        <p class="small">qpcv1-35.csv · indpak-20.csv · word.csv</p>
+        <button class="action wide" onclick="DataPack.installAll()">⬇️ Download everything to IndexedDB (Offline)</button>
+        <div class="row" style="margin-top:10px">
+          <button class="action wide" onclick="DataPack.installAll()">⬇️ Download / Update Complete Offline Package</button>
         </div>
-        <div id="downloadStatus" class="download-status">
-            Checking local Quran data...
+        <div class="progress"><div id="progress"></div></div>
+        <p class="muted" id="installStatus"></p>
+      </div>
+
+      <div class="card">
+        <strong>Install manually from phone</strong>
+        <p class="muted">If the HTML is opened without a web server, choose the CSV files manually.</p>
+
+        <label class="file-label">
+          Load qpcv1-35.csv
+          <input type="file" accept=".csv,text/csv" onchange="Manual.loadMap('madani1405',this.files[0])">
+        </label>
+
+        <label class="file-label">
+          Load indpak-20.csv
+          <input type="file" accept=".csv,text/csv" onchange="Manual.loadMap('indopakQudratullah',this.files[0])">
+        </label>
+
+        <label class="file-label">
+          Load word.csv
+          <input type="file" accept=".csv,text/csv" onchange="Manual.loadWords(this.files[0])">
+        </label>
+
+        <button class="action wide" onclick="Manual.finish()">Build IndexedDB package from selected CSV data</button>
+        <p class="muted" id="manualStatus"></p>
+      </div>
+
+      <div class="card">
+        <strong>QCF V1 page fonts</strong>
+        <p class="muted">
+          Madani QCF V1 uses one page font per page. The first online installation
+          caches the font in IndexedDB; subsequent rendering uses the local cached font.
+        </p>
+        <label class="file-label">
+          Optional: load a QCF V1 font file
+          <input type="file" accept=".woff,.woff2,.ttf" onchange="FontStore.manual(this.files[0])">
+        </label>
+      </div>
+
+      <div class="card warning">
+        <b>Data integrity:</b>
+        page 1, page 2, line numbers, Surah headers, Bismillah lines and word ranges
+        come from the supplied page maps. The app does not move Baqarah into Fatiḥah,
+        does not invent missing lines, and does not add artificial flex spacing.
+      </div>
+
+      <button class="action danger wide" onclick="DataPack.clear()">Delete all downloaded Quran data</button>
+    </section>
+
+    <section class="tab-content" id="tab-students">
+      <div class="row">
+        <input id="studentName" placeholder="Student name">
+        <button class="action" onclick="Students.add()">Add</button>
+      </div>
+      <div class="lesson-card">
+        <div class="small" style="margin-bottom:7px">Current student's lesson range for the selected Mushaf</div>
+        <div class="row">
+          <input id="lessonFrom" type="number" min="1" placeholder="From page">
+          <input id="lessonTo" type="number" min="1" placeholder="To page">
+          <button class="action" onclick="Students.saveLesson()">Save lesson</button>
         </div>
-        <div id="downloadActions" class="action-row"
-             style="justify-content:center"></div>
-    </div>
+        <div class="small" id="lessonStatus"></div>
+      </div>
+      <div id="studentsList"></div>
+    </section>
+
+    <section class="tab-content" id="tab-tools">
+      <div class="row" style="flex-wrap:wrap">
+        <button class="action" onclick="CanvasTool.select('pencil')">✏️ Pencil</button>
+        <button class="action" onclick="CanvasTool.select('red')">🔴 Red Pen</button>
+        <button class="action" onclick="CanvasTool.select('high')">🟡 Highlight</button>
+        <button class="action" onclick="CanvasTool.select('ghalat')">🔴 Ghalat Word</button>
+        <button class="action" onclick="CanvasTool.select('tajweed')">🟡 Tajweed Word</button>
+        <button class="action" onclick="CanvasTool.select('ayah')">🟩 Ayah Mark</button>
+        <button class="action" onclick="CanvasTool.select('lessonStart')">🟢 Lesson Start</button>
+        <button class="action" onclick="CanvasTool.select('lessonEnd')">🔵 Lesson End</button>
+        <button class="action" onclick="CanvasTool.select('eraser')">🧹 Eraser</button>
+      </div>
+      <p class="muted" style="margin:8px 0">Ayah Mark: tap a Qur'an word to colour its complete ayah on the current page. Pencil/Red/Highlight remain freehand.</p>
+      <button class="action danger wide" onclick="CanvasTool.clear()">Clear pencil/ink markings for this page</button>
+      <button class="action wide" style="margin-top:8px" onclick="CanvasTool.clearAyahMarks()">Clear ayah colours on this page</button>
+      <p class="small" id="lessonMarkerStatus" style="margin-top:8px"></p>
+    </section>
+
+    <section class="tab-content" id="tab-report">
+      <div class="card">
+        <strong>Student Progress Report</strong>
+        <p class="muted">Selected student's lessons, word marks, ayah marks and pencil annotations are summarized from IndexedDB.</p>
+        <button class="action wide" style="margin-top:10px" onclick="Report.render();UI.showReport()">📄 Open Progress Report</button>
+      </div>
+    </section>
+  </section>
 </div>
 
-<!-- ==================== SETTINGS ==================== -->
-<div id="settingsPanel" class="panel">
-    <div class="panel-header">
-        <h2>Settings</h2>
-        <button class="close-button" onclick="Settings.close()">×</button>
-    </div>
-
-    <div class="panel-body">
-        <div class="settings-tabs">
-            <button class="settings-tab active"
-                    onclick="Settings.tab('institution',this)">Institution</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('students',this)">Students</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('mushaf',this)">Mushaf</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('lessons',this)">Lessons</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('report',this)">Report</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('reader',this)">Reader</button>
-            <button class="settings-tab"
-                    onclick="Settings.tab('data',this)">Data</button>
-        </div>
-
-        <section id="settings-institution" class="settings-section active">
-            <div class="card">
-                <h3>Institution Information</h3>
-                <div class="form-grid">
-                    <div class="field full">
-                        <label>Institution Name</label>
-                        <input id="institutionName">
-                    </div>
-                    <div class="field full">
-                        <label>Run By</label>
-                        <input id="institutionRunBy">
-                    </div>
-                    <div class="field">
-                        <label>Address</label>
-                        <input id="institutionAddress">
-                    </div>
-                    <div class="field">
-                        <label>Phone</label>
-                        <input id="institutionPhone">
-                    </div>
-                    <div class="field">
-                        <label>Teacher</label>
-                        <input id="institutionTeacher">
-                    </div>
-                    <div class="field">
-                        <label>Department</label>
-                        <input id="institutionDepartment" value="Hifz Department">
-                    </div>
-                </div>
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Settings.saveInstitution()">Save</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="settings-students" class="settings-section">
-            <div class="card">
-                <h3>Student Management</h3>
-                <p style="color:#777;font-size:11px;line-height:1.7">
-                    ഓരോ കുട്ടിക്കും പ്രത്യേകം Student ID, Mushaf assignment,
-                    page position, lesson records, Ghalat, Tajweed, Ayah marks
-                    എന്നിവ വേർതിരിച്ചാണ് IndexedDB-ൽ സൂക്ഷിക്കുന്നത്.
-                </p>
-                <button class="btn green" onclick="Students.openAdd()">
-                    + Add Student
-                </button>
-            </div>
-            <div id="studentCards" class="student-grid"></div>
-        </section>
-
-        <section id="settings-mushaf" class="settings-section">
-            <div class="card">
-                <h3>Mushaf Library</h3>
-                <div id="mushafSettings"></div>
-            </div>
-        </section>
-
-        <section id="settings-lessons" class="settings-section">
-            <div class="card">
-                <h3>Lesson Categories</h3>
-                <div id="categoryList"></div>
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Arabic Name</label>
-                        <input id="newCategoryArabic" placeholder="سبق">
-                    </div>
-                    <div class="field">
-                        <label>Malayalam / Display Name</label>
-                        <input id="newCategoryLabel" placeholder="പുതിയ പാഠം">
-                    </div>
-                </div>
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Settings.addCategory()">Add Category</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Lesson Behaviour</h3>
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Lesson Start</label>
-                        <select id="lessonStartSetting">
-                            <option value="optional">Optional</option>
-                            <option value="enabled">Enabled</option>
-                            <option value="disabled">Disabled</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Lesson End</label>
-                        <select id="lessonEndSetting">
-                            <option value="required">Required</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Settings.saveLessonSettings()">Save</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="settings-report" class="settings-section">
-            <div class="card">
-                <h3>Report Settings</h3>
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Report Title</label>
-                        <input id="reportTitle" value="HIFZ PROGRESS REPORT">
-                    </div>
-                    <div class="field">
-                        <label>Date Format</label>
-                        <select id="reportDateFormat">
-                            <option value="DD-MM-YYYY">DD-MM-YYYY</option>
-                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Teacher Signature</label>
-                        <select id="reportTeacherSignature">
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Department</label>
-                        <select id="reportDepartment">
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Settings.saveReport()">Save</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="settings-reader" class="settings-section">
-            <div class="card">
-                <h3>Reader Settings</h3>
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Default Mushaf</label>
-                        <select id="defaultMushaf">
-                            <option value="madani">Madani 1405H</option>
-                            <option value="indopak">Indo-Pak Qudratullah</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Default Page</label>
-                        <input id="defaultPage" type="number" min="1" value="1">
-                    </div>
-                </div>
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Settings.saveReader()">Save</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Audio</h3>
-                <p style="color:#777;font-size:11px;line-height:1.7">
-                    ഏതെങ്കിലും Ayah-ൽ click ചെയ്ത് temporary Quran
-                    audio service വഴി ആ Ayah play ചെയ്യാം.
-                </p>
-            </div>
-        </section>
-
-        <section id="settings-data" class="settings-section">
-            <div class="card">
-                <h3>Quran Data — Batch Sync</h3>
-                <p style="color:#777;font-size:11px;line-height:1.8">
-                    GitHub root-ൽ ഉള്ള Quran CSV data ഒരിക്കൽ
-                    IndexedDB-ലേക്ക് batch ആയി download ചെയ്യുക.<br><br>
-                    <b>qpcv1-35.csv</b> — Madani 604 pages<br>
-                    <b>indpak-20.csv</b> — Indo-Pak 610 pages<br>
-                    <b>word.csv</b> — Quran word data
-                </p>
-
-                <div class="progress">
-                    <div id="syncBar" class="progress-bar"></div>
-                </div>
-                <div id="syncStatus" class="download-status">Ready</div>
-
-                <div class="action-row">
-                    <button class="btn green"
-                            onclick="Sync.download()">⬇ Batch Download / Sync</button>
-                    <button class="btn"
-                            onclick="Sync.clearQuran()">Clear Quran Cache</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Student Data Backup</h3>
-                <p style="color:#777;font-size:11px;line-height:1.7">
-                    Student information, Mushaf assignments, lesson records,
-                    markings and settings മാത്രം backup ചെയ്യുന്നു.
-                </p>
-                <div class="action-row">
-                    <button class="btn blue"
-                            onclick="Sync.backup()">Export Backup</button>
-                    <button class="btn"
-                            onclick="Sync.restore()">Import Backup</button>
-                </div>
-            </div>
-        </section>
-    </div>
+<div id="reportView">
+  <div class="report-actions">
+    <button onclick="window.print()">📄 Save / Print as PDF</button>
+    <button onclick="Report.close()">← Back to App</button>
+  </div>
+  <article class="report-paper" id="reportPaper"></article>
 </div>
-
-<!-- ==================== STUDENT MODAL ==================== -->
-<div id="studentModal" class="modal">
-    <div class="modal-card">
-        <div class="modal-head">
-            <h3>Student</h3>
-            <button class="close-button"
-                    onclick="UI.closeModal('studentModal')">×</button>
-        </div>
-
-        <div class="form-grid">
-            <div class="field">
-                <label>Roll No</label>
-                <input id="studentRoll">
-            </div>
-            <div class="field">
-                <label>Name</label>
-                <input id="studentName">
-            </div>
-            <div class="field">
-                <label>Class / Batch</label>
-                <input id="studentClass">
-            </div>
-            <div class="field">
-                <label>Primary Mushaf</label>
-                <select id="studentPrimaryMushaf"></select>
-            </div>
-            <div class="field full">
-                <label>Optional Second Mushaf</label>
-                <select id="studentSecondMushaf">
-                    <option value="">None</option>
-                </select>
-            </div>
-            <div class="field full">
-                <label>Notes</label>
-                <textarea id="studentNotes"></textarea>
-            </div>
-        </div>
-
-        <div class="action-row">
-            <button class="btn green" onclick="Students.save()">Save</button>
-            <button class="btn"
-                    onclick="UI.closeModal('studentModal')">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- ==================== LESSON MODAL ==================== -->
-<div id="lessonModal" class="modal">
-    <div class="modal-card">
-        <div class="modal-head">
-            <h3>Lesson End</h3>
-            <button class="close-button"
-                    onclick="UI.closeModal('lessonModal')">×</button>
-        </div>
-
-        <div style="margin-bottom:12px;padding:10px;color:var(--green);
-                    background:var(--green-light);border-radius:9px;
-                    font-size:11px;line-height:1.7">
-            Lesson Start നിർബന്ധമല്ല. Lesson End സമയത്ത് നൽകിയ
-            വിവരങ്ങൾ ഉപയോഗിച്ച് record സൂക്ഷിക്കാം.
-        </div>
-
-        <div class="form-grid">
-            <div class="field">
-                <label>Lesson Type</label>
-                <select id="lessonType"></select>
-            </div>
-            <div class="field">
-                <label>Mushaf</label>
-                <select id="lessonMushaf"></select>
-            </div>
-            <div class="field">
-                <label>From Page</label>
-                <input id="lessonFromPage" type="number" min="1">
-            </div>
-            <div class="field">
-                <label>To Page</label>
-                <input id="lessonToPage" type="number" min="1">
-            </div>
-            <div class="field">
-                <label>From Surah</label>
-                <input id="lessonFromSurah">
-            </div>
-            <div class="field">
-                <label>To Surah</label>
-                <input id="lessonToSurah">
-            </div>
-            <div class="field">
-                <label>From Ayah</label>
-                <input id="lessonFromAyah" type="number" min="1">
-            </div>
-            <div class="field">
-                <label>To Ayah</label>
-                <input id="lessonToAyah" type="number" min="1">
-            </div>
-        </div>
-
-        <div class="action-row">
-            <button class="btn green" onclick="Lesson.saveEnd()">
-                Save Lesson
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ==================== LESSON HISTORY ==================== -->
-<div id="lessonsPanel" class="panel">
-    <div class="panel-header">
-        <h2>Lesson History</h2>
-        <button class="close-button" onclick="Lessons.close()">×</button>
-    </div>
-
-    <div class="panel-body">
-        <div class="card">
-            <div id="lessonHistoryTitle"
-                 style="margin-bottom:10px;color:var(--green);font-weight:800"></div>
-            <div class="lesson-table-wrap">
-                <table class="lesson-table">
-                    <thead>
-                        <tr>
-                            <th>#</th><th>Date</th><th>Lesson</th>
-                            <th>From</th><th>To</th><th>Page</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lessonHistoryBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ==================== REPORT ==================== -->
-<div id="reportPanel" class="panel">
-    <div class="report-toolbar">
-        <button class="btn" onclick="Report.close()">← Back</button>
-        <select id="reportStudent" onchange="Report.render()"></select>
-        <select id="reportRange" onchange="Report.render()">
-            <option value="month">Current Month</option>
-            <option value="week">Current Week</option>
-            <option value="custom">Custom</option>
-            <option value="all">All Records</option>
-        </select>
-        <input id="reportFrom" type="date" class="hidden" onchange="Report.render()">
-        <input id="reportTo" type="date" class="hidden" onchange="Report.render()">
-        <button class="btn green" onclick="Report.print()">
-            🖨 Save / Print PDF
-        </button>
-    </div>
-    <div class="report-wrap">
-        <div id="reportPaper" class="report-paper"></div>
-    </div>
-</div>
-
-<div id="toast" class="toast"></div>
 
 <script>
 "use strict";
 
 /* =========================================================
-   CONFIG
-========================================================= */
-const APP = {
-    dbName: "AlHalaqah_QUL_Offline_v5",
-    dbVersion: 1,
+   CONFIGURATION
+   ========================================================= */
 
-    files: {
-        madani:   "./qpcv1-35.csv",
-        indopak:  "./indpak-20.csv",
-        words:    "./word.csv"
-    },
-
-    mushaf: {
-        madani: {
-            id:"madani", name:"Madani 1405H",
-            pages:604, layoutFile:"./qpcv1-35.csv"
-        },
-        indopak: {
-            id:"indopak", name:"Indo-Pak Qudratullah",
-            pages:610, layoutFile:"./indpak-20.csv"
-        }
-    },
-
-    fonts: {
-        /* Local font file — committed alongside index.html */
-        indopakLocal: "./DigitalKhattIndoPak.otf",
-        indopakRemote:
-            "https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2",
-        qcfBase:
-            "https://verses.quran.foundation/fonts/quran/hafs/v1/woff2"
-    }
+const CONFIG = {
+  madani1405:{
+    id:"madani1405",
+    name:"Mushaf al-Madinah 1405H / QCF V1",
+    short:"Madani 1405H",
+    pages:604,
+    mapPath:"./qpcv1-35.csv",
+    wordColumn:"qpc_v1",
+    mode:"qcf"
+  },
+  indopakQudratullah:{
+    id:"indopakQudratullah",
+    name:"Indo-Pak Qudratullah 15L",
+    short:"Indo-Pak 15L",
+    pages:610,
+    mapPath:"./indpak-20.csv",
+    wordColumn:"indopak",
+    mode:"indopak"
+  }
 };
 
-const State = {
-    db:null,
-    student:null,
-    mushaf:"madani",
-    page:1,
-    tool:"none",
+const SURAH_NAMES = {
+  1:"الفاتحة",2:"البقرة",3:"آل عمران",4:"النساء",5:"المائدة",6:"الأنعام",7:"الأعراف",8:"الأنفال",
+  9:"التوبة",10:"يونس",11:"هود",12:"يوسف",13:"الرعد",14:"إبراهيم",15:"الحجر",16:"النحل",
+  17:"الإسراء",18:"الكهف",19:"مريم",20:"طه",21:"الأنبياء",22:"الحج",23:"المؤمنون",24:"النور",
+  25:"الفرقان",26:"الشعراء",27:"النمل",28:"القصص",29:"العنكبوت",30:"الروم",31:"لقمان",32:"السجدة",
+  33:"الأحزاب",34:"سبإ",35:"فاطر",36:"يس",37:"الصافات",38:"ص",39:"الزمر",40:"غافر",41:"فصلت",
+  42:"الشورى",43:"الزخرف",44:"الدخان",45:"الجاثية",46:"الأحقاف",47:"محمد",48:"الفتح",49:"الحجرات",
+  50:"ق",51:"الذاريات",52:"الطور",53:"النجم",54:"القمر",55:"الرحمن",56:"الواقعة",57:"الحديد",
+  58:"المجادلة",59:"الحشر",60:"الممتحنة",61:"الصف",62:"الجمعة",63:"المنافقون",64:"التغابن",
+  65:"الطلاق",66:"التحريم",67:"الملك",68:"القلم",69:"الحاقة",70:"المعارج",71:"نوح",72:"الجن",
+  73:"المزمل",74:"المدثر",75:"القيامة",76:"الإنسان",77:"المرسلات",78:"النبأ",79:"النازعات",
+  80:"عبس",81:"التكوير",82:"الانفطار",83:"المطففين",84:"الانشقاق",85:"البروج",86:"الطارق",
+  87:"الأعلى",88:"الغاشية",89:"الفجر",90:"البلد",91:"الشمس",92:"الليل",93:"الضحى",94:"الشرح",
+  95:"التين",96:"العلق",97:"القدر",98:"البينة",99:"الزلزلة",100:"العاديات",101:"القارعة",
+  102:"التكاثر",103:"العصر",104:"الهمزة",105:"الفيل",106:"قريش",107:"الماعون",108:"الكوثر",
+  109:"الكافرون",110:"النصر",111:"المسد",112:"الإخلاص",113:"الفلق",114:"الناس"
+};
 
-    words:[],
-    wordMap:new Map(),
+const DIGITS="٠١٢٣٤٥٦٧٨٩";
+const arNumber=n=>String(n).replace(/\d/g,d=>DIGITS[d]);
 
-    layouts:{
-        madani:new Map(),
-        indopak:new Map()
-    },
+function stripOuterQuotes(value){
+  const s=String(value??"");
+  return s.length>=2 && s[0]==="'" && s[s.length-1]==="'" ? s.slice(1,-1) : s;
+}
 
-    currentPageWords:[],
-    lastAyah:null,
+function escapeHTML(value){
+  return String(value??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
-    categories:[
-        { id:"new",     arabic:"جديد",  label:"New Lesson" },
-        { id:"sabaq",   arabic:"سبق",   label:"Sabaq" },
-        { id:"sabqi",   arabic:"سبقي",  label:"Sabqi" },
-        { id:"manzil",  arabic:"منزل",  label:"Manzil" }
-    ],
+function isAllah(text){
+  const x=String(text??"")
+    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
+    .replace(/\u0640/g,"")
+    .replace(/[ٱإأآ]/g,"ا")
+    .trim();
+  return x==="الله" || x==="لله" || x==="اللهم";
+}
 
-    institution:{
-        name:"Al-Halaqah", runBy:"", address:"",
-        phone:"", teacher:"", department:"Hifz Department"
-    },
+function setStatus(text,type=""){
+  const el=document.getElementById("status");
+  el.textContent=text;
+  el.className=type;
+  clearTimeout(setStatus.timer);
+  setStatus.timer=setTimeout(()=>el.textContent="",4500);
+}
 
-    report:{
-        title:"HIFZ PROGRESS REPORT",
-        dateFormat:"DD-MM-YYYY",
-        teacherSignature:"yes",
-        department:"yes"
-    },
+/* =========================================================
+   CSV PARSER
+   ========================================================= */
 
-    readerSettings:{ defaultMushaf:"madani", defaultPage:1 },
-    lessonSettings:{ start:"optional", end:"required" },
+const CSV = {
+  parse(text){
+    const rows=[];
+    let row=[],field="",quoted=false;
 
-    editStudentId:null
+    for(let i=0;i<text.length;i++){
+      const c=text[i],n=text[i+1];
+
+      if(quoted){
+        if(c==='"' && n==='"'){
+          field+='"'; i++;
+        }else if(c==='"'){
+          quoted=false;
+        }else{
+          field+=c;
+        }
+      }else{
+        if(c==='"'){
+          quoted=true;
+        }else if(c===","){
+          row.push(field);field="";
+        }else if(c==="\n"){
+          row.push(field.replace(/\r$/,""));
+          rows.push(row);row=[];field="";
+        }else{
+          field+=c;
+        }
+      }
+    }
+
+    if(field.length || row.length){
+      row.push(field);rows.push(row);
+    }
+
+    const header=rows.shift().map(x=>stripOuterQuotes(x.trim()));
+
+    return rows
+      .filter(r=>r.some(x=>String(x??"").trim()!==""))
+      .map(r=>{
+        const out={};
+        header.forEach((h,i)=>{
+          out[h]=stripOuterQuotes(String(r[i]??"").trim());
+        });
+        return out;
+      });
+  }
 };
 
 /* =========================================================
    INDEXED DB
-========================================================= */
+   ========================================================= */
+
 const DB = {
-    open(){
-        return new Promise((resolve,reject)=>{
-            const req = indexedDB.open(APP.dbName, APP.dbVersion);
-
-            req.onupgradeneeded = event => {
-                const db = event.target.result;
-                const stores = [
-                    ["meta",         {keyPath:"key"}],
-                    ["students",     {keyPath:"id"}],
-                    ["layouts",      {keyPath:"id"}],
-                    ["words",        {keyPath:"id"}],
-                    ["student_work", {keyPath:"id"}],
-                    ["lesson_records",{keyPath:"id"}],
-                    ["fonts",        {keyPath:"id"}]
-                ];
-                stores.forEach(([name,opt])=>{
-                    if(!db.objectStoreNames.contains(name)){
-                        const store = db.createObjectStore(name,opt);
-                        if(name==="lesson_records"){
-                            store.createIndex("studentId","studentId",{unique:false});
-                        }
-                        if(name==="student_work"){
-                            store.createIndex("studentId","studentId",{unique:false});
-                        }
-                    }
-                });
-            };
-            req.onsuccess = ()=>{ State.db=req.result; resolve(req.result); };
-            req.onerror   = ()=>reject(req.error);
-        });
-    },
-
-    put(storeName,value){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readwrite");
-            tx.objectStore(storeName).put(value);
-            tx.oncomplete = ()=>resolve();
-            tx.onerror    = ()=>reject(tx.error);
-        });
-    },
-
-    putBatch(storeName,values){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readwrite");
-            const store = tx.objectStore(storeName);
-            for(const v of values) store.put(v);
-            tx.oncomplete = ()=>resolve();
-            tx.onerror    = ()=>reject(tx.error);
-        });
-    },
-
-    get(storeName,key){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readonly");
-            const req = tx.objectStore(storeName).get(key);
-            req.onsuccess = ()=>resolve(req.result);
-            req.onerror   = ()=>reject(req.error);
-        });
-    },
-
-    all(storeName){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readonly");
-            const req = tx.objectStore(storeName).getAll();
-            req.onsuccess = ()=>resolve(req.result || []);
-            req.onerror   = ()=>reject(req.error);
-        });
-    },
-
-    delete(storeName,key){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readwrite");
-            tx.objectStore(storeName).delete(key);
-            tx.oncomplete = ()=>resolve();
-            tx.onerror    = ()=>reject(tx.error);
-        });
-    },
-
-    clear(storeName){
-        return new Promise((resolve,reject)=>{
-            const tx = State.db.transaction(storeName,"readwrite");
-            tx.objectStore(storeName).clear();
-            tx.oncomplete = ()=>resolve();
-            tx.onerror    = ()=>reject(tx.error);
-        });
-    },
-
-    async getStudentWork(studentId,mushaf,page){
-        const id = `${studentId}|${mushaf}|${page}`;
-        return await DB.get("student_work",id) || {
-            id, studentId, mushaf, page,
-            wordMarks:{}, ayahMarks:[], strokes:[]
-        };
-    },
-
-    async saveStudentWork(work){ await DB.put("student_work",work); }
+  db:null,
+  async init(){
+    this.db=await new Promise((resolve,reject)=>{
+      const req=indexedDB.open("AlHalaqah_QUL_Offline_v4",3);
+      req.onupgradeneeded=e=>{
+        const db=e.target.result;
+        if(!db.objectStoreNames.contains("page_lines")) db.createObjectStore("page_lines",{keyPath:["mushafId","page","line"]});
+        if(!db.objectStoreNames.contains("words")) db.createObjectStore("words",{keyPath:"wordId"});
+        if(!db.objectStoreNames.contains("fonts")) db.createObjectStore("fonts",{keyPath:"key"});
+        if(!db.objectStoreNames.contains("packs")) db.createObjectStore("packs",{keyPath:"mushafId"});
+        if(!db.objectStoreNames.contains("meta")) db.createObjectStore("meta",{keyPath:"key"});
+        if(!db.objectStoreNames.contains("students")) db.createObjectStore("students",{keyPath:"id",autoIncrement:true});
+        if(!db.objectStoreNames.contains("drawings")){
+          const st=db.createObjectStore("drawings",{keyPath:"id",autoIncrement:true});
+          st.createIndex("student_page",["studentId","mushafId","page"],{unique:true});
+        }
+        if(!db.objectStoreNames.contains("student_work")){
+          db.createObjectStore("student_work",{keyPath:["studentId","mushafId","page"]});
+        }
+        if(!db.objectStoreNames.contains("lesson_records")){
+          const lr=db.createObjectStore("lesson_records",{keyPath:"lessonId"});
+          lr.createIndex("studentId","studentId",{unique:false});
+          lr.createIndex("studentDate",["studentId","date"],{unique:false});
+        }
+      };
+      req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+    });
+  },
+  tx(name,mode="readonly"){return this.db.transaction(name,mode).objectStore(name)},
+  get(name,key){return new Promise((res,rej)=>{const r=this.tx(name).get(key);r.onsuccess=()=>res(r.result??null);r.onerror=()=>rej(r.error)})},
+  getAll(name){return new Promise((res,rej)=>{const r=this.tx(name).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})},
+  put(name,v){return new Promise((res,rej)=>{const r=this.tx(name,"readwrite").put(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})},
+  add(name,v){return new Promise((res,rej)=>{const r=this.tx(name,"readwrite").add(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})},
+  work(studentId,mushafId,page){return new Promise(resolve=>{const r=this.tx("student_work").get([studentId,mushafId,page]);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>resolve(null)})},
+  saveWork(work){return this.put("student_work",work)},
+  getStudentLessons(studentId){return this.getByIndex("lesson_records","studentId",studentId)},
+  getByIndex(name,index,key){return new Promise((resolve,reject)=>{const r=this.tx(name).index(index).getAll(IDBKeyRange.only(key));r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)})},
+  async putBatch(name,values,batchSize=1500,onBatch){
+    for(let i=0;i<values.length;i+=batchSize){
+      const part=values.slice(i,i+batchSize);
+      await new Promise((resolve,reject)=>{
+        const tx=this.db.transaction(name,"readwrite"),st=tx.objectStore(name);
+        for(const v of part)st.put(v);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error("IndexedDB transaction aborted"));
+      });
+      if(onBatch)await onBatch(Math.min(i+part.length,values.length),values.length);
+    }
+  },
+  clear(name){return new Promise((res,rej)=>{const r=this.tx(name,"readwrite").clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})},
+  async pageLines(mushafId,page){
+    return new Promise((resolve,reject)=>{
+      const out=[],st=this.tx("page_lines"),range=IDBKeyRange.bound([mushafId,page,0],[mushafId,page,999]);
+      const r=st.openCursor(range);r.onsuccess=e=>{const c=e.target.result;if(!c){out.sort((a,b)=>a.line-b.line);resolve(out);return}out.push(c.value);c.continue()};r.onerror=()=>reject(r.error);
+    });
+  },
+  wordsRange(start,end){
+    if(start==null||end==null||start>end)return Promise.resolve([]);
+    return new Promise((resolve,reject)=>{
+      const out=[],st=this.tx("words"),r=st.openCursor(IDBKeyRange.bound(start,end));
+      r.onsuccess=e=>{const c=e.target.result;if(!c){resolve(out);return}out.push(c.value);c.continue()};r.onerror=()=>reject(r.error);
+    });
+  },
+  drawing(studentId,mushafId,page){return new Promise(resolve=>{const r=this.tx("drawings").index("student_page").get([studentId,mushafId,page]);r.onsuccess=()=>resolve(r.result?.data||null);r.onerror=()=>resolve(null)})},
+  saveDrawing(studentId,mushafId,page,data){return new Promise((resolve,reject)=>{const st=this.tx("drawings","readwrite"),idx=st.index("student_page"),r=idx.get([studentId,mushafId,page]);r.onsuccess=()=>{const old=r.result,v={studentId,mushafId,page,data,updatedAt:Date.now()};if(old)v.id=old.id;st.put(v)};st.transaction.oncomplete=resolve;st.transaction.onerror=()=>reject(st.transaction.error)})}
 };
 
 /* =========================================================
-   CSV PARSER
-========================================================= */
-function parseCSV(text){
-    const rows=[]; let row=[]; let cell=""; let quote=false;
+   FONT STORE
+   ========================================================= */
 
-    for(let i=0;i<text.length;i++){
-        const c=text[i];
-        if(c==='"'){
-            if(quote && text[i+1]==='"'){cell+='"';i++;}
-            else{quote=!quote;}
-            continue;
-        }
-        if(c===',' && !quote){row.push(cell);cell="";continue;}
-        if((c==='\n'||c==='\r') && !quote){
-            if(c==='\r' && text[i+1]==='\n') i++;
-            row.push(cell);
-            if(row.length>1 || row[0]!=="") rows.push(row);
-            row=[]; cell="";
-            continue;
-        }
-        cell+=c;
-    }
-    if(cell!=="" || row.length){ row.push(cell); rows.push(row); }
-    return rows;
-}
-
-function cleanCSVValue(value){
-    let s = String(value ?? "").trim();
-    if(s.length>=2 && (
-        (s[0]==="'" && s[s.length-1]==="'") ||
-        (s[0]==='"' && s[s.length-1]==='"')
-    )) s = s.slice(1,-1);
-    return s;
-}
-
-/* =========================================================
-   FETCH
-========================================================= */
-async function fetchText(url){
-    const response = await fetch(url,{cache:"no-cache"});
-    if(!response.ok) throw new Error(`Unable to load ${url}`);
-    return await response.text();
-}
-
-/* =========================================================
-   LAYOUT LOADER
-========================================================= */
-async function loadLayout(mushaf){
-    if(State.layouts[mushaf] && State.layouts[mushaf].size) return;
-
-    const text = await fetchText(APP.mushaf[mushaf].layoutFile);
-    const rows = parseCSV(text);
-    rows.shift(); // header
-
-    const map = new Map();
-
-    for(const r of rows){
-        if(r.length<6) continue;
-
-        const page     = Number(cleanCSVValue(r[0]));
-        const line     = Number(cleanCSVValue(r[1]));
-        const type     = cleanCSVValue(r[2]);
-        const centered = cleanCSVValue(r[3])==="1";
-        const start    = Number(cleanCSVValue(r[4]));
-        const end      = Number(cleanCSVValue(r[5]));
-
-        if(!Number.isFinite(page)) continue;
-        if(!Number.isFinite(line)) continue;
-
-        if(!map.has(page)) map.set(page,[]);
-        map.get(page).push({page,line,type,centered,start,end});
-    }
-
-    for(const list of map.values()) list.sort((a,b)=>a.line-b.line);
-
-    State.layouts[mushaf] = map;
-}
-
-/* =========================================================
-   WORDS LOADER
-========================================================= */
-async function loadWords(){
-    if(State.words.length) return;
-
-    const text = await fetchText(APP.files.words);
-    const rows = parseCSV(text);
-    rows.shift();
-
-    const words = [];
-
-    for(const r of rows){
-        if(r.length<13) continue;
-
-        const word = {
-            id:            String(cleanCSVValue(r[3])),
-            surah:         Number(cleanCSVValue(r[0])),
-            ayah:          Number(cleanCSVValue(r[1])),
-            wordNumber:    Number(cleanCSVValue(r[2])),
-            wordNumberAll: Number(cleanCSVValue(r[3])),
-            uthmani:       cleanCSVValue(r[4]),
-            nastaleeq:     cleanCSVValue(r[5]),
-            indopak:       cleanCSVValue(r[6]),
-            dk_indopak:    cleanCSVValue(r[7]),
-            qpc_v1:        cleanCSVValue(r[8]),
-            dk_v2:         cleanCSVValue(r[9]),
-            dk_v1:         cleanCSVValue(r[10]),
-            qpc_hafs:      cleanCSVValue(r[11]),
-            isAyahMarker:  cleanCSVValue(r[12])
-        };
-
-        if(Number.isFinite(word.wordNumberAll)) words.push(word);
-    }
-
-    State.words = words;
-    for(const word of words){
-        State.wordMap.set(String(word.wordNumberAll),word);
-    }
-}
-
-/* =========================================================
-   FONT
-========================================================= */
 const FontStore = {
-    _loaded:{},
-    async loadIndoPak(){
-        if(this._loaded.indopak) return;
-        this._loaded.indopak = true;
-
-        const style = document.createElement("style");
-        style.id = "indopakFontStyle";
-
-        // Use local OTF first (offline), fall back to remote.
-        style.textContent = `
-@font-face{
-    font-family:"AlHalaqahIndoPak";
-    src:url("${APP.fonts.indopakLocal}") format("opentype"),
-        url("${APP.fonts.indopakRemote}") format("woff2");
-    font-display:swap;
-}
-`;
-        document.head.appendChild(style);
-    },
-
-    async loadQCF(page){
-        const id = `qcf-${page}`;
-        if(document.getElementById(id)) return;
-
-        const style = document.createElement("style");
-        style.id = id;
-        style.textContent = `
-@font-face{
-    font-family:"AlHalaqahQCF${page}";
-    src:url("${APP.fonts.qcfBase}/p${page}.woff2") format("woff2");
-    font-display:swap;
-}
-`;
-        document.head.appendChild(style);
-    }
+  qcfDownloading:false,
+  async get(key){return DB.get("fonts",key)},
+  async save(key,buffer,mime="font/woff2"){await DB.put("fonts",{key,data:buffer,mime,savedAt:Date.now()})},
+  async addFontToDocument(key,family){
+    if(document.fonts.check(`16px "${family}"`))return family;
+    const cached=await this.get(key);
+    if(!cached?.data)throw new Error(`Offline font missing: ${key}`);
+    const face=new FontFace(family,cached.data);
+    await face.load();
+    document.fonts.add(face);
+    return family;
+  },
+  async loadQCF(page){return this.addFontToDocument(`qcf-v1-${page}`,`QCFV1_${page}`)},
+  async loadIndoPak(){return this.addFontToDocument("indopak-font","QULIndoPak")},
+  async downloadOne(url,key){
+    if(await this.get(key))return false;
+    const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error(`Font download failed: ${r.status}`);
+    await this.save(key,await r.arrayBuffer(),"font/woff2");return true;
+  },
+  async downloadQCFAll(pages,progress){
+    if(this.qcfDownloading)return;
+    this.qcfDownloading=true;
+    const concurrency=8;
+    let next=1,done=0;
+    const worker=async()=>{
+      while(true){const page=next++;if(page>pages)return;await this.downloadOne(`https://verses.quran.foundation/fonts/quran/hafs/v1/woff2/p${page}.woff2`,`qcf-v1-${page}`);done++;progress?.(done,pages)}
+    };
+    try{await Promise.all(Array.from({length:concurrency},worker));}
+    finally{this.qcfDownloading=false;}
+  },
+  async downloadIndoPak(){
+    await this.downloadOne("https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2","indopak-font");
+  }
 };
 
 /* =========================================================
-   TEXT HELPERS
-========================================================= */
-function arabicDigits(n){
-    const map={"0":"٠","1":"١","2":"٢","3":"٣","4":"٤",
-               "5":"٥","6":"٦","7":"٧","8":"٨","9":"٩"};
-    return String(n).split("").map(c=>map[c] ?? c).join("");
-}
+   DATA IMPORT
+   ========================================================= */
 
-function isAllah(text){
-    if(!text) return false;
-    const normalized = text
-        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
-        .replace(/[ٱإأآ]/g,"ا")
-        .replace(/ـ/g,"");
+const DataPack = {
+  async fetchText(path){const r=await fetch(path,{cache:"no-store"});if(!r.ok)throw new Error(`Cannot load ${path} (${r.status})`);return r.text()},
+  normalizeMap(rows){return rows.map(r=>({page:Number(r.page),line:Number(r.line),type:stripOuterQuotes(r.type),centered:String(r.is_centered)==="1"||String(r.is_centered).toLowerCase()==="true",start:r.range_start===""?null:Number(r.range_start),end:r.range_end===""?null:Number(r.range_end)})).filter(x=>x.page>0&&x.line>0)},
+  async installAll(){
+    const status=document.getElementById("installStatus"),progress=document.getElementById("progress");
+    try{
+      progress.style.width="1%";status.textContent="Downloading root CSV files…";
+      const [mt,it,wt]=await Promise.all([this.fetchText("./qpcv1-35.csv"),this.fetchText("./indpak-20.csv"),this.fetchText("./word.csv")]);
+      const mad=this.normalizeMap(CSV.parse(mt)), indo=this.normalizeMap(CSV.parse(it)), words=CSV.parse(wt);
+      if(mad.length<1000||indo.length<1000||words.length<80000)throw new Error(`CSV validation failed: Madani ${mad.length}, Indo-Pak ${indo.length}, words ${words.length}`);
+      status.textContent=`Saving ${mad.length+indo.length} page-line records to IndexedDB…`;
+      const maps=[...mad.map(r=>({mushafId:"madani1405",...r})),...indo.map(r=>({mushafId:"indopakQudratullah",...r}))];
+      await DB.putBatch("page_lines",maps,2000,(d,t)=>progress.style.width=(5+Math.round(d/t*25))+"%");
+      status.textContent=`Saving ${words.length.toLocaleString()} words to IndexedDB…`;
+      const wordObjects=words.map(r=>({wordId:Number(r.word_number_all),surah:Number(r.surah_number),ayah:Number(r.ayah_number),word:Number(r.word_number),uthmani:stripOuterQuotes(r.uthmani||""),indopak:stripOuterQuotes(r.indopak||""),dk_indopak:stripOuterQuotes(r.dk_indopak||""),qpc_v1:stripOuterQuotes(r.qpc_v1||""),is_ayah_marker:String(r.is_ayah_marker)==="1"})).filter(x=>x.wordId>0);
+      await DB.putBatch("words",wordObjects,2500,(d,t)=>progress.style.width=(30+Math.round(d/t*30))+"%");
+      await DB.put("packs",{mushafId:"madani1405",pages:604,lineRecords:mad.length,wordRecords:wordObjects.length,installedAt:Date.now()});
+      await DB.put("packs",{mushafId:"indopakQudratullah",pages:610,lineRecords:indo.length,wordRecords:wordObjects.length,installedAt:Date.now()});
+      status.textContent="Downloading Madani QCF V1 page fonts (8 parallel batches)…";
+      await FontStore.downloadQCFAll(604,(d,t)=>progress.style.width=(60+Math.round(d/t*35))+"%");
+      status.textContent="Downloading Indo-Pak Nastaleeq font…";await FontStore.downloadIndoPak();
+      progress.style.width="100%";status.textContent="✓ All Quran data + fonts are stored in IndexedDB. Offline ready.";
+      await this.status();await App.render();
+    }catch(e){console.error(e);status.textContent="Install failed: "+e.message;setStatus("Install failed — check internet and root filenames","error")}
+  },
+  async status(){
+    const packs=await DB.getAll("packs"),fonts=await DB.getAll("fonts");
+    document.getElementById("dbStatus").textContent=packs.length===2?`✓ IndexedDB ready · 2 Mushaf maps · ${fonts.length.toLocaleString()} font files cached · Offline mode ready`:`IndexedDB: first-time installation required`;
+  },
+  async clear(){if(!confirm("Delete downloaded Quran data and fonts from this device?"))return;for(const s of ["page_lines","words","fonts","packs","meta","student_work","lesson_records"])await DB.clear(s);await this.status();document.getElementById("installStatus").textContent="Downloaded Quran data deleted.";}
+};
 
-    // Strict: only the exact Divine Name (with common prefixes)
-    return /^(و|ف|ب|ت|ك|ل)?(الله|لله|اللهم)$/.test(normalized);
-}
+/* =========================================================
+   MANUAL FILE IMPORT
+   ========================================================= */
 
-function getWordText(word,mushaf){
-    if(mushaf==="madani"){
-        return word.qpc_v1 || word.uthmanai || word.uthmani || "";
+const Manual = {
+  maps:{
+    madani1405:null,
+    indopakQudratullah:null
+  },
+  words:null,
+
+  async loadMap(mushafId,file){
+    if(!file)return;
+
+    try{
+      const text=await file.text();
+      const rows=DataPack.normalizeMap(CSV.parse(text));
+
+      if(!rows.length){
+        throw new Error("No valid page records found.");
+      }
+
+      this.maps[mushafId]=rows;
+
+      document.getElementById("manualStatus").textContent=
+        `${file.name}: ${rows.length.toLocaleString()} page-line records loaded.`;
+    }catch(e){
+      document.getElementById("manualStatus").textContent=
+        `Map error: ${e.message}`;
     }
-    return word.nastaleeq || word.indopak || word.dk_indopak || word.uthmani || "";
-}
+  },
+
+  async loadWords(file){
+    if(!file)return;
+
+    try{
+      const rows=CSV.parse(await file.text());
+
+      if(!rows.length || !rows[0].word_number_all){
+        throw new Error("word_number_all column not found.");
+      }
+
+      this.words=rows;
+
+      document.getElementById("manualStatus").textContent=
+        `${file.name}: ${rows.length.toLocaleString()} words loaded.`;
+    }catch(e){
+      document.getElementById("manualStatus").textContent=
+        `Word error: ${e.message}`;
+    }
+  },
+
+  async finish(){
+    if(!this.words){alert("Load word.csv first.");return}
+    if(!this.maps.madani1405&&!this.maps.indopakQudratullah){alert("Load at least one page-map CSV first.");return}
+    try{
+      const allWords=this.words.map(r=>({wordId:Number(r.word_number_all),surah:Number(r.surah_number),ayah:Number(r.ayah_number),word:Number(r.word_number),uthmani:stripOuterQuotes(r.uthmani||""),indopak:stripOuterQuotes(r.indopak||""),dk_indopak:stripOuterQuotes(r.dk_indopak||""),qpc_v1:stripOuterQuotes(r.qpc_v1||""),is_ayah_marker:String(r.is_ayah_marker)==="1"})).filter(x=>x.wordId>0);
+      await DB.putBatch("words",allWords,2500);
+      for(const mushafId of Object.keys(this.maps)){
+        const rows=this.maps[mushafId];if(!rows)continue;
+        await DB.putBatch("page_lines",rows.map(r=>({mushafId,...r})),2000);
+        await DB.put("packs",{mushafId,pages:CONFIG[mushafId].pages,lineRecords:rows.length,wordRecords:allWords.length,installedAt:Date.now()});
+      }
+      document.getElementById("manualStatus").textContent="✓ CSV data written to IndexedDB.";
+      await DataPack.status();await App.render();
+    }catch(e){document.getElementById("manualStatus").textContent=`Build failed: ${e.message}`}
+  }
+};
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+const App = {
+  currentMushaf:"madani1405",
+  currentPage:1,
+  student:null,
+  students:[],
+
+  async init(){
+    try{
+      await DB.init();
+      if(!(await DB.get("meta","institution_profile"))){
+        await DB.put("meta",{key:"institution_profile",name:"Al-Halaqah",subtitle:"Hifz Progress System",teacherName:"",academicYear:String(new Date().getFullYear())});
+      }
+
+    const packs=await DB.getAll("packs");
+    const words=await DB.getAll("words");
+    const fonts=await DB.getAll("fonts");
+    if(packs.length<2 || words.length<80000 || fonts.length<605){
+      DataPack.status();
+      if(navigator.onLine)setTimeout(()=>DataPack.installAll(),250);
+    }
+
+      this.students=await DB.getAll("students");
+
+      if(!this.students.length){
+        const student={
+          name:"Hifdh Student",
+          mushafId:"madani1405",
+          lastPages:{madani1405:1,indopakQudratullah:1},
+          lessons:{madani1405:{from:1,to:1},indopakQudratullah:{from:1,to:1}}
+        };
+
+        student.id=await DB.add("students",student);
+        this.student=student;
+        this.students=[student];
+      }else{
+        this.student=this.students[0];
+      }
+      for(const s of this.students){
+        if(!s.lessons)s.lessons={madani1405:{from:1,to:1},indopakQudratullah:{from:1,to:1}};
+        if(!s.lastPages)s.lastPages={madani1405:1,indopakQudratullah:1};
+      }
+      await Promise.all(this.students.map(s=>DB.put("students",s)));
+
+      this.currentMushaf=
+        this.student.mushafId||"madani1405";
+
+      this.currentPage=
+        this.student.lastPages?.[this.currentMushaf]||1;
+
+      this.updateUI();
+      await DataPack.status();
+      await this.render();
+
+      addEventListener("resize",()=>{
+        CanvasTool.resizeAll();
+      });
+
+      addEventListener("keydown",e=>{
+        if(["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName)){
+          return;
+        }
+
+        if(e.key==="ArrowLeft"){
+          this.turnPage(-1);
+        }
+
+        if(e.key==="ArrowRight"){
+          this.turnPage(1);
+        }
+      });
+
+      setStatus("QUL Offline engine ready","success");
+
+    }catch(error){
+      console.error(error);
+      setStatus(`Startup error: ${error.message}`,"error");
+    }
+  },
+
+  isSpread(){
+    return innerWidth>960 && innerWidth>innerHeight;
+  },
+
+  async saveStudent(){
+    if(this.student){
+      await DB.put("students",this.student);
+    }
+  },
+
+  async setMushaf(id){
+    if(!CONFIG[id])return;
+
+    this.currentMushaf=id;
+    this.student.mushafId=id;
+
+    if(!this.student.lastPages){
+      this.student.lastPages={};
+    }
+
+    this.currentPage=
+      this.student.lastPages[id]||1;
+
+    await this.saveStudent();
+    this.updateUI();
+    await this.render();
+  },
+
+  async toggleMushaf(){
+    await this.setMushaf(
+      this.currentMushaf==="madani1405"
+        ? "indopakQudratullah"
+        : "madani1405"
+    );
+  },
+
+  async render(){
+    const cfg=CONFIG[this.currentMushaf];
+
+    let rightPage=this.currentPage;
+    let leftPage=null;
+
+    if(this.isSpread()){
+      rightPage=rightPage%2===1?rightPage:rightPage-1;
+
+      if(rightPage<1){
+        rightPage=1;
+      }
+
+      leftPage=
+        rightPage+1<=cfg.pages
+          ? rightPage+1
+          : null;
+    }
+
+    this.currentPage=rightPage;
+
+    this.student.lastPages[this.currentMushaf]=rightPage;
+    await this.saveStudent();
+
+    document.getElementById("sheetLeft").style.display=
+      leftPage ? "flex" : "none";
+
+    document.getElementById("pageBadge").textContent=
+      leftPage
+        ? `p. ${rightPage}–${leftPage} / ${cfg.pages}`
+        : `p. ${rightPage} / ${cfg.pages}`;
+
+    await this.renderSheet(rightPage,"Right");
+
+    if(leftPage){
+      await this.renderSheet(leftPage,"Left");
+    }
+
+    CanvasTool.resizeAll();
+  },
+
+  async renderSheet(page,side){
+    const cfg=CONFIG[this.currentMushaf];
+    const container=document.getElementById(`lines${side}`);
+
+    container.innerHTML="";
+
+    const lines=await DB.pageLines(
+      this.currentMushaf,
+      page
+    );
+
+    if(!lines.length){
+      container.innerHTML=`
+        <div class="warning" style="
+          grid-row:1/16;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
+        ">
+          <div>
+            <strong>QUL package required</strong>
+            <br><br>
+            ${escapeHTML(cfg.short)}
+            <br>
+            Page ${page}
+            <br><br>
+            Open ⚙️ → Data and install this edition.
+          </div>
+        </div>
+      `;
+
+      this.setMeta(side,page,null);
+      CanvasTool.init(side,page,this.currentMushaf);
+      return;
+    }
+
+    const byLine=new Map(
+      lines.map(row=>[row.line,row])
+    );
+
+    let firstSurah=null;
+
+    let qcfFont=null;
+
+    if(cfg.mode==="qcf"){
+      try{
+        qcfFont=await FontStore.loadQCF(page);
+      }catch(error){
+        console.warn(error);
+      }
+    }else{
+      try{
+        await FontStore.loadIndoPak();
+      }catch(error){
+        console.warn("Indo-Pak font unavailable:",error);
+        container.innerHTML=`<div class="warning" style="grid-row:1/16;display:flex;align-items:center;justify-content:center;text-align:center"><div><strong>Indo-Pak font is not installed</strong><br><br>Connect to the internet once and allow the official Qudratullah Nastaleeq font to download.<br><br>Do not use a generic Urdu/Nastaliq fallback.</div></div>`;
+        this.setMeta(side,page,firstSurah);
+        CanvasTool.init(side,page,this.currentMushaf);
+        return;
+      }
+    }
+
+    for(let lineNumber=1;lineNumber<=15;lineNumber++){
+      const info=byLine.get(lineNumber);
+      const row=document.createElement("div");
+
+      row.className="qul-line";
+
+      if(cfg.mode==="qcf"){
+        row.classList.add("qcf");
+        if(qcfFont){
+          row.style.setProperty("--qcf-font",`"${qcfFont}"`);
+        }
+      }else{
+        row.classList.add("indopak");
+      }
+
+      if(info?.centered){
+        row.classList.add("centered");
+      }
+
+      if(!info){
+        container.appendChild(row);
+        continue;
+      }
+
+      if(info.type==="surah_name"){
+        firstSurah=info.start;
+
+        row.innerHTML=`
+          <div class="surah-line">
+            سُورَةُ ${escapeHTML(
+              SURAH_NAMES[info.start]||""
+            )}
+          </div>
+        `;
+      }
+
+      else if(info.type==="basmallah"){
+        row.innerHTML=`
+          <div class="bismillah-line">﷽</div>
+        `;
+      }
+
+      else if(info.type==="ayah"){
+        const words=await DB.wordsRange(
+          info.start,
+          info.end
+        );
+
+        const text=document.createElement("div");
+        text.className="qul-text";
+
+        if(cfg.mode==="qcf"){
+          /*
+           * QCF V1 is glyph-based.
+           * No artificial spaces are inserted.
+           */
+          for(const word of words){
+            const span=document.createElement("span");
+            span.className="word";
+            span.dataset.wordId=String(word.wordId);
+            span.dataset.surah=String(word.surah||"");
+            span.dataset.ayah=String(word.ayah||"");
+            span.textContent=word[cfg.wordColumn]||"";
+
+            if(isAllah(word.uthmani)){
+              span.classList.add("lafdh");
+            }
+
+            text.appendChild(span);
+          }
+        }else{
+          words.forEach(word=>{
+            const span=document.createElement("span");
+            span.className="word";
+            span.dataset.wordId=String(word.wordId);
+            span.dataset.surah=String(word.surah||"");
+            span.dataset.ayah=String(word.ayah||"");
+            span.textContent=word.dk_indopak||word.indopak||"";
+            if(isAllah(word.uthmani))span.classList.add("lafdh");
+            text.appendChild(span);
+          });
+        }
+
+        row.appendChild(text);
+      }
+
+      container.appendChild(row);
+    }
+
+    this.setMeta(side,page,firstSurah);
+    await this.applyStudentPageMarks(side,page);
+    CanvasTool.init(side,page,this.currentMushaf);
+  },
+
+  async applyStudentPageMarks(side,page){
+    if(!this.student)return;
+    const work=await DB.work(this.student.id,this.currentMushaf,page);
+    const ayahs=new Set((work?.ayahMarks||[]).map(String));
+    const words=new Map((work?.wordMarks||[]).map(x=>[String(x.wordId),x.type]));
+    document.querySelectorAll(`#lines${side} .word`).forEach(el=>{
+      const key=`${el.dataset.surah}:${el.dataset.ayah}`;
+      el.classList.toggle("ayah-marked",ayahs.has(key));
+      el.classList.toggle("mark-ghalat",words.get(el.dataset.wordId)==="ghalat");
+      el.classList.toggle("mark-tajweed",words.get(el.dataset.wordId)==="tajweed");
+    });
+  },
+
+  setMeta(side,page,surah){
+    const prefix=side.toLowerCase();
+    const cfg=CONFIG[this.currentMushaf];
+
+    document.getElementById(
+      `${prefix}Mushaf`
+    ).textContent=cfg.short;
+
+    document.getElementById(
+      `${prefix}Page`
+    ).textContent=arNumber(page);
+
+    document.getElementById(
+      `${prefix}Surah`
+    ).textContent=
+      surah
+        ? `سورة ${SURAH_NAMES[surah]||""}`
+        : "سورة --";
+
+    document.getElementById(
+      `${prefix}Juz`
+    ).textContent="الجزء --";
+  },
+
+  updateUI(){
+    const cfg=CONFIG[this.currentMushaf];
+
+    document.getElementById(
+      "mushafBadge"
+    ).textContent=`📖 ${cfg.short}`;
+
+    document.getElementById(
+      "studentBadge"
+    ).textContent=
+      `👤 ${this.student?.name||"Student"}`;
+    Students.syncLessonUI();
+  },
+
+  turnPage(delta){
+    const cfg=CONFIG[this.currentMushaf];
+    const step=this.isSpread()?2:1;
+
+    this.currentPage=Math.max(
+      1,
+      Math.min(
+        cfg.pages,
+        this.currentPage+(delta*step)
+      )
+    );
+
+    this.render();
+  },
+
+  jump(){
+    const cfg=CONFIG[this.currentMushaf];
+
+    const value=prompt(
+      `Page 1-${cfg.pages}`,
+      this.currentPage
+    );
+
+    if(value===null)return;
+
+    const page=Number.parseInt(value,10);
+
+    if(
+      !Number.isInteger(page) ||
+      page<1 ||
+      page>cfg.pages
+    ){
+      alert(`Enter a page from 1 to ${cfg.pages}.`);
+      return;
+    }
+
+    this.currentPage=page;
+    this.render();
+  }
+};
 
 /* =========================================================
    STUDENTS
-========================================================= */
+   ========================================================= */
+
 const Students = {
-    async all(){ return await DB.all("students"); },
+  async add(){
+    const input=document.getElementById("studentName");
+    const name=input.value.trim();
 
-    async refreshSelect(){
-        const select = document.getElementById("studentSelect");
-        const students = await Students.all();
+    if(!name)return;
 
-        select.innerHTML = `<option value="">Student</option>`;
-        for(const s of students){
-            const opt = document.createElement("option");
-            opt.value = s.id;
-            opt.textContent = s.roll ? `${s.roll} — ${s.name}` : s.name;
-            select.appendChild(opt);
-        }
+    const student={
+      name,
+      mushafId:App.currentMushaf,
+      lastPages:{madani1405:1,indopakQudratullah:1},
+      lessons:{madani1405:{from:1,to:1},indopakQudratullah:{from:1,to:1}}
+    };
 
-        if(State.student) select.value = State.student.id;
+    student.id=await DB.add(
+      "students",
+      student
+    );
 
-        await Students.renderCards();
-        Students.updateDrawer();
-    },
+    App.students.push(student);
+    input.value="";
+    this.render();
+  },
 
-    async select(id){
-        if(!id){
-            State.student = null;
-            UI.updateStudentUI();
-            await Reader.loadPage();
-            return;
-        }
-
-        const student = await DB.get("students",id);
-        if(!student) return;
-
-        State.student = student;
-
-        State.mushaf = student.currentMushaf || student.primaryMushaf || "madani";
-        State.page    = Number(student.pages?.[State.mushaf] || 1);
-
-        document.getElementById("mushafSelect").value = State.mushaf;
-
-        UI.updateStudentUI();
-        await Reader.loadPage();
-        toast(`${student.name} selected`);
-    },
-
-    openAdd(){
-        State.editStudentId = null;
-
-        document.getElementById("studentRoll").value = "";
-        document.getElementById("studentName").value = "";
-        document.getElementById("studentClass").value = "";
-        document.getElementById("studentNotes").value = "";
-
-        Students.populateMushafSelects();
-        document.getElementById("studentPrimaryMushaf").value = "madani";
-        document.getElementById("studentSecondMushaf").value = "";
-
-        UI.openModal("studentModal");
-    },
-
-    async edit(id){
-        const s = await DB.get("students",id);
-        if(!s) return;
-
-        State.editStudentId = id;
-
-        document.getElementById("studentRoll").value  = s.roll || "";
-        document.getElementById("studentName").value  = s.name || "";
-        document.getElementById("studentClass").value = s.className || "";
-        document.getElementById("studentNotes").value = s.notes || "";
-
-        Students.populateMushafSelects();
-        document.getElementById("studentPrimaryMushaf").value =
-            s.primaryMushaf || "madani";
-        document.getElementById("studentSecondMushaf").value =
-            s.secondMushaf || "";
-
-        UI.openModal("studentModal");
-    },
-
-    populateMushafSelects(){
-        const primary = document.getElementById("studentPrimaryMushaf");
-        const second  = document.getElementById("studentSecondMushaf");
-
-        const options = `
-            <option value="madani">Madani 1405H</option>
-            <option value="indopak">Indo-Pak Qudratullah</option>
-        `;
-
-        primary.innerHTML = options;
-        second.innerHTML  = `<option value="">None</option>` + options;
-    },
-
-    async save(){
-        const name = document.getElementById("studentName").value.trim();
-        if(!name){ toast("Student name required"); return; }
-
-        const primary = document.getElementById("studentPrimaryMushaf").value;
-        const second  = document.getElementById("studentSecondMushaf").value;
-
-        const now = Date.now();
-        let student;
-
-        if(State.editStudentId){
-            student = await DB.get("students",State.editStudentId);
-        } else {
-            student = {
-                id: "stu_"+now+"_"+Math.random().toString(36).slice(2,8),
-                createdAt: now,
-                pages: { madani:1, indopak:1 },
-                currentMushaf: primary
-            };
-        }
-
-        student.roll = document.getElementById("studentRoll").value.trim();
-        student.name = name;
-        student.className = document.getElementById("studentClass").value.trim();
-        student.primaryMushaf = primary;
-        student.secondMushaf  = second;
-        student.notes = document.getElementById("studentNotes").value.trim();
-
-        if(!student.pages) student.pages = { madani:1, indopak:1 };
-        if(!student.currentMushaf) student.currentMushaf = primary;
-
-        await DB.put("students",student);
-
-        State.student = student;
-        UI.closeModal("studentModal");
-        await Students.refreshSelect();
-        await Reader.loadPage();
-        toast("Student saved");
-    },
-
-    async remove(id){
-        const s = await DB.get("students",id);
-        if(!s) return;
-        if(!confirm(`Delete student "${s.name}"?`)) return;
-
-        await DB.delete("students",id);
-
-        const works = await DB.all("student_work");
-        for(const work of works){
-            if(work.studentId===id) await DB.delete("student_work",work.id);
-        }
-
-        const lessons = await DB.all("lesson_records");
-        for(const lesson of lessons){
-            if(lesson.studentId===id) await DB.delete("lesson_records",lesson.id);
-        }
-
-        if(State.student && State.student.id===id) State.student = null;
-
-        await Students.refreshSelect();
-        await Reader.loadPage();
-        toast("Student deleted");
-    },
-
-    async renderCards(){
-        const box = document.getElementById("studentCards");
-        if(!box) return;
-
-        const students = await Students.all();
-        box.innerHTML = "";
-
-        if(!students.length){
-            box.innerHTML = `
-                <div class="card">
-                    <strong>No students yet.</strong>
-                    <p style="font-size:11px;color:#777">
-                        Add a student to start.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        for(const s of students){
-            const card = document.createElement("div");
-            card.className = "student-card";
-
-            card.innerHTML = `
-                <h4>${escapeHTML(s.name)}</h4>
-                <p>Roll: ${escapeHTML(s.roll || "—")}</p>
-                <p>Class: ${escapeHTML(s.className || "—")}</p>
-                <p>Primary: ${escapeHTML(APP.mushaf[s.primaryMushaf||"madani"].name)}</p>
-                <p>Current: ${escapeHTML(APP.mushaf[s.currentMushaf||"madani"].name)}</p>
-                <div class="action-row">
-                    <button class="btn green" data-edit="${s.id}">Select / Edit</button>
-                    <button class="btn red" data-delete="${s.id}">Delete</button>
-                </div>
-            `;
-
-            card.querySelector("[data-edit]").onclick = async()=>{
-                if(State.student?.id===s.id) await Students.edit(s.id);
-                else await Students.select(s.id);
-            };
-            card.querySelector("[data-delete]").onclick = ()=>Students.remove(s.id);
-
-            box.appendChild(card);
-        }
-    },
-
-    updateDrawer(){
-        const el = document.getElementById("drawerStudent");
-        if(!el) return;
-        el.textContent = State.student ? State.student.name : "No student";
+  async saveLesson(){
+    if(!App.student)return;
+    const from=Number.parseInt(document.getElementById("lessonFrom").value,10);
+    const to=Number.parseInt(document.getElementById("lessonTo").value,10);
+    const max=CONFIG[App.currentMushaf].pages;
+    if(!Number.isInteger(from)||!Number.isInteger(to)||from<1||to<from||to>max){
+      document.getElementById("lessonStatus").textContent=`Enter pages 1–${max}.`;
+      return;
     }
-};
+    if(!App.student.lessons)App.student.lessons={};
+    App.student.lessons[App.currentMushaf]={from,to};
+    await App.saveStudent();
+    document.getElementById("lessonStatus").textContent=`Lesson saved: ${from}–${to}`;
+    this.render();
+  },
 
-/* =========================================================
-   READER
-========================================================= */
-const Reader = {
-    async init(){
-        await loadLayout("madani");
-        await loadLayout("indopak");
-        await loadWords();
-        await FontStore.loadIndoPak();
-        await Reader.loadPage();
-    },
+  syncLessonUI(){
+    if(!App.student)return;
+    const l=App.student.lessons?.[App.currentMushaf]||{from:1,to:1};
+    const a=document.getElementById("lessonFrom"),b=document.getElementById("lessonTo");
+    if(a)a.value=l.from;
+    if(b)b.value=l.to;
+  },
 
-    maxPage(){ return APP.mushaf[State.mushaf].pages; },
+  async select(student){
+    App.student=student;
+    App.currentMushaf=
+      student.mushafId||"madani1405";
 
-    async go(page){
-        let p = parseInt(page,10);
-        if(!Number.isFinite(p)) p = State.page;
+    App.currentPage=
+      student.lastPages?.[
+        App.currentMushaf
+      ]||1;
 
-        const max = Reader.maxPage();
-        if(p<1) p=1;
-        if(p>max) p=max;
+    await App.saveStudent();
+    App.updateUI();
+    await App.render();
+    this.syncLessonUI();
+    this.render();
+  },
 
-        State.page = p;
-        document.getElementById("pageInput").value = p;
+  render(){
+    const box=document.getElementById(
+      "studentsList"
+    );
 
-        await Reader.persistPosition();
-        await Reader.loadPage();
-    },
+    box.innerHTML="";
 
-    async prev(){
-        if(State.page<=1){ toast("Already on first page"); return; }
-        await Reader.go(State.page-1);
-    },
+    for(const student of App.students){
+      const cfg=
+        CONFIG[
+          student.mushafId||"madani1405"
+        ];
 
-    async next(){
-        const max = Reader.maxPage();
-        if(State.page>=max){ toast("Already on last page"); return; }
-        await Reader.go(State.page+1);
-    },
+      const item=document.createElement("div");
+      item.className="list-item";
 
-    async changeMushaf(mushaf){
-        if(!APP.mushaf[mushaf]) return;
+      item.innerHTML=`
+        <div>
+          <strong>${escapeHTML(student.name)}</strong>
+          <br>
+          <span class="small">
+            ${escapeHTML(cfg.short)}
+          </span>
+        </div>
+        <button class="action">Select</button>
+      `;
 
-        State.mushaf = mushaf;
+      item.querySelector("button").onclick=
+        ()=>this.select(student);
 
-        if(State.student){
-            if(!State.student.pages){
-                State.student.pages = { madani:1, indopak:1 };
-            }
-            State.page = Number(State.student.pages[mushaf] || 1);
-            State.student.currentMushaf = mushaf;
-            await DB.put("students",State.student);
-        } else {
-            State.page = Number(State.readerPage || 1);
-        }
-
-        document.getElementById("mushafSelect").value = mushaf;
-
-        await Reader.loadPage();
-        toast(APP.mushaf[mushaf].name);
-    },
-
-    async persistPosition(){
-        if(!State.student) return;
-        const s = State.student;
-        if(!s.pages) s.pages = { madani:1, indopak:1 };
-        s.pages[State.mushaf] = State.page;
-        s.currentMushaf = State.mushaf;
-        await DB.put("students",s);
-    },
-
-    async loadPage(){
-        const max = Reader.maxPage();
-        if(State.page<1) State.page=1;
-        if(State.page>max) State.page=max;
-
-        await FontStore.loadQCF(State.page);
-
-        const pageMap = State.layouts[State.mushaf];
-        const records = pageMap.get(State.page) || [];
-
-        const container = document.getElementById("quranLines");
-        container.innerHTML = "";
-
-        State.currentPageWords = [];
-
-        // Exactly 15 physical line slots
-        for(let lineNo=1; lineNo<=15; lineNo++){
-            const record = records.find(x=>x.line===lineNo);
-            const line = document.createElement("div");
-            line.className = "quran-line";
-
-            if(!record){
-                line.classList.add("empty");
-                container.appendChild(line);
-                continue;
-            }
-
-            if(record.type==="surah_name"){
-                line.classList.add("surah");
-                Reader.renderSurahLine(line,record);
-                container.appendChild(line);
-                continue;
-            }
-
-            if(record.type==="basmallah"){
-                line.classList.add("basmallah");
-                Reader.renderBasmallah(line);
-                container.appendChild(line);
-                continue;
-            }
-
-            Reader.renderWordLine(line,record);
-            container.appendChild(line);
-        }
-
-        // Header
-        document.getElementById("pageArabic").textContent = arabicDigits(State.page);
-        document.getElementById("pageInput").value = State.page;
-        document.getElementById("pageTotal").textContent = `/ ${max}`;
-        document.getElementById("mushafSelect").value = State.mushaf;
-        document.getElementById("juzLabel").textContent = "الجزء —";
-
-        // Boundary button state
-        const prevBtn = document.getElementById("prevPageButton");
-        const nextBtn = document.getElementById("nextPageButton");
-
-        prevBtn.disabled = State.page<=1;
-        nextBtn.disabled = State.page>=max;
-        prevBtn.style.opacity = State.page<=1 ? ".45" : "1";
-        nextBtn.style.opacity = State.page>=max ? ".45" : "1";
-
-        document.getElementById("readerStatus").textContent =
-            `${APP.mushaf[State.mushaf].name} • Page ${State.page}/${max}` +
-            (State.student ? " • " + State.student.name : "");
-
-        await Reader.applyMarks();
-    },
-
-    renderSurahLine(line,record){
-        const box = document.createElement("div");
-        box.className = "quran-text";
-
-        const span = document.createElement("span");
-        span.className = "surah-name";
-
-        // Look up surah name from first word inside range
-        const first = State.wordMap.get(String(record.start));
-        if(first){
-            // Use surah number to fetch name from a small map
-            span.textContent = `سُورَةُ ${SURAH_NAMES[first.surah] || first.surah}`;
-        } else {
-            span.textContent = "سُورَة";
-        }
-
-        box.appendChild(span);
-        line.appendChild(box);
-    },
-
-    renderBasmallah(line){
-        const box = document.createElement("div");
-        box.className = "quran-text basmallah-text";
-        box.textContent = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
-        line.appendChild(box);
-    },
-
-    renderWordLine(line,record){
-        const box = document.createElement("div");
-        box.className = "quran-text " + (State.mushaf==="madani" ? "qcf" : "indopak");
-
-        if(State.mushaf==="madani"){
-            box.style.fontFamily = `"AlHalaqahQCF${State.page}"`;
-        } else {
-            box.style.fontFamily = `"AlHalaqahIndoPak"`;
-        }
-
-        const words = [];
-        for(let n=record.start; n<=record.end; n++){
-            const word = State.wordMap.get(String(n));
-            if(word) words.push(word);
-        }
-
-        State.currentPageWords.push(...words);
-
-        for(const word of words){
-            const span = document.createElement("span");
-            span.className = "quran-word";
-            span.dataset.wordId       = word.id;
-            span.dataset.surah        = word.surah;
-            span.dataset.ayah         = word.ayah;
-            span.dataset.wordNumber   = word.wordNumber;
-            span.dataset.globalWord   = word.wordNumberAll;
-
-            const text = getWordText(word,State.mushaf);
-            span.textContent = text;
-
-            if(isAllah(text)) span.classList.add("divine");
-
-            span.onclick = event => {
-                event.stopPropagation();
-                Reader.wordClick(word,span);
-            };
-
-            box.appendChild(span);
-        }
-
-        line.appendChild(box);
-    },
-
-    async wordClick(word,span){
-        if(State.tool==="none"){
-            State.lastAyah = { surah:word.surah, ayah:word.ayah };
-            toast(`Surah ${word.surah} • Ayah ${word.ayah}`);
-            return;
-        }
-
-        if(!State.student){ toast("Select a student first"); return; }
-
-        const work = await DB.getStudentWork(
-            State.student.id, State.mushaf, State.page
-        );
-
-        if(State.tool==="ghalat"){
-            const id = String(word.wordNumberAll);
-            if(work.wordMarks[id]==="ghalat"){
-                delete work.wordMarks[id];
-                span.classList.remove("mark-ghalat");
-            } else {
-                work.wordMarks[id]="ghalat";
-                span.classList.remove("mark-tajweed");
-                span.classList.add("mark-ghalat");
-            }
-        }
-        else if(State.tool==="tajweed"){
-            const id = String(word.wordNumberAll);
-            if(work.wordMarks[id]==="tajweed"){
-                delete work.wordMarks[id];
-                span.classList.remove("mark-tajweed");
-            } else {
-                work.wordMarks[id]="tajweed";
-                span.classList.remove("mark-ghalat");
-                span.classList.add("mark-tajweed");
-            }
-        }
-        else if(State.tool==="ayah"){
-            const key = `${word.surah}:${word.ayah}`;
-            const set = new Set(work.ayahMarks || []);
-            if(set.has(key)){ set.delete(key); span.classList.remove("mark-ayah"); }
-            else { set.add(key); span.classList.add("mark-ayah"); }
-            work.ayahMarks = Array.from(set);
-        }
-
-        await DB.saveStudentWork(work);
-    },
-
-    async applyMarks(){
-        if(!State.student) return;
-
-        const work = await DB.getStudentWork(
-            State.student.id, State.mushaf, State.page
-        );
-
-        document.querySelectorAll(".quran-word").forEach(span=>{
-            const id = span.dataset.globalWord;
-            const mark = work.wordMarks[id];
-
-            if(mark==="ghalat")  span.classList.add("mark-ghalat");
-            if(mark==="tajweed") span.classList.add("mark-tajweed");
-
-            const key = `${span.dataset.surah}:${span.dataset.ayah}`;
-            if((work.ayahMarks||[]).includes(key)){
-                span.classList.add("mark-ayah");
-            }
-        });
-    },
-
-    tool(name,button){
-        State.tool = name;
-
-        document.querySelectorAll(".tool[data-tool]").forEach(btn=>{
-            btn.classList.remove("active");
-        });
-
-        if(button) button.classList.add("active");
-    },
-
-    async playAyah(){
-        let ayah = State.lastAyah;
-        if(!ayah){
-            const first = State.currentPageWords[0];
-            if(first) ayah = { surah:first.surah, ayah:first.ayah };
-        }
-        if(!ayah){ toast("Select an Ayah first"); return; }
-
-        const url =
-            `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${Reader.ayahGlobalNumber(ayah)}.mp3`;
-
-        try{
-            const audio = new Audio(url);
-            await audio.play();
-        } catch(e){
-            toast("Audio needs an internet connection");
-        }
-    },
-
-    ayahGlobalNumber(ayah){
-        // Standard cumulative ayah counter for AlQuran.cloud
-        // Simple approximation: look up in word data
-        const word = State.words.find(
-            w => w.surah===ayah.surah && w.ayah===ayah.ayah && !w.isAyahMarker
-        );
-        return word ? word.wordNumberAll : 1;
-    },
-
-    pageDialog(){
-        const value = prompt(
-            `Go to page (1-${Reader.maxPage()}):`,
-            State.page
-        );
-        if(value!==null) Reader.go(value);
+      box.appendChild(item);
     }
-};
-
-/* =========================================================
-   SURAH NAMES (for surah header rendering)
-========================================================= */
-const SURAH_NAMES = {
-    1:"الفَاتِحَة", 2:"البَقَرَة", 3:"آلِ عِمْرَان", 4:"النِّسَاء",
-    5:"المَائِدَة", 6:"الْأَنْعَام", 7:"الْأَعْرَاف", 8:"الْأَنْفَال",
-    9:"التَّوْبَة", 10:"يُونُس", 11:"هُود", 12:"يُوسُف", 13:"الرَّعْد",
-    14:"إِبْرَاهِيم", 15:"الْحِجْر", 16:"النَّحْل", 17:"الإِسْرَاء",
-    18:"الْكَهْف", 19:"مَرْيَم", 20:"طه", 21:"الْأَنْبِيَاء", 22:"الْحَجّ",
-    23:"الْمُؤْمِنُون", 24:"النُّور", 25:"الْفُرْقَان", 26:"الشُّعَرَاء",
-    27:"النَّمْل", 28:"الْقَصَص", 29:"الْعَنْكَبُوت", 30:"الرُّوم",
-    31:"لُقْمَان", 32:"السَّجْدَة", 33:"الْأَحْزَاب", 34:"سَبَإ",
-    35:"فَاطِر", 36:"يس", 37:"الصَّافَّات", 38:"ص", 39:"الزُّمَر",
-    40:"غَافِر", 41:"فُصِّلَت", 42:"الشُّورَى", 43:"الزُّخْرُف",
-    44:"الدُّخَان", 45:"الْجَاثِيَة", 46:"الْأَحْقَاف", 47:"مُحَمَّد",
-    48:"الْفَتْح", 49:"الْحُجُرَات", 50:"ق", 51:"الذَّارِيَات",
-    52:"الطُّور", 53:"النَّجْم", 54:"الْقَمَر", 55:"الرَّحْمَن",
-    56:"الْوَاقِعَة", 57:"الْحَدِيد", 58:"الْمُجَادِلَة", 59:"الْحَشْر",
-    60:"الْمُمْتَحَنَة", 61:"الصَّف", 62:"الْجُمُعَة", 63:"الْمُنَافِقُون",
-    64:"التَّغَابُن", 65:"الطَّلَاق", 66:"التَّحْرِيم", 67:"الْمُلْك",
-    68:"الْقَلَم", 69:"الْحَاقَّة", 70:"الْمَعَارِج", 71:"نُوح",
-    72:"الْجِن", 73:"الْمُزَّمِّل", 74:"الْمُدَّثِّر", 75:"الْقِيَامَة",
-    76:"الْإِنْسَان", 77:"الْمُرْسَلَات", 78:"النَّبَأ", 79:"النَّازِعَات",
-    80:"عَبَس", 81:"التَّكْوِير", 82:"الْإِنْفِطَار", 83:"الْمُطَفِّفِين",
-    84:"الْإِنْشِقَاق", 85:"الْبُرُوج", 86:"الطَّارِق", 87:"الْأَعْلَى",
-    88:"الْغَاشِيَة", 89:"الْفَجْر", 90:"الْبَلَد", 91:"الشَّمْس",
-    92:"اللَّيْل", 93:"الضُّحَى", 94:"الشَّرْح", 95:"التِّين",
-    96:"الْعَلَق", 97:"الْقَدْر", 98:"الْبَيِّنَة", 99:"الزَّلْزَلَة",
-    100:"الْعَادِيَات", 101:"الْقَارِعَة", 102:"التَّكَاثُر", 103:"الْعَصْر",
-    104:"الْهُمَزَة", 105:"الْفِيل", 106:"قُرَيْش", 107:"الْمَاعُون",
-    108:"الْكَوْثَر", 109:"الْكَافِرُون", 110:"النَّصْر", 111:"الْمَسَد",
-    112:"الْإِخْلَاص", 113:"الْفَلَق", 114:"النَّاس"
-};
-
-/* =========================================================
-   LESSON
-========================================================= */
-const Lesson = {
-    async endDialog(){
-        if(!State.student){ toast("Select a student first"); return; }
-
-        const mushaf = document.getElementById("lessonMushaf");
-        mushaf.innerHTML = `
-            <option value="madani">Madani 1405H</option>
-            <option value="indopak">Indo-Pak Qudratullah</option>
-        `;
-        mushaf.value = State.mushaf;
-
-        const type = document.getElementById("lessonType");
-        type.innerHTML = "";
-        for(const c of State.categories){
-            const option = document.createElement("option");
-            option.value = c.id;
-            option.textContent = `${c.label} — ${c.arabic}`;
-            type.appendChild(option);
-        }
-
-        document.getElementById("lessonFromPage").value = State.page;
-        document.getElementById("lessonToPage").value   = State.page;
-        document.getElementById("lessonFromSurah").value = "";
-        document.getElementById("lessonToSurah").value   = "";
-        document.getElementById("lessonFromAyah").value  = "";
-        document.getElementById("lessonToAyah").value    = "";
-
-        UI.openModal("lessonModal");
-    },
-
-    async saveEnd(){
-        if(!State.student){ toast("No student selected"); return; }
-
-        const fromPage = Number(document.getElementById("lessonFromPage").value);
-        const toPage   = Number(document.getElementById("lessonToPage").value);
-
-        if(!Number.isFinite(fromPage) || !Number.isFinite(toPage)){
-            toast("Enter lesson pages");
-            return;
-        }
-
-        const typeId = document.getElementById("lessonType").value;
-        const category = State.categories.find(x=>x.id===typeId);
-
-        const record = {
-            id: "lesson_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
-            studentId: State.student.id,
-            studentName: State.student.name,
-            mushaf: document.getElementById("lessonMushaf").value,
-            type: typeId,
-            typeLabel: category ? category.label : typeId,
-            typeArabic: category ? category.arabic : "",
-            fromPage, toPage,
-            fromSurah: document.getElementById("lessonFromSurah").value.trim(),
-            toSurah:   document.getElementById("lessonToSurah").value.trim(),
-            fromAyah: Number(document.getElementById("lessonFromAyah").value) || null,
-            toAyah:   Number(document.getElementById("lessonToAyah").value) || null,
-            date: new Date().toISOString(),
-            currentPage: State.page
-        };
-
-        await DB.put("lesson_records",record);
-        UI.closeModal("lessonModal");
-        toast("Lesson saved");
-    }
-};
-
-/* =========================================================
-   LESSON HISTORY
-========================================================= */
-const Lessons = {
-    open(){
-        document.getElementById("lessonsPanel").classList.add("open");
-        Lessons.render();
-    },
-    close(){
-        document.getElementById("lessonsPanel").classList.remove("open");
-    },
-    async render(){
-        const title = document.getElementById("lessonHistoryTitle");
-        const body  = document.getElementById("lessonHistoryBody");
-
-        if(!State.student){
-            title.textContent = "No student selected";
-            body.innerHTML = "";
-            return;
-        }
-
-        title.textContent = `${State.student.name} — Lesson History`;
-
-        const all = await DB.all("lesson_records");
-        const records = all
-            .filter(x=>x.studentId===State.student.id)
-            .sort((a,b)=> new Date(b.date) - new Date(a.date));
-
-        body.innerHTML = "";
-
-        records.forEach((r,i)=>{
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${i+1}</td>
-                <td>${formatDate(r.date)}</td>
-                <td>${escapeHTML(r.typeLabel || "")}</td>
-                <td>${r.fromPage}</td>
-                <td>${r.toPage}</td>
-                <td>${r.currentPage || ""}</td>
-            `;
-            body.appendChild(tr);
-        });
-
-        if(!records.length){
-            body.innerHTML = `
-                <tr><td colspan="6">No lesson records.</td></tr>
-            `;
-        }
-    }
-};
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-const Settings = {
-    open(){
-        document.getElementById("settingsPanel").classList.add("open");
-        Settings.load();
-    },
-    close(){
-        document.getElementById("settingsPanel").classList.remove("open");
-    },
-    tab(name,button){
-        document.querySelectorAll(".settings-tab").forEach(
-            x=>x.classList.remove("active")
-        );
-        if(button) button.classList.add("active");
-
-        document.querySelectorAll(".settings-section").forEach(
-            x=>x.classList.remove("active")
-        );
-
-        const section = document.getElementById("settings-"+name);
-        if(section) section.classList.add("active");
-    },
-    async load(){
-        const i = State.institution;
-
-        document.getElementById("institutionName").value       = i.name || "";
-        document.getElementById("institutionRunBy").value      = i.runBy || "";
-        document.getElementById("institutionAddress").value    = i.address || "";
-        document.getElementById("institutionPhone").value      = i.phone || "";
-        document.getElementById("institutionTeacher").value    = i.teacher || "";
-        document.getElementById("institutionDepartment").value = i.department || "";
-
-        document.getElementById("reportTitle").value            = State.report.title;
-        document.getElementById("reportDateFormat").value       = State.report.dateFormat;
-        document.getElementById("reportTeacherSignature").value = State.report.teacherSignature;
-        document.getElementById("reportDepartment").value       = State.report.department;
-
-        document.getElementById("defaultMushaf").value = State.readerSettings.defaultMushaf;
-        document.getElementById("defaultPage").value   = State.readerSettings.defaultPage;
-
-        document.getElementById("lessonStartSetting").value = State.lessonSettings.start;
-
-        Settings.renderCategories();
-        Settings.renderMushaf();
-        await Students.renderCards();
-        Students.populateMushafSelects();
-    },
-
-    async saveInstitution(){
-        State.institution = {
-            name:       document.getElementById("institutionName").value.trim(),
-            runBy:      document.getElementById("institutionRunBy").value.trim(),
-            address:    document.getElementById("institutionAddress").value.trim(),
-            phone:      document.getElementById("institutionPhone").value.trim(),
-            teacher:    document.getElementById("institutionTeacher").value.trim(),
-            department: document.getElementById("institutionDepartment").value.trim()
-        };
-        await Settings.saveMeta();
-        UI.applyInstitution();
-        toast("Institution saved");
-    },
-
-    async saveReport(){
-        State.report = {
-            title:            document.getElementById("reportTitle").value.trim(),
-            dateFormat:       document.getElementById("reportDateFormat").value,
-            teacherSignature: document.getElementById("reportTeacherSignature").value,
-            department:       document.getElementById("reportDepartment").value
-        };
-        await Settings.saveMeta();
-        toast("Report settings saved");
-    },
-
-    async saveReader(){
-        State.readerSettings = {
-            defaultMushaf: document.getElementById("defaultMushaf").value,
-            defaultPage:   Number(document.getElementById("defaultPage").value) || 1
-        };
-        await Settings.saveMeta();
-        toast("Reader settings saved");
-    },
-
-    async saveLessonSettings(){
-        State.lessonSettings = {
-            start: document.getElementById("lessonStartSetting").value,
-            end:"required"
-        };
-        await Settings.saveMeta();
-        toast("Lesson settings saved");
-    },
-
-    async addCategory(){
-        const arabic = document.getElementById("newCategoryArabic").value.trim();
-        const label  = document.getElementById("newCategoryLabel").value.trim();
-        if(!label){ toast("Enter category name"); return; }
-
-        State.categories.push({
-            id: "cat_"+Date.now(),
-            arabic, label
-        });
-
-        document.getElementById("newCategoryArabic").value = "";
-        document.getElementById("newCategoryLabel").value  = "";
-
-        Settings.renderCategories();
-        await Settings.saveMeta();
-    },
-
-    renderCategories(){
-        const box = document.getElementById("categoryList");
-        box.innerHTML = "";
-
-        State.categories.forEach(c=>{
-            const row = document.createElement("div");
-            row.style.cssText = `
-                display:flex;justify-content:space-between;align-items:center;
-                padding:8px;margin-bottom:5px;border:1px solid var(--border);
-                border-radius:8px;
-            `;
-
-            row.innerHTML = `
-                <span>
-                    <b>${escapeHTML(c.label)}</b>
-                    <small style="color:#777"> ${escapeHTML(c.arabic || "")}</small>
-                </span>
-                <button class="btn" data-remove="${c.id}">Remove</button>
-            `;
-
-            row.querySelector("[data-remove]").onclick = async()=>{
-                State.categories = State.categories.filter(x=>x.id!==c.id);
-                Settings.renderCategories();
-                await Settings.saveMeta();
-            };
-
-            box.appendChild(row);
-        });
-    },
-
-    renderMushaf(){
-        const box = document.getElementById("mushafSettings");
-        box.innerHTML = "";
-
-        Object.values(APP.mushaf).forEach(m=>{
-            const row = document.createElement("div");
-            row.style.cssText = `
-                padding:11px;margin-bottom:7px;border:1px solid var(--border);
-                border-radius:9px;
-            `;
-            row.innerHTML = `
-                <strong>${escapeHTML(m.name)}</strong>
-                <div style="margin-top:4px;color:#777;font-size:10px">
-                    ${m.pages} pages
-                </div>
-            `;
-            box.appendChild(row);
-        });
-    },
-
-    async saveMeta(){
-        await DB.put("meta",{
-            key:"settings",
-            institution:State.institution,
-            report:State.report,
-            readerSettings:State.readerSettings,
-            lessonSettings:State.lessonSettings,
-            categories:State.categories
-        });
-    }
-};
-
-/* =========================================================
-   REPORT
-========================================================= */
-const Report = {
-    async open(){
-        document.getElementById("reportPanel").classList.add("open");
-        await Report.populateStudents();
-        Report.render();
-    },
-    close(){
-        document.getElementById("reportPanel").classList.remove("open");
-    },
-    async populateStudents(){
-        const select = document.getElementById("reportStudent");
-        const students = await Students.all();
-        select.innerHTML = "";
-        students.forEach(s=>{
-            const option = document.createElement("option");
-            option.value = s.id;
-            option.textContent = s.name;
-            select.appendChild(option);
-        });
-        if(State.student) select.value = State.student.id;
-    },
-    async render(){
-        const paper = document.getElementById("reportPaper");
-        const studentId = document.getElementById("reportStudent").value;
-        if(!studentId){
-            paper.innerHTML = `<h2>No student selected</h2>`;
-            return;
-        }
-
-        const student = await DB.get("students",studentId);
-        if(!student){
-            paper.innerHTML = "<h2>Student not found</h2>";
-            return;
-        }
-
-        const range = document.getElementById("reportRange").value;
-        document.getElementById("reportFrom").classList.toggle("hidden", range!=="custom");
-        document.getElementById("reportTo").classList.toggle("hidden", range!=="custom");
-
-        const lessons = await DB.all("lesson_records");
-        let filteredLessons = lessons.filter(x=>x.studentId===studentId);
-        filteredLessons = Report.filterByRange(filteredLessons,range);
-
-        const works = await DB.all("student_work");
-        const studentWorks = works.filter(x=>x.studentId===studentId);
-
-        let ghalat=0,tajweed=0,ayah=0;
-        studentWorks.forEach(w=>{
-            Object.values(w.wordMarks||{}).forEach(mark=>{
-                if(mark==="ghalat")  ghalat++;
-                if(mark==="tajweed") tajweed++;
-            });
-            ayah += (w.ayahMarks || []).length;
-        });
-
-        const pages = new Set();
-        filteredLessons.forEach(l=>{
-            const a = Math.min(l.fromPage,l.toPage);
-            const b = Math.max(l.fromPage,l.toPage);
-            for(let p=a;p<=b;p++) pages.add(`${l.mushaf}:${p}`);
-        });
-
-        const title = State.report.title || "HIFZ PROGRESS REPORT";
-
-        paper.innerHTML = `
-            <div class="report-title">
-                <h1>${escapeHTML(title)}</h1>
-                <p>${escapeHTML(State.institution.name)}</p>
-                ${State.report.department==="yes"
-                    ? `<p>${escapeHTML(State.institution.department)}</p>` : ""}
-                <p>Student: <b>${escapeHTML(student.name)}</b></p>
-                <p>Generated: ${formatDate(new Date().toISOString())}</p>
-            </div>
-
-            <div class="report-summary">
-                <div class="report-stat">
-                    <strong>${filteredLessons.length}</strong><span>Lessons</span>
-                </div>
-                <div class="report-stat">
-                    <strong>${pages.size}</strong><span>Pages Covered</span>
-                </div>
-                <div class="report-stat">
-                    <strong>${ghalat}</strong><span>Ghalat</span>
-                </div>
-                <div class="report-stat">
-                    <strong>${tajweed}</strong><span>Tajweed</span>
-                </div>
-                <div class="report-stat">
-                    <strong>${ayah}</strong><span>Ayah Marks</span>
-                </div>
-            </div>
-
-            <h3 style="color:var(--green)">Lesson History</h3>
-
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Date</th><th>Lesson</th><th>Mushaf</th>
-                        <th>From</th><th>To</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${filteredLessons.length
-                        ? filteredLessons
-                            .sort((a,b)=> new Date(b.date)-new Date(a.date))
-                            .map(l=>`
-                                <tr>
-                                    <td>${formatDate(l.date)}</td>
-                                    <td>${escapeHTML(l.typeLabel || "")}</td>
-                                    <td>${escapeHTML(APP.mushaf[l.mushaf]?.name || l.mushaf)}</td>
-                                    <td>${l.fromPage}</td>
-                                    <td>${l.toPage}</td>
-                                </tr>
-                            `).join("")
-                        : `<tr><td colspan="5">No lesson records.</td></tr>`
-                    }
-                </tbody>
-            </table>
-
-            ${State.report.teacherSignature==="yes"
-                ? `
-                <div class="report-signature">
-                    <div class="signature-box">
-                        Teacher Signature
-                        ${State.institution.teacher
-                            ? `<br>${escapeHTML(State.institution.teacher)}` : ""}
-                    </div>
-                </div>
-                ` : ""}
-        `;
-    },
-
-    filterByRange(records,range){
-        const now = new Date();
-        if(range==="all") return records;
-
-        let from;
-        if(range==="week"){
-            from = new Date(now);
-            const day = from.getDay();
-            from.setDate(from.getDate() - (day===0 ? 6 : day-1));
-            from.setHours(0,0,0,0);
-        } else if(range==="month"){
-            from = new Date(now.getFullYear(), now.getMonth(), 1);
-        } else if(range==="custom"){
-            const f = document.getElementById("reportFrom").value;
-            const t = document.getElementById("reportTo").value;
-            if(!f && !t) return records;
-
-            const fromDate = f ? new Date(f+"T00:00:00") : new Date(0);
-            const toDate   = t ? new Date(t+"T23:59:59") : new Date();
-
-            return records.filter(r=>{
-                const d = new Date(r.date);
-                return d>=fromDate && d<=toDate;
-            });
-        }
-
-        return records.filter(r=> new Date(r.date) >= from);
-    },
-
-    print(){ window.print(); }
-};
-
-/* =========================================================
-   SYNC
-========================================================= */
-const Sync = {
-    open(){
-        Settings.open();
-        setTimeout(()=>{
-            const tabs = document.querySelectorAll(".settings-tab");
-            Settings.tab("data", tabs[6]);
-        },50);
-    },
-
-    async download(){
-        const bar = document.getElementById("syncBar");
-        const status = document.getElementById("syncStatus");
-
-        try{
-            status.textContent = "Downloading Madani layout...";
-            bar.style.width = "15%";
-            await loadLayout("madani");
-
-            status.textContent = "Downloading Indo-Pak layout...";
-            bar.style.width = "30%";
-            await loadLayout("indopak");
-
-            status.textContent = "Downloading word data...";
-            bar.style.width = "45%";
-            await loadWords();
-
-            status.textContent = "Loading fonts...";
-            bar.style.width = "70%";
-            await FontStore.loadIndoPak();
-            await FontStore.loadQCF(State.page);
-
-            bar.style.width = "100%";
-            status.textContent = "Quran data ready";
-            toast("Quran data synchronized");
-        } catch(error){
-            console.error(error);
-            status.textContent = "Sync failed: "+error.message;
-            toast("Quran sync failed");
-        }
-    },
-
-    async clearQuran(){
-        if(!confirm("Clear local Quran cache?")) return;
-
-        await DB.clear("layouts");
-        await DB.clear("words");
-        await DB.clear("fonts");
-
-        State.words = [];
-        State.wordMap.clear();
-        State.layouts.madani.clear();
-        State.layouts.indopak.clear();
-
-        await DB.delete("meta","wordsLoaded");
-        toast("Quran cache cleared");
-    },
-
-    async backup(){
-        const data = {
-            version:1,
-            exportedAt: new Date().toISOString(),
-            institution: State.institution,
-            report: State.report,
-            readerSettings: State.readerSettings,
-            lessonSettings: State.lessonSettings,
-            categories: State.categories,
-            students:    await DB.all("students"),
-            studentWork: await DB.all("student_work"),
-            lessons:     await DB.all("lesson_records")
-        };
-
-        const blob = new Blob(
-            [JSON.stringify(data,null,2)],
-            {type:"application/json"}
-        );
-
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "al-halaqah-backup-" +
-                     new Date().toISOString().slice(0,10) + ".json";
-        a.click();
-        URL.revokeObjectURL(url);
-
-        toast("Backup exported");
-    },
-
-    restore(){
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "application/json";
-
-        input.onchange = async event=>{
-            const file = event.target.files[0];
-            if(!file) return;
-
-            try{
-                const text = await file.text();
-                const data = JSON.parse(text);
-
-                if(data.institution)    State.institution    = data.institution;
-                if(data.report)         State.report         = data.report;
-                if(data.readerSettings) State.readerSettings = data.readerSettings;
-                if(data.lessonSettings) State.lessonSettings = data.lessonSettings;
-                if(Array.isArray(data.categories)) State.categories = data.categories;
-
-                for(const s of (data.students || []))    await DB.put("students",s);
-                for(const w of (data.studentWork || [])) await DB.put("student_work",w);
-                for(const l of (data.lessons || []))     await DB.put("lesson_records",l);
-
-                await Settings.saveMeta();
-                await Students.refreshSelect();
-                UI.applyInstitution();
-
-                toast("Backup restored");
-            } catch(error){
-                console.error(error);
-                toast("Invalid backup file");
-            }
-        };
-
-        input.click();
-    }
+  }
 };
 
 /* =========================================================
    UI
-========================================================= */
+   ========================================================= */
+
 const UI = {
-    openDrawer(){
-        document.getElementById("drawer").classList.add("open");
-        document.getElementById("drawerBackdrop").classList.add("open");
-    },
-    closeDrawer(){
-        document.getElementById("drawer").classList.remove("open");
-        document.getElementById("drawerBackdrop").classList.remove("open");
-    },
-    openModal(id){ document.getElementById(id).classList.add("open"); },
-    closeModal(id){ document.getElementById(id).classList.remove("open"); },
-    updateStudentUI(){
-        const select = document.getElementById("studentSelect");
-        select.value = State.student ? State.student.id : "";
-        Students.updateDrawer();
-    },
-    applyInstitution(){
-        const name = State.institution.name || "Al-Halaqah";
-        document.getElementById("brandName").textContent = name;
-        document.title = `${name} — Hifz Quran`;
+  open(tab="settings"){
+    document.getElementById(
+      "panel"
+    ).classList.add("open");
+
+    this.tab(tab);
+  },
+
+  close(){
+    document.getElementById(
+      "panel"
+    ).classList.remove("open");
+  },
+
+  tab(name){
+    document.querySelectorAll(".tab")
+      .forEach(button=>{
+        button.classList.toggle(
+          "active",
+          button.dataset.tab===name
+        );
+      });
+
+    document.querySelectorAll(".tab-content")
+      .forEach(section=>{
+        section.classList.toggle(
+          "active",
+          section.id===`tab-${name}`
+        );
+      });
+
+    if(name==="students"){
+      Students.render();
     }
+  }
 };
 
 /* =========================================================
-   UTILITIES
-========================================================= */
-function escapeHTML(value){
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
+   ANNOTATION CANVAS
+   ========================================================= */
 
-function formatDate(value){
-    const d = new Date(value);
-    if(Number.isNaN(d.getTime())) return "";
+const CanvasTool = {
+  active:false, tool:"pencil", color:"rgba(50,35,20,.85)", width:2, sides:{}, bound:{},
 
-    const dd = String(d.getDate()).padStart(2,"0");
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const yyyy = d.getFullYear();
+  select(tool){
+    this.tool=tool;
+    if(tool==="pencil"){this.color="rgba(50,35,20,.85)";this.width=2;this.active=true;}
+    if(tool==="red"){this.color="rgba(210,25,25,.9)";this.width=2.5;this.active=true;}
+    if(tool==="high"){this.color="rgba(230,180,20,.35)";this.width=15;this.active=true;}
+    if(tool==="eraser"){this.width=25;this.active=true;}
+    if(["ayah","ghalat","tajweed","lessonStart","lessonEnd"].includes(tool))this.active=true;
+    for(const side of ["Right","Left"])document.getElementById(`canvas${side}`).classList.toggle("active",!["ayah","ghalat","tajweed","lessonStart","lessonEnd"].includes(tool));
+    const labels={ayah:"Ayah Mark: tap a Qur'an word",ghalat:"Ghalat: tap a word",tajweed:"Tajweed: tap a word",lessonStart:"Lesson Start: tap the starting word",lessonEnd:"Lesson End: tap the ending word"};
+    setStatus(labels[tool]||tool,"success");
+  },
 
-    if(State.report.dateFormat==="YYYY-MM-DD")
-        return `${yyyy}-${mm}-${dd}`;
+  toggle(){this.select(this.tool==="ayah"?"pencil":this.tool);},
 
-    return `${dd}-${mm}-${yyyy}`;
-}
+  init(side,page,mushafId){
+    const canvas=document.getElementById(`canvas${side}`);if(!canvas)return;
+    this.sides[side]={page,mushafId,strokes:this.sides[side]?.strokes||[]};
+    this.resize(side);this.load(side,page,mushafId);this.bindWordMarks(side,page,mushafId);
+    if(this.bound[side])return;this.bound[side]=true;
+    let drawing=false,lastX=0,lastY=0,points=[];
+    canvas.addEventListener("pointerdown",e=>{
+      if(!this.active||["ayah","ghalat","tajweed","lessonStart","lessonEnd"].includes(this.tool))return;
+      drawing=true;canvas.setPointerCapture(e.pointerId);
+      const r=canvas.getBoundingClientRect();lastX=e.clientX-r.left;lastY=e.clientY-r.top;points=[this.normPoint(lastX,lastY,r)];
+    });
+    canvas.addEventListener("pointermove",e=>{
+      if(!drawing)return;
+      const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,ctx=canvas.getContext("2d");
+      ctx.save();ctx.lineCap="round";ctx.lineJoin="round";
+      if(this.tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=this.width;}
+      else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle=this.color;ctx.lineWidth=this.width;}
+      ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();ctx.restore();lastX=x;lastY=y;points.push(this.normPoint(x,y,r));
+    });
+    const stop=async()=>{if(!drawing)return;drawing=false;await this.save(side,page,mushafId,points);points=[];};
+    canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);
+  },
 
-let toastTimer = null;
-function toast(message){
-    const el = document.getElementById("toast");
-    el.textContent = message;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
-}
+  bindWordMarks(side,page,mushafId){
+    const container=document.getElementById(`lines${side}`);if(!container)return;
+    container.querySelectorAll(".word").forEach(word=>{
+      if(word.dataset.markBound==="1")return;word.dataset.markBound="1";
+      word.addEventListener("click",async e=>{
+        if(!this.active||!["ayah","ghalat","tajweed","lessonStart","lessonEnd"].includes(this.tool))return;
+        e.preventDefault();e.stopPropagation();
+        const key=`${word.dataset.surah}:${word.dataset.ayah}`;
+        if(this.tool==="ayah")return this.toggleAyahMark(side,page,mushafId,key);
+        if(this.tool==="ghalat"||this.tool==="tajweed")return this.toggleWordMark(side,page,mushafId,Number(word.dataset.wordId),this.tool);
+        if(this.tool==="lessonStart")return Lessons.markStart(Number(word.dataset.wordId),Number(word.dataset.surah),Number(word.dataset.ayah),page,mushafId);
+        if(this.tool==="lessonEnd")return Lessons.markEnd(Number(word.dataset.wordId),Number(word.dataset.surah),Number(word.dataset.ayah),page,mushafId);
+      });
+    });
+  },
 
-/* =========================================================
-   LOAD SETTINGS
-========================================================= */
-async function loadSettings(){
-    const meta = await DB.get("meta","settings");
+  async toggleWordMark(side,page,mushafId,wordId,type){
+    if(!App.student)return;
+    let work=await DB.work(App.student.id,mushafId,page);
+    if(!work)work={studentId:App.student.id,mushafId,page,ayahMarks:[],wordMarks:[],strokes:[],updatedAt:0};
+    work.wordMarks=work.wordMarks||[];
+    const i=work.wordMarks.findIndex(x=>Number(x.wordId)===wordId);
+    if(i>=0 && work.wordMarks[i].type===type)work.wordMarks.splice(i,1);
+    else{if(i>=0)work.wordMarks.splice(i,1);work.wordMarks.push({wordId,type,updatedAt:Date.now()});}
+    work.updatedAt=Date.now();await DB.saveWork(work);await App.applyStudentPageMarks(side,page);
+  },
 
-    if(meta){
-        if(meta.institution)    State.institution    = meta.institution;
-        if(meta.report)         State.report         = meta.report;
-        if(meta.readerSettings) State.readerSettings = meta.readerSettings;
-        if(meta.lessonSettings) State.lessonSettings = meta.lessonSettings;
-        if(Array.isArray(meta.categories)) State.categories = meta.categories;
-    }
+  async toggleAyahMark(side,page,mushafId,key){
+    if(!App.student)return;
+    let work=await DB.work(App.student.id,mushafId,page);
+    if(!work)work={studentId:App.student.id,mushafId,page,ayahMarks:[],wordMarks:[],strokes:[],updatedAt:0};
+    const set=new Set((work.ayahMarks||[]).map(String));set.has(key)?set.delete(key):set.add(key);
+    work.ayahMarks=[...set];work.updatedAt=Date.now();await DB.saveWork(work);await App.applyStudentPageMarks(side,page);
+  },
 
-    UI.applyInstitution();
-}
+  async clearAyahMarks(){
+    const side=this.activeSide()||"Right",info=this.sides[side];if(!info||!App.student)return;
+    if(!confirm("Clear coloured ayah marks for this page?"))return;
+    let work=await DB.work(App.student.id,info.mushafId,info.page);if(!work)work={studentId:App.student.id,mushafId:info.mushafId,page:info.page,strokes:[],wordMarks:[]};
+    work.ayahMarks=[];work.updatedAt=Date.now();await DB.saveWork(work);await App.applyStudentPageMarks(side,info.page);
+  },
 
-/* =========================================================
-   INIT
-========================================================= */
-async function init(){
-    try{
-        await DB.open();
-        await loadSettings();
+  normPoint(x,y,r){return{x:x/r.width*1000,y:y/r.height*1500};},
+  resize(side){const canvas=document.getElementById(`canvas${side}`),sheet=document.getElementById(`sheet${side}`);if(!canvas||!sheet)return;const r=sheet.getBoundingClientRect(),dpr=devicePixelRatio||1;canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);canvas.style.width=`${r.width}px`;canvas.style.height=`${r.height}px`;const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);this.redraw(side);},
+  resizeAll(){this.resize("Right");this.resize("Left");},
+  async load(side,page,mushafId){if(!App.student)return;const work=await DB.work(App.student.id,mushafId,page),canvas=document.getElementById(`canvas${side}`);if(!canvas)return;this.sides[side].strokes=work?.strokes||[];this.redraw(side);},
+  redraw(side){const canvas=document.getElementById(`canvas${side}`),sheet=document.getElementById(`sheet${side}`);if(!canvas||!sheet)return;const r=sheet.getBoundingClientRect(),ctx=canvas.getContext("2d");ctx.clearRect(0,0,r.width,r.height);const sx=r.width/1000,sy=r.height/1500;for(const st of(this.sides[side]?.strokes||[])){if(!st.points||st.points.length<2)continue;ctx.save();ctx.lineCap="round";ctx.lineJoin="round";if(st.tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=st.width*sx}else{ctx.globalCompositeOperation="source-over";ctx.strokeStyle=st.color;ctx.lineWidth=st.width*sx}ctx.beginPath();ctx.moveTo(st.points[0].x*sx,st.points[0].y*sy);for(let i=1;i<st.points.length;i++)ctx.lineTo(st.points[i].x*sx,st.points[i].y*sy);ctx.stroke();ctx.restore();}},
+  async save(side,page,mushafId,points){if(!App.student)return;let work=await DB.work(App.student.id,mushafId,page);if(!work)work={studentId:App.student.id,mushafId,page,ayahMarks:[],wordMarks:[],strokes:[],updatedAt:0};if(points.length>1)work.strokes=[...(work.strokes||[]),{tool:this.tool,color:this.color,width:this.width,points}];work.updatedAt=Date.now();await DB.saveWork(work);this.sides[side].strokes=work.strokes;},
+  activeSide(){if(this.sides.Right&&this.sides.Right.page===App.currentPage)return"Right";if(this.sides.Left)return"Left";return"Right";},
+  async clear(){const side=this.activeSide(),info=this.sides[side];if(!info||!App.student)return;if(!confirm("Clear pencil/ink markings for this page?"))return;let work=await DB.work(App.student.id,info.mushafId,info.page);if(!work)work={studentId:App.student.id,mushafId:info.mushafId,page:info.page,ayahMarks:[],wordMarks:[]};work.strokes=[];work.updatedAt=Date.now();await DB.saveWork(work);this.sides[side].strokes=[];this.redraw(side);}
+};
 
-        State.mushaf = State.readerSettings.defaultMushaf || "madani";
-        State.page   = Number(State.readerSettings.defaultPage) || 1;
+const Lessons={
+  async markStart(wordId,surah,ayah,page,mushafId){
+    if(!App.student)return;
+    const lessons=await DB.getStudentLessons(App.student.id);
+    const open=lessons.filter(x=>x.mushafId===mushafId&&!x.end).sort((a,b)=>b.createdAt-a.createdAt)[0];
+    if(open){setStatus("An open lesson already exists. Mark its End first.","error");return;}
+    const lesson={lessonId:`LES_${App.student.id}_${Date.now()}`,studentId:App.student.id,mushafId,date:new Date().toISOString().slice(0,10),start:{wordId,surah,ayah,page},end:null,createdAt:Date.now(),updatedAt:Date.now()};
+    await DB.put("lesson_records",lesson);
+    document.getElementById("lessonMarkerStatus").textContent=`Lesson started: p.${page}, ayah ${ayah}`;
+    setStatus("Lesson Start saved","success");
+  },
+  async markEnd(wordId,surah,ayah,page,mushafId){
+    if(!App.student)return;
+    const lessons=await DB.getStudentLessons(App.student.id);
+    const open=lessons.filter(x=>x.mushafId===mushafId&&!x.end).sort((a,b)=>b.createdAt-a.createdAt)[0];
+    if(!open){setStatus("No open lesson. Mark Lesson Start first.","error");return;}
+    open.end={wordId,surah,ayah,page};open.updatedAt=Date.now();await DB.put("lesson_records",open);
+    document.getElementById("lessonMarkerStatus").textContent=`Lesson completed: p.${open.start.page} → p.${page}`;
+    setStatus("Lesson End saved","success");
+  }
+};
 
-        const students = await Students.all();
-        if(students.length){
-            State.student = students[0];
-            State.mushaf = State.student.currentMushaf ||
-                           State.student.primaryMushaf ||
-                           State.mushaf;
-            State.page = Number(State.student.pages?.[State.mushaf] || 1);
-        }
+const Report={
+  async render(){
+    if(!App.student){alert("Select a student first.");return;}
+    const s=App.student,works=(await DB.getAll("student_work")).filter(x=>x.studentId===s.id),lessons=(await DB.getStudentLessons(s.id)).sort((a,b)=>b.createdAt-a.createdAt);
+    const ghalat=works.reduce((n,w)=>n+(w.wordMarks||[]).filter(m=>m.type==="ghalat").length,0);
+    const tajweed=works.reduce((n,w)=>n+(w.wordMarks||[]).filter(m=>m.type==="tajweed").length,0);
+    const ayahMarks=works.reduce((n,w)=>n+(w.ayahMarks||[]).length,0);
+    const strokes=works.reduce((n,w)=>n+(w.strokes||[]).length,0);
+    const completed=lessons.filter(x=>x.end);
+    const pages=new Set();completed.forEach(x=>{for(let p=x.start.page;p<=x.end.page;p++)pages.add(`${x.mushafId}:${p}`)});
+    const profile=await DB.get("meta","institution_profile");
+    document.getElementById("reportPaper").innerHTML=`
+      <div class="report-head"><h1>${escapeHTML(profile?.name||"Al-Halaqah")}</h1><p>${escapeHTML(profile?.subtitle||"Hifz Progress Report")}</p><h2 style="margin-top:10px">HIFZ PROGRESS REPORT</h2></div>
+      <table class="report-table"><tr><th>Student</th><td>${escapeHTML(s.name)}</td><th>Report Date</th><td>${new Date().toLocaleDateString()}</td></tr><tr><th>Mushaf</th><td>${escapeHTML(CONFIG[s.mushafId||"madani1405"].short)}</td><th>Teacher</th><td>${escapeHTML(profile?.teacherName||"")}</td></tr><tr><th>Lesson Assignment</th><td colspan="3">${escapeHTML((s.lessons?.[s.mushafId||"madani1405"]?.from||1)+" – "+(s.lessons?.[s.mushafId||"madani1405"]?.to||1))}</td></tr></table>
+      <div class="report-grid"><div class="report-kpi"><b>${completed.length}</b><span>Completed Lessons</span></div><div class="report-kpi"><b>${pages.size}</b><span>Pages Covered</span></div><div class="report-kpi"><b>${ghalat}</b><span>Ghalat Marks</span></div><div class="report-kpi"><b>${tajweed}</b><span>Tajweed Marks</span></div><div class="report-kpi"><b>${ayahMarks}</b><span>Ayah Marks</span></div><div class="report-kpi"><b>${strokes}</b><span>Pencil Strokes</span></div></div>
+      <h3>Lesson History</h3><table class="report-table"><thead><tr><th>Date</th><th>Mushaf</th><th>Start</th><th>End</th><th>Status</th></tr></thead><tbody>${lessons.slice(0,30).map(l=>`<tr><td>${escapeHTML(l.date)}</td><td>${escapeHTML(CONFIG[l.mushafId]?.short||l.mushafId)}</td><td>p.${l.start?.page||"-"} / ${l.start?.surah?SURAH_NAMES[l.start.surah]:""} : ${l.start?.ayah||"-"}</td><td>${l.end?`p.${l.end.page} / ${l.end.surah?SURAH_NAMES[l.end.surah]:""} : ${l.end.ayah}`:"—"}</td><td>${l.end?"Completed":"Open"}</td></tr>`).join("")||'<tr><td colspan="5">No lesson records.</td></tr>'}</tbody></table>
+      <div style="margin-top:35px;display:flex;justify-content:space-between"><span>Teacher Signature: __________________</span><span>Date: __________________</span></div>`;
+  },
+  async close(){document.getElementById("reportView").style.display="none";document.getElementById("app").style.display="flex"},
+};
+UI.showReport=()=>{document.getElementById("app").style.display="none";document.getElementById("reportView").style.display="block"};
 
-        await Students.refreshSelect();
-        if(State.student){
-            document.getElementById("studentSelect").value = State.student.id;
-        }
-        document.getElementById("mushafSelect").value = State.mushaf;
-
-        await Reader.init();
-
-        if("serviceWorker" in navigator){
-            navigator.serviceWorker.register("./sw.js").catch(()=>{});
-        }
-
-        Settings.load();
-
-        document.getElementById("readerStatus").textContent =
-            `${APP.mushaf[State.mushaf].name} • Page ${State.page}/${Reader.maxPage()}`;
-
-    } catch(error){
-        console.error(error);
-
-        document.getElementById("readerStatus").textContent =
-            "Quran data could not be loaded. " + error.message;
-
-        setTimeout(()=>{
-            if(confirm("Quran data could not be loaded. Open Batch Download / Sync?")){
-                Sync.open();
-            }
-        }, 300);
-    }
-}
-
-/* =========================================================
-   KEYBOARD / SWIPE NAVIGATION
-========================================================= */
-document.addEventListener("keydown", event=>{
-    const tag = event.target?.tagName;
-    if(tag==="INPUT" || tag==="TEXTAREA" || tag==="SELECT") return;
-
-    if(event.key==="ArrowLeft")  Reader.prev();
-    if(event.key==="ArrowRight") Reader.next();
-    if(event.key==="Home")       Reader.go(1);
-    if(event.key==="End")        Reader.go(Reader.maxPage());
-});
-
-let touchStartX=0, touchStartY=0;
-
-document.addEventListener("touchstart", event=>{
-    if(event.touches.length!==1) return;
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-},{passive:true});
-
-document.addEventListener("touchend", event=>{
-    if(event.changedTouches.length!==1) return;
-
-    const x = event.changedTouches[0].clientX;
-    const y = event.changedTouches[0].clientY;
-    const dx = x - touchStartX;
-    const dy = y - touchStartY;
-
-    if(Math.abs(dx)<70 || Math.abs(dx)<Math.abs(dy)*1.2) return;
-
-    if(dx<0) Reader.next();
-    else     Reader.prev();
-},{passive:true});
-
-/* =========================================================
-   MODAL OUTSIDE CLICK
-========================================================= */
-document.addEventListener("click", event=>{
-    if(event.target.classList.contains("modal")){
-        event.target.classList.remove("open");
-    }
+addEventListener("online",()=>{
+  FontStore.downloadQCFAll(604,(d,t)=>{
+    const p=document.getElementById("progress");
+    if(p)p.style.width=Math.min(100,Math.round(d/t*100))+"%";
+  }).catch(()=>{});
 });
 
 /* =========================================================
    START
-========================================================= */
-document.addEventListener("DOMContentLoaded", init);
-</script>
+   ========================================================= */
 
+if("serviceWorker" in navigator){
+  addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+
+addEventListener(
+  "DOMContentLoaded",
+  ()=>App.init()
+);
+</script>
 </body>
 </html>
