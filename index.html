@@ -113,7 +113,6 @@
       pointer-events: none;
     }
 
-    /* Corner Motifs */
     .corner-svg {
       position: absolute;
       width: 18px;
@@ -218,26 +217,22 @@
       transition: background-color 0.2s, border-radius 0.2s;
     }
 
-    /* Active Recited Ayah Highlighting */
     .mushaf-word.currently-recited {
       background-color: var(--highlight-active);
       border-radius: 4px;
     }
 
-    /* Lafdh al-Jalalah in Red */
     .mushaf-word.lafdh-jalalah {
       color: var(--jalalah-red) !important;
       font-weight: bold;
     }
 
-    /* Indo-Pak Quran Font Styling */
     .qudratullah-mode .mushaf-word {
       font-family: 'DigitalKhatt IndoPak', 'Noto Nastaliq Urdu', 'Amiri', serif !important;
       font-size: clamp(16px, 2.2vh, 26px);
       line-height: 1.8;
     }
 
-    /* Surah Header Cartouche */
     .surah-header-row {
       width: 100%;
       height: 100%;
@@ -412,7 +407,7 @@
       left: 50%;
       transform: translateX(-50%) translateY(100%);
       width: 100%;
-      max-width: 540px;
+      max-width: 560px;
       background: var(--surface-dark);
       border: 1.5px solid var(--gold-primary);
       border-bottom: none;
@@ -525,10 +520,27 @@
       align-items: center;
     }
 
+    /* Form Styles */
+    .form-box {
+      background: #111714;
+      border: 1px solid #243329;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+      display: block;
+    }
+
     .form-row {
       display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .input-ctrl, .select-ctrl {
@@ -775,29 +787,45 @@
         </button>
       </section>
 
-      <!-- Tab 2: Students & Script Config -->
+      <!-- Tab 2: Students Management & Registration -->
       <section class="tab-content" id="tabBodyStudents">
-        <div class="form-row">
-          <select class="select-ctrl" id="studentInstitutionFilter" onchange="App.onInstitutionFilterChange(this.value)">
-            <!-- Institutions dynamically populated -->
-          </select>
+        <div class="form-box">
+          <span class="form-title">➕ Add New Student / ചേർക്കുക</span>
+          <div class="form-row">
+            <input type="text" class="input-ctrl" id="newStudentName" placeholder="Student Full Name...">
+          </div>
+          <div class="form-row">
+            <select class="select-ctrl" id="newStudentInstitution">
+              <!-- Institutions dynamically filled -->
+            </select>
+            <select class="select-ctrl" id="newStudentMushaf">
+              <option value="madani">Madani 1405H (604p)</option>
+              <option value="indopak">Indo-Pak 15L (610p)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input type="number" class="input-ctrl" id="newStudentStartPage" placeholder="Start Page (Default: 1)" min="1" max="610">
+            <button class="btn-action" style="flex:1;" onclick="App.addStudent()">+ Register Student</button>
+          </div>
         </div>
-        <div class="form-row">
-          <input type="text" class="input-ctrl" id="newStudentName" placeholder="Student name...">
-          <select class="select-ctrl" id="newStudentMushaf" style="max-width:180px;">
-            <option value="madani">Madani 1405H (604p)</option>
-            <option value="indopak">Indo-Pak 15L (610p)</option>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:12px; font-weight:600; color:#8ea396;">Registered Students List</span>
+          <select class="select-ctrl" id="studentInstitutionFilter" style="max-width:180px; padding:4px 8px; font-size:11.5px;" onchange="App.onInstitutionFilterChange(this.value)">
+            <!-- Filter by Circle -->
           </select>
-          <button class="btn-action" onclick="App.addStudent()">+ Add</button>
         </div>
         <div class="items-scroll" id="studentsListContainer"></div>
       </section>
 
       <!-- Tab 3: Institutions / Circles -->
       <section class="tab-content" id="tabBodyInstitutions">
-        <div class="form-row">
-          <input type="text" class="input-ctrl" id="newInstitutionName" placeholder="New institution / Madrasah / Halaqah...">
-          <button class="btn-action" onclick="App.addInstitution()">+ Create</button>
+        <div class="form-box">
+          <span class="form-title">🏛️ Create Institution / Madrasah / Halaqah</span>
+          <div class="form-row">
+            <input type="text" class="input-ctrl" id="newInstitutionName" placeholder="Institution / Halaqah Name...">
+            <button class="btn-action" onclick="App.addInstitution()">+ Create</button>
+          </div>
         </div>
         <div class="items-scroll" id="institutionsListContainer"></div>
       </section>
@@ -893,7 +921,7 @@
       if (!text) return false;
       let clean = text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u06E5\u06E6]/g, '').trim();
       clean = clean.replace(/[ٱإأآء]/g, 'ا');
-      clean = clean.replace(/^(و|ف|ب|ت|ك|ل|لل)?(الله|لله|اللهم)$/, '$2');
+      clean = clean.replace(/^(و|ف|促进|ب|ت|ك|ل|لل)?(الله|لله|اللهم)$/, '$2');
       return clean === 'الله' || clean === 'لله' || clean === 'اللهم';
     }
 
@@ -907,32 +935,25 @@
           const req = indexedDB.open("AlHalaqah_QUL_Offline_v2", 1);
           req.onupgradeneeded = e => {
             const d = e.target.result;
-            // 1. page_lines
             if (!d.objectStoreNames.contains("page_lines")) {
               const s = d.createObjectStore("page_lines", { keyPath: ["mushaf", "page", "line"] });
               s.createIndex("mushaf_page", ["mushaf", "page"], { unique: false });
             }
-            // 2. words
             if (!d.objectStoreNames.contains("words")) {
               d.createObjectStore("words", { keyPath: "id" });
             }
-            // 3. fonts
             if (!d.objectStoreNames.contains("fonts")) {
               d.createObjectStore("fonts", { keyPath: "name" });
             }
-            // 4. institutions
             if (!d.objectStoreNames.contains("institutions")) {
               d.createObjectStore("institutions", { keyPath: "id", autoIncrement: true });
             }
-            // 5. students
             if (!d.objectStoreNames.contains("students")) {
               d.createObjectStore("students", { keyPath: "id" });
             }
-            // 6. drawings with timestamp
             if (!d.objectStoreNames.contains("drawings")) {
               d.createObjectStore("drawings", { keyPath: ["studentId", "mushaf", "page"] });
             }
-            // 7. meta
             if (!d.objectStoreNames.contains("meta")) {
               d.createObjectStore("meta", { keyPath: "key" });
             }
@@ -952,18 +973,20 @@
       },
 
       async put(store, val) {
-        return new Promise(res => {
+        return new Promise((resolve, reject) => {
           const tx = this.db.transaction(store, "readwrite");
-          tx.objectStore(store).put(val);
-          tx.oncomplete = () => res();
+          const req = tx.objectStore(store).put(val);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
         });
       },
 
       async delete(store, key) {
-        return new Promise(res => {
+        return new Promise((resolve, reject) => {
           const tx = this.db.transaction(store, "readwrite");
-          tx.objectStore(store).delete(key);
-          tx.oncomplete = () => res();
+          const req = tx.objectStore(store).delete(key);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
         });
       },
 
@@ -1070,17 +1093,14 @@
         const bar = document.getElementById("splashProgress");
         splash.style.display = "flex";
 
-        // 1. Madani Layout
         status.textContent = "Ingesting Madani Layout (qpcv1-35.csv)...";
         bar.style.width = "15%";
         await this.ingestLayoutCSV("madani", CONFIG.madani.file);
 
-        // 2. Indo-Pak Layout
         status.textContent = "Ingesting Indo-Pak Layout (indpak-20.csv)...";
         bar.style.width = "35%";
         await this.ingestLayoutCSV("indopak", CONFIG.indopak.file);
 
-        // 3. Master Word Registry
         status.textContent = "Ingesting Master Word Registry (word.csv)...";
         bar.style.width = "55%";
         await this.ingestWordCSV(p => {
@@ -1088,7 +1108,6 @@
           status.textContent = `Batch writing words: ${Math.round(p)}%...`;
         });
 
-        // 4. Indo-Pak Master Font
         status.textContent = "Downloading Indo-Pak Master Font...";
         await this.downloadFont("indopak", "https://static.qurancdn.com/fonts/quran/indopak/woff2/indopak.woff2");
 
@@ -1409,7 +1428,7 @@
     };
 
     /* ═══════════════════════════════════════════════════════════
-       6. App Coordinator & Multi-Institution Management
+       6. App Coordinator & Multi-Student / Institution Management
        ═══════════════════════════════════════════════════════════ */
     const App = {
       currentPage: 1,
@@ -1545,7 +1564,6 @@
 
         let detectedSurah = null;
 
-        // Strict 15 Physical Lines Rendering
         for (let lineNo = 1; lineNo <= 15; lineNo++) {
           const row = document.createElement("div");
           row.className = "mushaf-line";
@@ -1606,7 +1624,6 @@
           container.appendChild(row);
         }
 
-        // Header Metadata
         if (detectedSurah) {
           document.getElementById(`${side.toLowerCase()}SurahLabel`).textContent = `سورة ${SURAH_NAMES[detectedSurah] || ""}`;
         }
@@ -1637,8 +1654,6 @@
       openSheet(tab) {
         document.getElementById("sheetScrim").classList.add("open");
         this.setTab(tab);
-        if (tab === "students") this.renderStudentsTab();
-        if (tab === "institutions") this.renderInstitutionsTab();
       },
 
       closeSheet() {
@@ -1652,6 +1667,8 @@
           if (h) h.classList.toggle("active", t === tab);
           if (b) b.classList.toggle("active", t === tab);
         });
+        if (tab === "students") this.renderStudentsTab();
+        if (tab === "institutions") this.renderInstitutionsTab();
       },
 
       /* Institution Operations */
@@ -1730,16 +1747,33 @@
       },
 
       renderStudentsTab() {
-        const sel = document.getElementById("studentInstitutionFilter");
-        sel.innerHTML = "";
-        this.institutions.forEach(inst => {
-          const opt = document.createElement("option");
-          opt.value = inst.id;
-          opt.textContent = `Circle: ${inst.name}`;
-          opt.selected = (inst.id === this.activeInstitution.id);
-          sel.appendChild(opt);
-        });
+        // 1. Populate Institution Select in the Add Student Form
+        const addInstSelect = document.getElementById("newStudentInstitution");
+        if (addInstSelect) {
+          addInstSelect.innerHTML = "";
+          this.institutions.forEach(inst => {
+            const opt = document.createElement("option");
+            opt.value = inst.id;
+            opt.textContent = `Circle: ${inst.name}`;
+            opt.selected = (inst.id === this.activeInstitution?.id);
+            addInstSelect.appendChild(opt);
+          });
+        }
 
+        // 2. Populate Institution Filter Dropdown
+        const filterSelect = document.getElementById("studentInstitutionFilter");
+        if (filterSelect) {
+          filterSelect.innerHTML = "";
+          this.institutions.forEach(inst => {
+            const opt = document.createElement("option");
+            opt.value = inst.id;
+            opt.textContent = `Circle: ${inst.name}`;
+            opt.selected = (inst.id === this.activeInstitution?.id);
+            filterSelect.appendChild(opt);
+          });
+        }
+
+        // 3. Populate Students List
         const box = document.getElementById("studentsListContainer");
         box.innerHTML = "";
         this.students.forEach(s => {
@@ -1774,26 +1808,39 @@
 
       async addStudent() {
         const nameInput = document.getElementById("newStudentName");
-        const select = document.getElementById("newStudentMushaf");
+        const instSelect = document.getElementById("newStudentInstitution");
+        const mushafSelect = document.getElementById("newStudentMushaf");
+        const pageInput = document.getElementById("newStudentStartPage");
+
         const name = nameInput.value.trim();
-        if (!name) return;
+        if (!name) return alert("Please enter student name / വിദ്യാർത്ഥിയുടെ പേര് നൽകുക.");
+
+        const institutionId = Number(instSelect?.value) || this.activeInstitution.id;
+        const mushaf = mushafSelect.value;
+        const startPage = Math.max(1, parseInt(pageInput?.value, 10) || 1);
 
         const newS = {
-          id: "std_" + Date.now(),
-          institutionId: this.activeInstitution.id,
+          id: "std_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+          institutionId: institutionId,
           name,
-          mushaf: select.value,
-          lastPages: { madani: 1, indopak: 1 }
+          mushaf,
+          lastPages: { madani: mushaf === 'madani' ? startPage : 1, indopak: mushaf === 'indopak' ? startPage : 1 }
         };
+
         await DB.put("students", newS);
-        this.students.push(newS);
+        nameInput.value = "";
+        if (pageInput) pageInput.value = "";
+
+        // Reload current circle students
+        await this.syncStudentsList();
         this.activeStudent = newS;
         this.currentMushaf = newS.mushaf;
-        this.currentPage = 1;
-        nameInput.value = "";
+        this.currentPage = startPage;
+
         this.updateBadgeUI();
         this.renderStudentsTab();
         await this.render();
+        this.closeSheet();
       },
 
       async deleteStudent(id, e) {
@@ -1969,7 +2016,6 @@
       }
     };
 
-    // Service Worker for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
